@@ -47,7 +47,7 @@ function init() {
 					new THREE.BoxBufferGeometry(0.2, 0.2, 0.2),
 					new THREE.ConeBufferGeometry(0.2, 0.2, 64),
 					new THREE.CylinderBufferGeometry(0.2, 0.2, 0.2, 64),
-					new THREE.IcosahedronBufferGeometry(0.05, 5),
+					new THREE.IcosahedronBufferGeometry(0.05, 3),
 					new THREE.TorusBufferGeometry(0.2, 0.04, 64, 32)
 				];
     
