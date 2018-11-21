@@ -121,6 +121,7 @@ function init() {
     controller2 = renderer.vr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
+    controller2.addEventListener('keydown', onKeyDown);
     scene.add(controller2);
 
     //
