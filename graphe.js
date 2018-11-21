@@ -168,6 +168,7 @@ function onSelectStart(event) {
         controller.add(object);
         controller.userData.selected = object;
 
+        alert("Hello\nHow are you?");
     }
 
 }
