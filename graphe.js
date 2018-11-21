@@ -5,6 +5,8 @@ var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
 var group;
 var line;
+var object;
+var points;
 
 init();
 animate();
@@ -22,7 +24,7 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x808080);
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10);
-    
+
     //mise en place du sol
     var geometry = new THREE.PlaneBufferGeometry(7, 7);
     var material = new THREE.MeshStandardMaterial({
@@ -30,16 +32,16 @@ function init() {
         roughness: 1.0,
         metalness: 0.0
     });
-    
+
     var floor = new THREE.Mesh(geometry, material);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
-    
-    
-    
+
+
+
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
-    
+
     //mise en place de la lumière
     var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
@@ -52,12 +54,12 @@ function init() {
     scene.add(light);
     group = new THREE.Group();
     scene.add(group);
-    
-    
+
+
     //on initialise les lignes
     line = new THREE.Geometry();
-    
-    
+
+
     var geometries = [
 					new THREE.BoxBufferGeometry(0.2, 0.2, 0.2),
 					new THREE.ConeBufferGeometry(0.2, 0.2, 64),
@@ -65,39 +67,39 @@ function init() {
 					new THREE.IcosahedronBufferGeometry(0.05, 3),
 					new THREE.TorusBufferGeometry(0.2, 0.04, 64, 32)
 				];
-    
-     var points = [];
-    
-    for (var i = 0; i < 100; i++) {
-        
+
+    points = [];
+
+    for (var i = 0; i < 2; i++) {
+
         //creation de spheres
         var geometry = geometries[3];
-        
+
         var material = new THREE.MeshStandardMaterial({
             color: Math.random() * 0xffffff,
             roughness: 0.7,
             metalness: 0.0
         });
-        
-        var object = new THREE.Mesh(geometry, material);
-        
+
+        object = new THREE.Mesh(geometry, material);
+
         object.position.x = Math.random() * 4 - 2;
         object.position.y = Math.random() * 2;
         object.position.z = Math.random() * 4 - 2;
         object.rotation.x = Math.random() * 2 * Math.PI;
         object.rotation.y = Math.random() * 2 * Math.PI;
         object.rotation.z = Math.random() * 2 * Math.PI;
-        
+
         object.scale.setScalar(Math.random() + 0.5);
         object.castShadow = true;
         object.receiveShadow = true;
         group.add(object);
-        
+
         points.push(object.position);
-        
-        
+
+
     }
-    
+
     line = new THREE.BufferGeometry().setFromPoints(points);
 
     var link = new THREE.Line(line, new THREE.LineBasicMaterial({
@@ -106,12 +108,12 @@ function init() {
     }));
 
     scene.add(link);
-    
-    
+
+
     renderer = new THREE.WebGLRenderer({
         antialias: true
     });
-    
+
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.gammaInput = true;
@@ -120,7 +122,7 @@ function init() {
     renderer.vr.enabled = true;
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
-    
+
     // controllers
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
@@ -130,7 +132,7 @@ function init() {
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
-    
+
     //
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     var line = new THREE.Line(geometry);
@@ -152,6 +154,7 @@ function onWindowResize() {
 function onSelectStart(event) {
     var controller = event.target;
     var intersections = getIntersections(controller);
+
     if (intersections.length > 0) {
         var intersection = intersections[0];
         tempMatrix.getInverse(controller.matrixWorld);
@@ -161,7 +164,18 @@ function onSelectStart(event) {
         object.material.emissive.b = 1;
         controller.add(object);
         controller.userData.selected = object;
+
+        line = new THREE.BufferGeometry().setFromPoints(points);
+
+        var link = new THREE.Line(line, new THREE.LineBasicMaterial({
+            color: 0xffffff,
+            opacity: 0.05
+        }));
+
+        scene.add(link);
+
     }
+
 }
 
 function onSelectEnd(event) {
