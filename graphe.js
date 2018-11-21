@@ -167,8 +167,6 @@ function onSelectStart(event) {
         object.material.emissive.b = 1;
         controller.add(object);
         controller.userData.selected = object;
-
-        alert("Hello\nHow are you?");
     }
 
 }
@@ -182,6 +180,8 @@ function onSelectEnd(event) {
         object.material.emissive.b = 0;
         group.add(object);
         controller.userData.selected = undefined;
+        
+        alert("Hello\nHow are you?");
     }
 }
 
