@@ -164,7 +164,9 @@ function onSelectStart(event) {
         object.material.emissive.b = 1;
         controller.add(object);
         controller.userData.selected = object;
-
+ 
+        points.push(object.position);
+        
         line = new THREE.BufferGeometry().setFromPoints(points);
 
         var link = new THREE.Line(line, new THREE.LineBasicMaterial({
