@@ -4,6 +4,8 @@ var controller1, controller2;
 var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
 var group;
+var line;
+
 init();
 animate();
 
@@ -20,17 +22,25 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x808080);
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10);
-    var geometry = new THREE.PlaneBufferGeometry(4, 4);
+    
+    //mise en place du sol
+    var geometry = new THREE.PlaneBufferGeometry(7, 7);
     var material = new THREE.MeshStandardMaterial({
         color: 0xeeeeee,
         roughness: 1.0,
         metalness: 0.0
     });
+    
     var floor = new THREE.Mesh(geometry, material);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
+    
+    
+    
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+    
+    //mise en place de la lumière
     var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
     light.castShadow = true;
@@ -43,6 +53,11 @@ function init() {
     group = new THREE.Group();
     scene.add(group);
     
+    
+    //on initialise les lignes
+    line = new THREE.Geometry();
+    
+    
     var geometries = [
 					new THREE.BoxBufferGeometry(0.2, 0.2, 0.2),
 					new THREE.ConeBufferGeometry(0.2, 0.2, 64),
@@ -50,6 +65,8 @@ function init() {
 					new THREE.IcosahedronBufferGeometry(0.05, 3),
 					new THREE.TorusBufferGeometry(0.2, 0.04, 64, 32)
 				];
+    
+     var points = [];
     
     for (var i = 0; i < 100; i++) {
         
@@ -75,7 +92,20 @@ function init() {
         object.castShadow = true;
         object.receiveShadow = true;
         group.add(object);
+        
+        points.push(object.position);
+        
+        
     }
+    
+    line = new THREE.BufferGeometry().setFromPoints(points);
+
+    var link = new THREE.Line(line, new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        opacity: 0.05
+    }));
+
+    scene.add(link);
     
     
     renderer = new THREE.WebGLRenderer({
