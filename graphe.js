@@ -70,7 +70,7 @@ function init() {
 
     points = [];
 
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < 50; i++) {
 
         //creation de spheres
         var geometry = geometries[3];
@@ -90,7 +90,7 @@ function init() {
         object.rotation.y = Math.random() * 2 * Math.PI;
         object.rotation.z = Math.random() * 2 * Math.PI;
 
-        object.scale.setScalar(Math.random() + 0.5);
+        //object.scale.setScalar(Math.random() + 0.5);
         object.castShadow = true;
         object.receiveShadow = true;
         group.add(object);
@@ -164,17 +164,6 @@ function onSelectStart(event) {
         object.material.emissive.b = 1;
         controller.add(object);
         controller.userData.selected = object;
- 
-        points.push(object.position);
-        
-        line = new THREE.BufferGeometry().setFromPoints(points);
-
-        var link = new THREE.Line(line, new THREE.LineBasicMaterial({
-            color: 0xffffff,
-            opacity: 0.05
-        }));
-
-        scene.add(link);
 
     }
 
