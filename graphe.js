@@ -115,14 +115,16 @@ function init() {
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
-    controller1.addEventListener('selectend', onSelectEnd);
-    controller1.addEventListener('keydown', onKeyDown);
     scene.add(controller1);
     controller2 = renderer.vr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
-    controller2.addEventListener('keydown', onKeyDown);
     scene.add(controller2);
+
+
+    
+    controller1.addEventListener(onClick);
+    controller2.addEventListener(onClick);
 
     //
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
@@ -137,43 +139,10 @@ function init() {
 
 }
 
-function onKeyDown(e) {
-    var mouseX = event.clientX - innerWidth / 2;
-    var mouseY = event.clientY - innerHeight / 2;
+function onClick(e) {
 
-    switch (e.keyCode) {
-        case 37: // Left
-            camera.position.z += 10;
-            break;
-            
-        case 81: // Q
-            camera.position.z += 10;
-            break;
+    camera.position.z += 10;
 
-        case 38: // Up
-            camera.position.z += 10;
-            break;
-            
-        case 90: // Z
-            camera.position.z += 10;
-            break;
-
-        case 39: // Right
-            camera.position.z += 10;
-            break;
-
-        case 68: // D
-            camera.position.z += 10;
-            break;
-
-        case 40: // Down
-            camera.position.z += 10;
-            break;
-            
-        case 83: // S
-            camera.position.z += 10;
-            break;
-    }
 
     renderer.render(scene, camera);
 }
