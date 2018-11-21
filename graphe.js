@@ -116,7 +116,17 @@ function init() {
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
     controller1.addEventListener('vrdisplaypresentchange', onClick);
+    var gp = renderer.getGamepads()[0]; // Get the first gamepad object
+
+    if (gp.buttons[0].pressed == true) {
+        alert("1");
+    }
+
+
     scene.add(controller1);
+
+
+
     controller2 = renderer.vr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
@@ -124,9 +134,8 @@ function init() {
     scene.add(controller2);
 
 
-    
-    controller1.addEventListener(onClick);
-    controller2.addEventListener(onClick);
+
+
 
     //
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
@@ -143,7 +152,6 @@ function init() {
 
 function onClick(e) {
 
-    alert("Hello\nHow are you?");
     camera.position.z += 10;
 
 
@@ -183,7 +191,7 @@ function onSelectEnd(event) {
         object.material.emissive.b = 0;
         group.add(object);
         controller.userData.selected = undefined;
-        
+
     }
 }
 
