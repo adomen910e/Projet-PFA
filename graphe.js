@@ -136,7 +136,7 @@ function init() {
 
 }
 
-function onKeyDown() {
+function onKeyDown(e) {
     var mouseX = event.clientX - innerWidth / 2;
     var mouseY = event.clientY - innerHeight / 2;
 
