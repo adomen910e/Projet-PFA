@@ -8,6 +8,7 @@ var line;
 var object;
 var points;
 
+
 init();
 animate();
 
@@ -23,22 +24,9 @@ function init() {
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x808080);
+
+
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10);
-
-    //mise en place du sol
-    var geometry = new THREE.PlaneBufferGeometry(7, 7);
-    var material = new THREE.MeshStandardMaterial({
-        color: 0xeeeeee,
-        roughness: 1.0,
-        metalness: 0.0
-    });
-
-    var floor = new THREE.Mesh(geometry, material);
-    floor.rotation.x = -Math.PI / 2;
-    floor.receiveShadow = true;
-    scene.add(floor);
-
-
 
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
@@ -64,7 +52,7 @@ function init() {
 					new THREE.BoxBufferGeometry(0.2, 0.2, 0.2),
 					new THREE.ConeBufferGeometry(0.2, 0.2, 64),
 					new THREE.CylinderBufferGeometry(0.2, 0.2, 0.2, 64),
-					new THREE.IcosahedronBufferGeometry(0.05, 3),
+					new THREE.IcosahedronBufferGeometry(0.03, 3),
 					new THREE.TorusBufferGeometry(0.2, 0.04, 64, 32)
 				];
 
@@ -127,6 +115,8 @@ function init() {
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
+    controller1.addEventListener('selectend', onSelectEnd);
+    controller1.addEventListener('keydown', onKeyDown);
     scene.add(controller1);
     controller2 = renderer.vr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
@@ -143,7 +133,50 @@ function init() {
     raycaster = new THREE.Raycaster();
     //
     window.addEventListener('resize', onWindowResize, false);
+
 }
+
+function onKeyDown() {
+    var mouseX = event.clientX - innerWidth / 2;
+    var mouseY = event.clientY - innerHeight / 2;
+
+    switch (e.keyCode) {
+        case 37: // Left
+            camera.position.z += 10;
+            break;
+            
+        case 81: // Q
+            camera.position.z += 10;
+            break;
+
+        case 38: // Up
+            camera.position.z += 10;
+            break;
+            
+        case 90: // Z
+            camera.position.z += 10;
+            break;
+
+        case 39: // Right
+            camera.position.z += 10;
+            break;
+
+        case 68: // D
+            camera.position.z += 10;
+            break;
+
+        case 40: // Down
+            camera.position.z += 10;
+            break;
+            
+        case 83: // S
+            camera.position.z += 10;
+            break;
+    }
+
+    renderer.render(scene, camera);
+}
+
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
