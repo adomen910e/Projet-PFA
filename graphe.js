@@ -115,12 +115,12 @@ function init() {
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
-    controller1.addEventListener('click', onClick);
+    controller1.addEventListener('vrdisplaypresentchange', onClick);
     scene.add(controller1);
     controller2 = renderer.vr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
-    controller2.addEventListener('click', onClick);
+    controller2.addEventListener('vrdisplaypresentchange', onClick);
     scene.add(controller2);
 
 
