@@ -23,7 +23,7 @@ function init() {
     info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webvr - dragging';
     container.appendChild(info);
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x808080);
+    scene.background = new THREE.Color(0x000000);
 
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10);
@@ -58,7 +58,7 @@ function init() {
 
     points = [];
 
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 2; i++) {
 
         //creation de spheres
         var geometry = geometries[3];
@@ -115,14 +115,6 @@ function init() {
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
-    controller1.addEventListener('vrdisplaypresentchange', onClick);
-    var gp = renderer.getGamepads()[0]; // Get the first gamepad object
-
-    if (gp.buttons[0].pressed == true) {
-        alert("1");
-    }
-
-
     scene.add(controller1);
 
 
@@ -130,7 +122,6 @@ function init() {
     controller2 = renderer.vr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
-    controller2.addEventListener('vrdisplaypresentchange', onClick);
     scene.add(controller2);
 
 

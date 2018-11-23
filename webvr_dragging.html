@@ -23,79 +23,14 @@
         a {
             color: #f00;
         }
-
-        #webgl-canvas,
-        #presenting-message {
-            box-sizing: border-box;
-            height: 100%;
-            left: 0;
-            margin: 0;
-            position: absolute;
-            top: 0;
-            width: 100%;
-        }
-
-        #presenting-message {
-            color: white;
-            font-family: sans-serif;
-            font-size: 2em;
-            font-weight: bold;
-            z-index: 1;
-            text-align: center;
-            padding: 0.5em;
-            background-color: #444;
-            display: none;
-        }
-
     </style>
 
 
-    <script src="vr-sample-utils.js"></script>
 </head>
 
 <body>
-    <canvas id="webgl-canvas"></canvas>
-    <div id="presenting-message">Put on your headset now</div>
-    <script>
-        /* global mat4, VRCubeSea, WGLUStats, WGLUTextureLoader, VRSamplesUtil */
-        (function() {
-            "use strict";
-            var vrDisplay = null;
-            var frameData = null;
-            var projectionMat = mat4.create();
-            var viewMat = mat4.create();
-            var vrPresentButton = null;
-            var presentingMessage = document.getElementById("presenting-message");
-            // ===================================================
-            // WebGL scene setup. This code is not WebVR specific.
-            // ===================================================
-            // WebGL setup.
-            var gl = null;
-            var cubeSea = null;
-            var stats = null;
+    
 
-            var webglCanvas = document.getElementById("webgl-canvas");
-            VRSamplesUtil.addVRClickListener(onClick);
-            webglCanvas.addEventListener("click", onClick, false);
-
-
-            // Listen for click events on the canvas, which may come from something
-            // like a Cardboard viewer or other VR controller, and make a small change
-            // to the scene in response (so that we know it's working.) This basic
-            // interaction mode is the baseline for all WebVR compatible devices, and
-            // should ideally always be minimally supported.
-            function onClick() {
-                // Reset the background color to a random value
-                if (gl) {
-                    gl.clearColor(
-                        Math.random() * 0.5,
-                        Math.random() * 0.5,
-                        Math.random() * 0.5, 1.0);
-                }
-            }
-        })();
-
-    </script>
 </body>
 <script src="three.js"></script>
 <script src="webVR.js"></script>
