@@ -9,6 +9,10 @@ var object;
 var points;
 
 
+//double buffering pour l'affichage des elements 
+// 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
+
+
 init();
 animate();
 
@@ -58,7 +62,7 @@ function init() {
 
     points = [];
 
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < 50; i++) {
 
         //creation de spheres
         var geometry = geometries[3];
@@ -111,7 +115,7 @@ function init() {
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
 
-    // controllers
+    // controllers gamepad
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
