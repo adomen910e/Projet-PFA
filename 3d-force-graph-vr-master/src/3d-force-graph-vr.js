@@ -75,6 +75,7 @@ export default Kapsule({
 
   init(domNode, state) {
     // Wipe DOM
+/*
     domNode.innerHTML = '';
 
     state.container = document.createElement('div');
@@ -82,40 +83,69 @@ export default Kapsule({
     state.container.style.position = 'relative';
     state.container.style.width = state.width;
     state.container.style.height = state.height;
+*/
 
-    // Add nav info section
-    state.container.appendChild(state.navInfo = document.createElement('div'));
-    state.navInfo.className = 'graph-nav-info';
-    state.navInfo.textContent = 'Mouse drag: look, gamepad/arrow/wasd keys: move';
-
-    // Add scene
-    let scene;
-    state.container.appendChild(scene = document.createElement('a-scene'));
-    scene.setAttribute('embedded', '');
-    //scene.setAttribute('stats', null);
-
-    scene.appendChild(state.sky = document.createElement('a-sky'));
-
-    // Add camera and cursor
-    let cameraG;
-    scene.appendChild(cameraG = document.createElement('a-entity'));
-    cameraG.setAttribute('position', '0 0 300');
-    cameraG.setAttribute('movement-controls', 'fly: true; speed: 7');
-
-    let camera;
-    cameraG.appendChild(camera = document.createElement('a-entity'));
-    camera.setAttribute('camera', '');
-    camera.setAttribute('position', '0 0.001 0');
-    camera.setAttribute('look-controls', 'reverseMouseDrag: false; pointerLockEnabled: true');
-
-    let cursor;
-    camera.appendChild(cursor = document.createElement('a-cursor'));
-    cursor.setAttribute('color', 'lavender');
-    cursor.setAttribute('opacity', 0.5);
-
-    // Add forcegraph entity
-    scene.appendChild(state.forcegraph = document.createElement('a-entity'));
-    state.forcegraph.setAttribute('forcegraph', null);
+//    // Add nav info section
+//    state.container.appendChild(state.navInfo = document.createElement('div'));
+//    state.navInfo.className = 'graph-nav-info';
+//    state.navInfo.textContent = 'Mouse drag: look, gamepad/arrow/wasd keys: move';
+//
+//    // Add scene
+//    let scene;
+//    state.container.appendChild(scene = document.createElement('a-scene'));
+//    scene.setAttribute('embedded', '');
+//    //scene.setAttribute('stats', null);
+//
+//    scene.appendChild(state.sky = document.createElement('a-sky'));
+//
+//    // Add camera and cursor
+//    let cameraG;
+//    scene.appendChild(cameraG = document.createElement('a-entity'));
+//    cameraG.setAttribute('position', '0 0 300');
+//    cameraG.setAttribute('movement-controls', 'fly: true; speed: 7');
+//
+//    let camera;
+//    cameraG.appendChild(camera = document.createElement('a-entity'));
+//    camera.setAttribute('camera', '');
+//    camera.setAttribute('position', '0 0.001 0');
+//    camera.setAttribute('look-controls', 'reverseMouseDrag: false; pointerLockEnabled: true');
+//
+//    /*let cursor;
+//    camera.appendChild(cursor = document.createElement('a-cursor'));
+//    cursor.setAttribute('color', 'lavender');
+//    cursor.setAttribute('opacity', 0.5);*/
+//
+//    // Add forcegraph entity
+//    scene.appendChild(state.forcegraph = document.createElement('a-entity'));
+//    state.forcegraph.setAttribute('forcegraph', null);
+//      
+//     renderer = new THREE.WebGLRenderer({
+//        antialias: true
+//    });
+//
+//    renderer.setPixelRatio(window.devicePixelRatio);
+//    renderer.setSize(window.innerWidth, window.innerHeight);
+//    renderer.gammaInput = true;
+//    renderer.gammaOutput = true;
+//    renderer.shadowMap.enabled = true;
+//    renderer.vr.enabled = true;
+//    container.appendChild(renderer.domElement);
+//    document.body.appendChild(WEBVR.createButton(renderer));
+//
+//    // controllers
+//    controller1 = renderer.vr.getController(0);
+//    controller1.addEventListener('selectstart', onSelectStart);
+//    controller1.addEventListener('selectend', onSelectEnd);
+//    scene.add(controller1);
+//
+//
+//
+//    controller2 = renderer.vr.getController(1);
+//    controller2.addEventListener('selectstart', onSelectStart);
+//    controller2.addEventListener('selectend', onSelectEnd);
+//    scene.add(controller2);
+      
+      
   },
 
   update(state) {
@@ -171,7 +201,7 @@ export default Kapsule({
     ];
 
     const newProps = Object.assign({},
-      ...Object.entries(state)
+/*      ...Object.entries(state)
         .filter(([prop, val]) => passThroughProps.indexOf(prop) != -1 && val !== undefined && val !== null)
         .map(([key, val]) => ({ [key]: serialize(val) })),
       ...Object.entries(state.graphData)
@@ -180,10 +210,85 @@ export default Kapsule({
 
     state.forcegraph.setAttribute('forcegraph', newProps, true);
 
-    //
+    //*/
 
     function serialize(p) {
       return p instanceof Function ? p.toString() : p; // convert functions to strings
     }
   }
 });
+
+
+ffunction onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function onSelectStart(event) {
+    var controller = event.target;
+    var intersections = getIntersections(controller);
+
+    if (intersections.length > 0) {
+        var intersection = intersections[0];
+        tempMatrix.getInverse(controller.matrixWorld);
+        var object = intersection.object;
+        object.matrix.premultiply(tempMatrix);
+        object.matrix.decompose(object.position, object.quaternion, object.scale);
+        object.material.emissive.b = 1;
+        controller.add(object);
+        controller.userData.selected = object;
+    }
+
+}
+
+function onSelectEnd(event) {
+    var controller = event.target;
+    if (controller.userData.selected !== undefined) {
+        var object = controller.userData.selected;
+        object.matrix.premultiply(controller.matrixWorld);
+        object.matrix.decompose(object.position, object.quaternion, object.scale);
+        object.material.emissive.b = 0;
+        group.add(object);
+        controller.userData.selected = undefined;
+
+    }
+}
+
+function getIntersections(controller) {
+    tempMatrix.identity().extractRotation(controller.matrixWorld);
+    raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+    raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+    return raycaster.intersectObjects(group.children);
+}
+
+function intersectObjects(controller) {
+    // Do not highlight when already selected
+    if (controller.userData.selected !== undefined) return;
+    var line = controller.getObjectByName('line');
+    var intersections = getIntersections(controller);
+    if (intersections.length > 0) {
+        var intersection = intersections[0];
+        var object = intersection.object;
+        object.material.emissive.r = 1;
+        intersected.push(object);
+        line.scale.z = intersection.distance;
+    } else {
+        line.scale.z = 5;
+    }
+}
+
+function cleanIntersected() {
+    while (intersected.length) {
+        var object = intersected.pop();
+        object.material.emissive.r = 0;
+    }
+}
+
+
+function render() {
+    cleanIntersected();
+    intersectObjects(controller1);
+    intersectObjects(controller2);
+    renderer.render(scene, camera);
+}

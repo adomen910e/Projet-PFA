@@ -58,7 +58,7 @@ function init() {
 
     points = [];
 
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < 100; i++) {
 
         //creation de spheres
         var geometry = geometries[3];
