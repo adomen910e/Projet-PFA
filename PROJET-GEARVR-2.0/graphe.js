@@ -119,6 +119,8 @@ function init() {
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
+    controller1.addEventListener("mousemove", onMouseMove);
+    controller1.addEventListener("mousedown", onMouseDown);
     scene.add(controller1);
 
 
@@ -145,7 +147,15 @@ function init() {
 
 }
 
-function onClick(e) {
+function onMouseMove(e) {
+
+    camera.position.z += 10;
+
+
+    renderer.render(scene, camera);
+}
+
+function onMouseDown(e) {
 
     camera.position.z += 10;
 
