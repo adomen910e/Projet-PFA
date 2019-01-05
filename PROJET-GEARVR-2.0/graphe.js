@@ -144,6 +144,7 @@ function init() {
     raycaster = new THREE.Raycaster();
     //
     window.addEventListener('resize', onWindowResize, false);
+    onWindowResize();
 
 }
 
