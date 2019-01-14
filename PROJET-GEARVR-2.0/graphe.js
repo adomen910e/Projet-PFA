@@ -30,7 +30,7 @@ function init() {
     scene.background = new THREE.Color(0x000000);
 
 
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10);
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
 
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
