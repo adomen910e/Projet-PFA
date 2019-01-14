@@ -192,13 +192,8 @@ function onSelectStart(event) {
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.material.emissive.b = 1;
 
-        if (object.type = "no") {
-            erase_other(object);
-        } else {
-            controller.add(object);
-            controller.userData.selected = object;
-        }
-
+        controller.add(object);
+        controller.userData.selected = object;
 
     }
 
@@ -206,12 +201,18 @@ function onSelectStart(event) {
 
 function onSelectEnd(event) {
     var controller = event.target;
+
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
+
         object.matrix.premultiply(controller.matrixWorld);
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.material.emissive.b = 0;
-        group.add(object);
+
+        if (object.type == "yes") {
+            group.add(object);
+        }
+
         controller.userData.selected = undefined;
 
     }
@@ -238,9 +239,9 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.type = "no") {
+        if (object.type == "no") {
             line.scale.z = intersection.distance;
-            //            erase_other(object);
+            erase_other(object);
             //            move_front_camera(object);
             //            
         } else {
