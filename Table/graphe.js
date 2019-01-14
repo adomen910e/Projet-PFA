@@ -192,8 +192,14 @@ function onSelectStart(event) {
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.material.emissive.b = 1;
 
-        controller.add(object);
-        controller.userData.selected = object;
+        if (object.type = "no") {
+            erase_other(object);
+        } else {
+            controller.add(object);
+            controller.userData.selected = object;
+        }
+
+
     }
 
 }
@@ -233,9 +239,10 @@ function intersectObjects(controller) {
         var object = intersection.object;
 
         if (object.type = "no") {
-            erase_other(object);
-//            move_front_camera(object);
-//            
+            line.scale.z = intersection.distance;
+            //            erase_other(object);
+            //            move_front_camera(object);
+            //            
         } else {
             object.material.emissive.r = 1;
             intersected.push(object);
@@ -247,17 +254,17 @@ function intersectObjects(controller) {
     }
 }
 
-function erase_other(object){
-//    for(var i=0; i<3; i++){
-//        if (object.id = group_no_move.children[i].id){
-//            //RIEN FAIRE
-//        }else{
-//            group_no_move.children[i].transparent = true;
-//            //EFFACE
-//        }
-//    }
+function erase_other(object) {
+    //    for(var i=0; i<3; i++){
+    //        if (object.id = group_no_move.children[i].id){
+    //            //RIEN FAIRE
+    //        }else{
+    //            group_no_move.children[i].transparent = true;
+    //            //EFFACE
+    //        }
+    //    }
     group_no_move.children[0].color = "0x000000";
-    
+
 }
 
 function cleanIntersected() {
