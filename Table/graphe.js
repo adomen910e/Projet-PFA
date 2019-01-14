@@ -209,10 +209,8 @@ function onSelectEnd(event) {
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.material.emissive.b = 0;
 
-        if (object.type == "yes") {
-            group.add(object);
-        }
-
+        group.add(object);
+        
         controller.userData.selected = undefined;
 
     }
@@ -240,6 +238,7 @@ function intersectObjects(controller) {
         var object = intersection.object;
 
         if (object.type == "no") {
+            object.material.emissive.r = 1;
             line.scale.z = intersection.distance;
             erase_other(object);
             //            move_front_camera(object);
@@ -264,7 +263,9 @@ function erase_other(object) {
     //            //EFFACE
     //        }
     //    }
-    group_no_move.children[0].color = "0x000000";
+    group_no_move.children[0].material.transparent = true;
+    group_no_move.children[1].transparent = true;
+    group_no_move.children[2].transparent = true;
 
 }
 
