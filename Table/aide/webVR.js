@@ -1,10 +1,3 @@
-/**
- * @author mrdoob / http://mrdoob.com
- * @author Mugen87 / https://github.com/Mugen87
- *
- * Based on @tojiro's vr-samples-utils.js
- */
-
 var WEBVR = {
 
     createButton: function (renderer, options) {

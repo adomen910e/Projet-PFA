@@ -3,6 +3,7 @@ var camera, scene, renderer;
 var controller1, controller2;
 var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
+var group_no_move;
 var group;
 var line;
 var object;
@@ -44,10 +45,17 @@ function init() {
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
     scene.add(light);
+
+
     group = new THREE.Group();
+    group.type = "yes";
     scene.add(group);
 
-    
+    group_no_move = new THREE.Group();
+    group_no_move.type = "no";
+    scene.add(group_no_move);
+
+
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     var material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
@@ -57,7 +65,7 @@ function init() {
     sphere1.position.y = 2;
     sphere1.position.z = -30;
     scene.add(sphere1);
-    group.add(sphere1);
+    group_no_move.add(sphere1);
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -69,7 +77,7 @@ function init() {
     sphere2.position.y = 2;
     sphere2.position.z = -30;
     scene.add(sphere2);
-    group.add(sphere2);
+    group_no_move.add(sphere2);
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     material = new THREE.MeshStandardMaterial({
@@ -80,15 +88,15 @@ function init() {
     sphere3.position.y = 2;
     sphere3.position.z = -30;
     scene.add(sphere3);
-    group.add(sphere3);
-    
-    
+    group_no_move.add(sphere3);
+
+
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64),
-    material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
+        material = new THREE.MeshStandardMaterial({
+            color: Math.random() * 0xffffff,
+        });
     var cylindre1 = new THREE.Mesh(geometry, material);
-    cylindre1.position.x =0;
+    cylindre1.position.x = 0;
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
     scene.add(cylindre1);
@@ -131,12 +139,12 @@ function init() {
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     var line = new THREE.Line(geometry);
     line.name = 'line';
-    line.scale.z = 5;
+    line.scale.z = 100;
     controller1.add(line.clone());
     controller2.add(line.clone());
     raycaster = new THREE.Raycaster();
     //
-    
+
 
     window.addEventListener('resize', onWindowResize, false);
     onWindowResize();
@@ -172,11 +180,15 @@ function onSelectStart(event) {
 
     if (intersections.length > 0) {
         var intersection = intersections[0];
+
         tempMatrix.getInverse(controller.matrixWorld);
+
         var object = intersection.object;
+
         object.matrix.premultiply(tempMatrix);
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.material.emissive.b = 1;
+
         controller.add(object);
         controller.userData.selected = object;
     }
@@ -197,25 +209,36 @@ function onSelectEnd(event) {
 }
 
 function getIntersections(controller) {
+
     tempMatrix.identity().extractRotation(controller.matrixWorld);
+
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
     return raycaster.intersectObjects(group.children);
 }
 
 function intersectObjects(controller) {
     // Do not highlight when already selected
     if (controller.userData.selected !== undefined) return;
+
     var line = controller.getObjectByName('line');
     var intersections = getIntersections(controller);
+
     if (intersections.length > 0) {
         var intersection = intersections[0];
         var object = intersection.object;
-        object.material.emissive.r = 1;
-        intersected.push(object);
-        line.scale.z = intersection.distance;
+
+        if (object.type = "no") {
+
+        } else {
+            object.material.emissive.r = 1;
+            intersected.push(object);
+            line.scale.z = intersection.distance;
+        }
+
     } else {
-        line.scale.z = 5;
+        line.scale.z = 100;
     }
 }
 
