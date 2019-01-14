@@ -65,7 +65,7 @@ function init() {
     sphere1.position.y = 2;
     sphere1.position.z = -30;
     scene.add(sphere1);
-    sphere1.id = "1";
+    sphere1.id = "0";
     group_no_move.add(sphere1);
 
 
@@ -78,7 +78,7 @@ function init() {
     sphere2.position.y = 2;
     sphere2.position.z = -30;
     scene.add(sphere2);
-    sphere2.id = "2";
+    sphere2.id = "1";
     group_no_move.add(sphere2);
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -90,7 +90,7 @@ function init() {
     sphere3.position.y = 2;
     sphere3.position.z = -30;
     scene.add(sphere3);
-    sphere3.id = "3";
+    sphere3.id = "2";
     group_no_move.add(sphere3);
 
 
@@ -249,7 +249,7 @@ function intersectObjects(controller) {
 }
 
 function erase_other(object){
-    for(var i=1; i<4; i++){
+    for(var i=0; i<3; i++){
         if (object.id = group_no_move.children[i].id){
             //RIEN FAIRE
         }else{
