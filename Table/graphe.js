@@ -248,14 +248,16 @@ function intersectObjects(controller) {
 }
 
 function erase_other(object){
-    for(var i=0; i<3; i++){
-        if (object.id = group_no_move.children[i].id){
-            //RIEN FAIRE
-        }else{
-            group_no_move.children[i].transparent = true;
-            //EFFACE
-        }
-    }
+//    for(var i=0; i<3; i++){
+//        if (object.id = group_no_move.children[i].id){
+//            //RIEN FAIRE
+//        }else{
+//            group_no_move.children[i].transparent = true;
+//            //EFFACE
+//        }
+//    }
+    group_no_move.children[0].transparent = true;
+    
 }
 
 function cleanIntersected() {
