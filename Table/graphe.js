@@ -256,7 +256,7 @@ function erase_other(object){
 //            //EFFACE
 //        }
 //    }
-    group_no_move.children[0].transparent = true;
+    group_no_move.children[0].color = "0x000000";
     
 }
 
