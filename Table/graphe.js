@@ -65,8 +65,8 @@ function init() {
     sphere1.position.y = 2;
     sphere1.position.z = -30;
     scene.add(sphere1);
-    sphere1.id = "0";
-    group_no_move.add(sphere1);
+    sphere1.id = "no";
+    group.add(sphere1);
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -78,8 +78,8 @@ function init() {
     sphere2.position.y = 2;
     sphere2.position.z = -30;
     scene.add(sphere2);
-    sphere2.id = "1";
-    group_no_move.add(sphere2);
+    sphere2.id = "no";
+    group.add(sphere2);
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     material = new THREE.MeshStandardMaterial({
@@ -90,8 +90,8 @@ function init() {
     sphere3.position.y = 2;
     sphere3.position.z = -30;
     scene.add(sphere3);
-    sphere3.id = "2";
-    group_no_move.add(sphere3);
+    sphere3.id = "no";
+    group.add(sphere3);
 
 
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64),
@@ -237,7 +237,7 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.type == "no") {
+        if (object.id == "no") {
             object.material.emissive.r = 1;
             line.scale.z = intersection.distance;
             erase_other(object);
