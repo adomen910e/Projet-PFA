@@ -143,6 +143,8 @@ function init() {
     controller2.add(line.clone());
     raycaster = new THREE.Raycaster();
     //
+    
+
     window.addEventListener('resize', onWindowResize, false);
     onWindowResize();
 
