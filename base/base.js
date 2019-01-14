@@ -54,6 +54,9 @@ function init() {
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
     scene.add(light);
+    
+    //Creation de groupes d'objects
+    
     group = new THREE.Group();
     scene.add(group);
 
@@ -69,6 +72,7 @@ function init() {
     sphere1.position.y = 2;
     sphere1.position.z = -30;
     scene.add(sphere1);
+    group.add(sphere1);
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -80,6 +84,7 @@ function init() {
     sphere2.position.y = 2;
     sphere2.position.z = -30;
     scene.add(sphere2);
+    group.add(sphere2);
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     material = new THREE.MeshStandardMaterial({
@@ -90,6 +95,7 @@ function init() {
     sphere3.position.y = 2;
     sphere3.position.z = -30;
     scene.add(sphere3);
+    group.add(sphere3);
     
     
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64),
@@ -101,6 +107,7 @@ function init() {
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
     scene.add(cylindre1);
+    group.add(cylindre1);
     
     
     

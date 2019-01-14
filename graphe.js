@@ -62,7 +62,7 @@ function init() {
 
     points = [];
 
-    for (var i = 0; i < 50; i++) {
+    /*for (var i = 0; i < 50; i++) {
 
         //creation de spheres
         var geometry = geometries[3];
@@ -90,8 +90,54 @@ function init() {
         points.push(object.position);
 
 
-    }
+    }*/
 
+    var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    var material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
+    });
+    var sphere1 = new THREE.Mesh(geometry, material);
+    sphere1.position.x = -20;
+    sphere1.position.y = 2;
+    sphere1.position.z = -30;
+    scene.add(sphere1);
+    group.add(sphere1);
+
+
+    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
+    });
+    var sphere2 = new THREE.Mesh(geometry, material);
+    sphere2.position.x = 0;
+    sphere2.position.y = 2;
+    sphere2.position.z = -30;
+    scene.add(sphere2);
+    group.add(sphere2);
+
+    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
+    });
+    var sphere3 = new THREE.Mesh(geometry, material);
+    sphere3.position.x = 20;
+    sphere3.position.y = 2;
+    sphere3.position.z = -30;
+    scene.add(sphere3);
+    group.add(sphere3);
+    
+    
+    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64),
+    material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
+    });
+    var cylindre1 = new THREE.Mesh(geometry, material);
+    cylindre1.position.x =0;
+    cylindre1.position.y = -5;
+    cylindre1.position.z = -20;
+    scene.add(cylindre1);
+    group.add(cylindre1);
+    
     line = new THREE.BufferGeometry().setFromPoints(points);
 
     var link = new THREE.Line(line, new THREE.LineBasicMaterial({
