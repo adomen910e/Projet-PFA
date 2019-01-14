@@ -233,9 +233,9 @@ function intersectObjects(controller) {
         var object = intersection.object;
 
         if (object.type = "no") {
-            erase_other(object);
-            move_front_camera(object);
-            
+//            erase_other(object);
+//            move_front_camera(object);
+//            
         } else {
             object.material.emissive.r = 1;
             intersected.push(object);
