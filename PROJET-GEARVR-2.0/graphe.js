@@ -62,35 +62,81 @@ function init() {
 
     points = [];
 
-    for (var i = 0; i < 50; i++) {
+//    for (var i = 0; i < 50; i++) {
+//
+//        //creation de spheres
+//        var geometry = geometries[3];
+//
+//        var material = new THREE.MeshStandardMaterial({
+//            color: Math.random() * 0xffffff,
+//            roughness: 0.7,
+//            metalness: 0.0
+//        });
+//
+//        object = new THREE.Mesh(geometry, material);
+//
+//        object.position.x = Math.random() * 4 - 2;
+//        object.position.y = Math.random() * 2;
+//        object.position.z = Math.random() * 4 - 2;
+//        object.rotation.x = Math.random() * 2 * Math.PI;
+//        object.rotation.y = Math.random() * 2 * Math.PI;
+//        object.rotation.z = Math.random() * 2 * Math.PI;
+//
+//        //object.scale.setScalar(Math.random() + 0.5);
+//        object.castShadow = true;
+//        object.receiveShadow = true;
+//        group.add(object);
+//
+//        points.push(object.position);
+//
+//
+//    }
+    
+    var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    var material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
+    });
+    var sphere1 = new THREE.Mesh(geometry, material);
+    sphere1.position.x = -20;
+    sphere1.position.y = 2;
+    sphere1.position.z = -30;
+    scene.add(sphere1);
+    group.add(sphere1);
 
-        //creation de spheres
-        var geometry = geometries[3];
 
-        var material = new THREE.MeshStandardMaterial({
-            color: Math.random() * 0xffffff,
-            roughness: 0.7,
-            metalness: 0.0
-        });
+    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
+    });
+    var sphere2 = new THREE.Mesh(geometry, material);
+    sphere2.position.x = 0;
+    sphere2.position.y = 2;
+    sphere2.position.z = -30;
+    scene.add(sphere2);
+    group.add(sphere2);
 
-        object = new THREE.Mesh(geometry, material);
-
-        object.position.x = Math.random() * 4 - 2;
-        object.position.y = Math.random() * 2;
-        object.position.z = Math.random() * 4 - 2;
-        object.rotation.x = Math.random() * 2 * Math.PI;
-        object.rotation.y = Math.random() * 2 * Math.PI;
-        object.rotation.z = Math.random() * 2 * Math.PI;
-
-        //object.scale.setScalar(Math.random() + 0.5);
-        object.castShadow = true;
-        object.receiveShadow = true;
-        group.add(object);
-
-        points.push(object.position);
-
-
-    }
+    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
+    });
+    var sphere3 = new THREE.Mesh(geometry, material);
+    sphere3.position.x = 20;
+    sphere3.position.y = 2;
+    sphere3.position.z = -30;
+    scene.add(sphere3);
+    group.add(sphere3);
+    
+    
+    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64),
+    material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
+    });
+    var cylindre1 = new THREE.Mesh(geometry, material);
+    cylindre1.position.x =0;
+    cylindre1.position.y = -5;
+    cylindre1.position.z = -20;
+    scene.add(cylindre1);
+    group.add(cylindre1);
 
     line = new THREE.BufferGeometry().setFromPoints(points);
 
