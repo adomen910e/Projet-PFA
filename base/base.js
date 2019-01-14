@@ -21,6 +21,17 @@ function init() {
     container = document.createElement('div');
     document.body.appendChild(container);
 
+    var info = document.createElement('div');
+    info.style.position = 'absolute';
+    info.style.top = '10px';
+    info.style.width = '100%';
+    info.style.textAlign = 'center';
+    info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webvr - dragging';
+    container.appendChild(info);
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+    
+    
     //mise en place de la scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
