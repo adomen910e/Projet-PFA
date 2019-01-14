@@ -17,10 +17,8 @@ init();
 animate();
 
 function init() {
-    //Mise en place du conteneur
     container = document.createElement('div');
     document.body.appendChild(container);
-
     var info = document.createElement('div');
     info.style.position = 'absolute';
     info.style.top = '10px';
@@ -30,21 +28,13 @@ function init() {
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
-    
-    
-    //mise en place de la scene
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
 
-    //Mise en place de la camera
+
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
 
-
-    //lumiere 1
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
-    scene.add(camera);
 
-    //mise en place de la lumière 2
+    //mise en place de la lumière
     var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
     light.castShadow = true;
@@ -54,15 +44,10 @@ function init() {
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
     scene.add(light);
-    
-    //Creation de groupes d'objects
-    
     group = new THREE.Group();
     scene.add(group);
 
-
-
-
+    
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     var material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
@@ -108,11 +93,6 @@ function init() {
     cylindre1.position.z = -20;
     scene.add(cylindre1);
     group.add(cylindre1);
-    
-    
-    
-
-
 
 
     renderer = new THREE.WebGLRenderer({
@@ -132,6 +112,8 @@ function init() {
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
+    controller1.addEventListener("mousemove", onMouseMove);
+    controller1.addEventListener("mousedown", onMouseDown);
     scene.add(controller1);
 
 
@@ -144,7 +126,8 @@ function init() {
 
 
 
-    //Ligne de la manette
+
+    //
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     var line = new THREE.Line(geometry);
     line.name = 'line';
@@ -153,8 +136,27 @@ function init() {
     controller2.add(line.clone());
     raycaster = new THREE.Raycaster();
     //
-    window.addEventListener('resize', onWindowResize, false);
+    
 
+    window.addEventListener('resize', onWindowResize, false);
+    onWindowResize();
+
+}
+
+function onMouseMove(e) {
+
+    camera.position.z += 10;
+
+
+    renderer.render(scene, camera);
+}
+
+function onMouseDown(e) {
+
+    camera.position.z += 10;
+
+
+    renderer.render(scene, camera);
 }
 
 
