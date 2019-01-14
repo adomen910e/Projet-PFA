@@ -263,9 +263,9 @@ function erase_other(object) {
     //            //EFFACE
     //        }
     //    }
-    group_no_move.children[0].position.x = 0;
-    group_no_move.children[1].position.x = 0;
-    group_no_move.children[2].position.x = 0;
+    group.children[0].position.x = 0;
+    group.children[1].position.x = 0;
+    group.children[2].position.x = 0;
 
 }
 
