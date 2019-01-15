@@ -269,9 +269,9 @@ function erase_other(object) {
 //        }
 //    }
     
-     group.children[0].color = '0xffffff';
-     group.children[1].color = '0xffffff';
-     group.children[2].color = '0xffffff';
+     group.children[0].position.x = 0;
+     group.children[1].position.x = 0;
+     group.children[2].position.x = 0;
     
 
     
