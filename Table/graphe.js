@@ -67,7 +67,7 @@ function init() {
     scene.add(sphere1);
     sphere1.id = '0';
     group.add(sphere1);
-    group_no_move.add(sphere1);
+
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -81,7 +81,7 @@ function init() {
     scene.add(sphere2);
     sphere2.id = '1';
     group.add(sphere2);
-    group_no_move.add(sphere2);
+
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     material = new THREE.MeshStandardMaterial({
@@ -94,7 +94,7 @@ function init() {
     scene.add(sphere3);
     sphere3.id = '2';
     group.add(sphere3);
-    group_no_move.add(sphere3);
+
 
 
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
@@ -258,16 +258,16 @@ function intersectObjects(controller) {
     }
 }
 
-function erase_other(object) {
-    for (var i = 0; i < 3; i++) {
-        if (object.id == group_no_move.children[i].id) {
-            //RIEN FAIRE
-        } else {
-            group_no_move.children[i].transparent = true;
-            //EFFACE
-        }
-    }
-}
+//function erase_other(object) {
+//    for (var i = 0; i < 3; i++) {
+//        if (object.id == group_no_move.children[i].id) {
+//            //RIEN FAIRE
+//        } else {
+//            group_no_move.children[i].transparent = true;
+//            //EFFACE
+//        }
+//    }
+//}
 
 function cleanIntersected() {
     while (intersected.length) {
@@ -275,6 +275,7 @@ function cleanIntersected() {
         object.material.emissive.r = 0;
     }
 }
+
 //
 function animate() {
     renderer.setAnimationLoop(render);
