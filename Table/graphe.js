@@ -281,12 +281,12 @@ function erase_other(object) {
 //        }
 //
 //    }
-    alert("PASSE");
+    container.alert("PASSE");
     object.position.x = 0;
     object.position.y = 2;
     object.position.z = -30;
     
-    alert("PASSE2");
+    container.alert("PASSE");
     
     renderer.render(scene, camera);
     
