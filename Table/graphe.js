@@ -268,13 +268,10 @@ function erase_other(object) {
 //        }
 //    }
     
-     group.children[0].material.transparent = true ;
-     group.children[1].material.transparent = true ;
-     group.children[2].material.transparent = true ;
-    
-     group.children[0].opacity = '0' ;
-     group.children[1].opacity = '0' ;
-     group.children[2].opacity = '0' ;
+     group.children[0].visible = false ;
+     group.children[1].visible = false ;
+     group.children[2].visible = false ;
+
     
 
     
