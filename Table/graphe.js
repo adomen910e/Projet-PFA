@@ -65,7 +65,7 @@ function init() {
     sphere1.position.y = 2;
     sphere1.position.z = -30;
     scene.add(sphere1);
-    sphere1.id = '0';
+    sphere1.name = 'numero';
     group.add(sphere1);
 
 
@@ -79,7 +79,7 @@ function init() {
     sphere2.position.y = 2;
     sphere2.position.z = -30;
     scene.add(sphere2);
-    sphere2.id = '1';
+    sphere2.name = 'numero1';
     group.add(sphere2);
 
 
@@ -92,7 +92,7 @@ function init() {
     sphere3.position.y = 2;
     sphere3.position.z = -30;
     scene.add(sphere3);
-    sphere3.id = '2';
+    sphere3.name = 'numero2';
     group.add(sphere3);
 
 
@@ -109,7 +109,7 @@ function init() {
     cylindre1.position.x = 0;
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
-    cylindre1.id = '3';
+    cylindre1.name = 'numero3';
 
     scene.add(cylindre1);
     group.add(cylindre1);
@@ -191,7 +191,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.id == '3') {
+        if (object.name == 'numero3') {
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 1;
@@ -212,7 +212,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.id == '3') {
+        if (object.name == 'numero3') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 0;
@@ -260,9 +260,9 @@ function intersectObjects(controller) {
 
 function erase_other(object) {
     for (var i = 0; i < 4; i++) {
-        if (object.id == group.children[i].id) {
+        if (object.name == group.children[i].name) {
             //RIEN FAIRE
-        } else if (group.children[i].id == '3') {
+        } else if (group.children[i].name == 'numero3') {
 
         } else {
             group.children[i].visible = false;
