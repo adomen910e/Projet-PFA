@@ -48,11 +48,11 @@ function init() {
 
 
     group = new THREE.Group();
-    group.type = "yes";
+    group.type = 'yes';
     scene.add(group);
 
     group_no_move = new THREE.Group();
-    group_no_move.type = "no";
+    group_no_move.type = 'no';
     scene.add(group_no_move);
 
 
@@ -65,7 +65,7 @@ function init() {
     sphere1.position.y = 2;
     sphere1.position.z = -30;
     scene.add(sphere1);
-    sphere1.id = "no";
+    sphere1.id = 'no';
     group.add(sphere1);
 
 
@@ -78,7 +78,7 @@ function init() {
     sphere2.position.y = 2;
     sphere2.position.z = -30;
     scene.add(sphere2);
-    sphere2.id = "no";
+    sphere2.id = 'no';
     group.add(sphere2);
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -90,7 +90,7 @@ function init() {
     sphere3.position.y = 2;
     sphere3.position.z = -30;
     scene.add(sphere3);
-    sphere3.id = "no";
+    sphere3.id = 'no';
     group.add(sphere3);
 
 
@@ -106,8 +106,7 @@ function init() {
     cylindre1.position.x = 0;
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
-
-
+    cylindre1.id = 'yes';
 
     scene.add(cylindre1);
     group.add(cylindre1);
@@ -244,7 +243,7 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.id == "no") {
+        if (object.id == 'no') {
 
         } else {
             object.material.emissive.r = 1;
