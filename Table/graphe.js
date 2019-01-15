@@ -263,7 +263,7 @@ function erase_other(object) {
         if (object.id == group.children[i].id) {
             //RIEN FAIRE
         } else if (group.children[i].id != '4') {
-            group.children[i].transparent = true;
+            group.children[i].material.transparent = true;
             //EFFACE
         }
     }
