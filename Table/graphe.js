@@ -191,7 +191,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.id == '4') {
+       // if (object.id == '4') {
 
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
@@ -199,9 +199,9 @@ function onSelectStart(event) {
 
             controller.add(object);
             controller.userData.selected = object;
-        } else {
-            controller.userData.selected = object;
-        }
+//        } else {
+//            controller.userData.selected = object;
+//        }
     }
 
 }
@@ -212,7 +212,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.id == '4') {
+        //if (object.id == '4') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 0;
@@ -220,10 +220,10 @@ function onSelectEnd(event) {
             group.add(object);
 
             controller.userData.selected = undefined;
-        } else {
-            //erase_other(object);
-            controller.userData.selected = undefined;
-        }
+//        } else {
+//            //erase_other(object);
+//            controller.userData.selected = undefined;
+//        }
 
     }
 }
@@ -249,12 +249,9 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-
         object.material.emissive.r = 1;
         intersected.push(object);
         line.scale.z = intersection.distance;
-
-
 
     } else {
         line.scale.z = 100;
