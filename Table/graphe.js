@@ -191,7 +191,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-       // if (object.id == '4') {
+        if (object.id == '4') {
 
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
@@ -199,9 +199,9 @@ function onSelectStart(event) {
 
             controller.add(object);
             controller.userData.selected = object;
-//        } else {
-//            controller.userData.selected = object;
-//        }
+        } else {
+            controller.userData.selected = object;
+        }
     }
 
 }
@@ -212,7 +212,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        //if (object.id == '4') {
+        if (object.id == '4') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 0;
@@ -220,10 +220,10 @@ function onSelectEnd(event) {
             group.add(object);
 
             controller.userData.selected = undefined;
-//        } else {
-//            //erase_other(object);
-//            controller.userData.selected = undefined;
-//        }
+        } else {
+            erase_other(object);
+            controller.userData.selected = undefined;
+        }
 
     }
 }
@@ -258,16 +258,16 @@ function intersectObjects(controller) {
     }
 }
 
-//function erase_other(object) {
-//    for (var i = 0; i < 3; i++) {
-//        if (object.id == group_no_move.children[i].id) {
-//            //RIEN FAIRE
-//        } else {
-//            group_no_move.children[i].transparent = true;
-//            //EFFACE
-//        }
-//    }
-//}
+function erase_other(object) {
+    for (var i = 0; i < 3; i++) {
+        if (object.id == group.children[i].id) {
+            //RIEN FAIRE
+        } else if (group.children[i].id != '4') {
+            group_no_move.children[i].transparent = true;
+            //EFFACE
+        }
+    }
+}
 
 function cleanIntersected() {
     while (intersected.length) {
