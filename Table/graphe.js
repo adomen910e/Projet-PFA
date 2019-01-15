@@ -65,8 +65,10 @@ function init() {
     sphere1.position.y = 2;
     sphere1.position.z = -30;
     scene.add(sphere1);
-    sphere1.id = 'no';
+    sphere1.id = '0';
+    sphere1.type = 'no';
     group.add(sphere1);
+    group_no_move.add(sphere1);
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -78,8 +80,10 @@ function init() {
     sphere2.position.y = 2;
     sphere2.position.z = -30;
     scene.add(sphere2);
-    sphere2.id = 'no';
+    sphere2.id = '1';
+    sphere2.type = 'no';
     group.add(sphere2);
+    group_no_move.add(sphere2);
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     material = new THREE.MeshStandardMaterial({
@@ -90,8 +94,10 @@ function init() {
     sphere3.position.y = 2;
     sphere3.position.z = -30;
     scene.add(sphere3);
-    sphere3.id = 'no';
+    sphere3.id = '2';
+    sphere3.type = 'no';
     group.add(sphere3);
+    group_no_move.add(sphere3);
 
 
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
@@ -106,7 +112,7 @@ function init() {
     cylindre1.position.x = 0;
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
-    cylindre1.id = 'yes';
+    cylindre1.type = 'yes';
 
     scene.add(cylindre1);
     group.add(cylindre1);
@@ -194,7 +200,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.id == 'yes') {
+        if (object.type == 'yes') {
 
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
@@ -214,7 +220,8 @@ function onSelectEnd(event) {
 
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
-        if (object.id == 'yes') {
+
+        if (object.type == 'yes') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 0;
@@ -223,6 +230,7 @@ function onSelectEnd(event) {
 
             controller.userData.selected = undefined;
         } else {
+            erase_other(object);
             controller.userData.selected = undefined;
         }
 
@@ -263,18 +271,14 @@ function intersectObjects(controller) {
 }
 
 function erase_other(object) {
-    //    for(var i=0; i<3; i++){
-    //        if (object.id = group_no_move.children[i].id){
-    //            //RIEN FAIRE
-    //        }else{
-    //            group_no_move.children[i].transparent = true;
-    //            //EFFACE
-    //        }
-    //    }
-    group.children[0].position.x = 0;
-    group.children[1].position.x = 0;
-    group.children[2].position.x = 0;
-
+    for (var i = 0; i < 3; i++) {
+        if (object.id == group_no_move.children[i].id) {
+            //RIEN FAIRE
+        } else {
+            group_no_move.children[i].transparent = true;
+            //EFFACE
+        }
+    }
 }
 
 function cleanIntersected() {
