@@ -193,15 +193,18 @@ function onSelectStart(event) {
         tempMatrix.getInverse(controller.matrixWorld);
 
         var object = intersection.object;
+
         if (object.id == 'yes') {
 
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 1;
-        }
-        controller.add(object);
-        controller.userData.selected = object;
 
+            controller.add(object);
+            controller.userData.selected = object;
+        } else {
+            controller.userData.selected = object;
+        }
     }
 
 }
@@ -211,14 +214,17 @@ function onSelectEnd(event) {
 
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
+        if (object.id == 'yes') {
+            object.matrix.premultiply(controller.matrixWorld);
+            object.matrix.decompose(object.position, object.quaternion, object.scale);
+            object.material.emissive.b = 0;
 
-        object.matrix.premultiply(controller.matrixWorld);
-        object.matrix.decompose(object.position, object.quaternion, object.scale);
-        object.material.emissive.b = 0;
+            group.add(object);
 
-        group.add(object);
-
-        controller.userData.selected = undefined;
+            controller.userData.selected = undefined;
+        } else {
+            controller.userData.selected = undefined;
+        }
 
     }
 }
