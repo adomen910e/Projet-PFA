@@ -191,8 +191,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.id == '1') {
-            alert("kiki");
+        if (object.id == '3') {
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 1;
@@ -213,8 +212,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.id == '1') {
-            alert("coucou");
+        if (object.id == '3') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 0;
@@ -270,9 +268,13 @@ function erase_other(object) {
 //        }
 //    }
     
-     group.children[0].position.x = 0;
-     group.children[1].position.x = 0;
-     group.children[2].position.x = 0;
+     group.children[0].material.transparent = true ;
+     group.children[1].material.transparent = true ;
+     group.children[2].material.transparent = true ;
+    
+     group.children[0].opacity = '0' ;
+     group.children[1].opacity = '0' ;
+     group.children[2].opacity = '0' ;
     
 
     
