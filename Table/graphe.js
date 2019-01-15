@@ -66,7 +66,6 @@ function init() {
     sphere1.position.z = -30;
     scene.add(sphere1);
     sphere1.id = '0';
-    sphere1.type = 'no';
     group.add(sphere1);
     group_no_move.add(sphere1);
 
@@ -81,7 +80,6 @@ function init() {
     sphere2.position.z = -30;
     scene.add(sphere2);
     sphere2.id = '1';
-    sphere2.type = 'no';
     group.add(sphere2);
     group_no_move.add(sphere2);
 
@@ -95,7 +93,6 @@ function init() {
     sphere3.position.z = -30;
     scene.add(sphere3);
     sphere3.id = '2';
-    sphere3.type = 'no';
     group.add(sphere3);
     group_no_move.add(sphere3);
 
@@ -112,7 +109,7 @@ function init() {
     cylindre1.position.x = 0;
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
-    cylindre1.type = 'yes';
+    cylindre1.id = '4';
 
     scene.add(cylindre1);
     group.add(cylindre1);
@@ -167,18 +164,12 @@ function init() {
 }
 
 function onMouseMove(e) {
-
     camera.position.z += 10;
-
-
     renderer.render(scene, camera);
 }
 
 function onMouseDown(e) {
-
     camera.position.z += 10;
-
-
     renderer.render(scene, camera);
 }
 
@@ -200,7 +191,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.type == 'yes') {
+        if (object.id == '4') {
 
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
@@ -221,7 +212,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.type == 'yes') {
+        if (object.id == '4') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 0;
