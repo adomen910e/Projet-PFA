@@ -246,9 +246,9 @@ function intersectObjects(controller) {
         if (object.id == 'no') {
 
         } else {
-            object.material.emissive.r = 1;
-            intersected.push(object);
-            line.scale.z = intersection.distance;
+//            object.material.emissive.r = 1;
+//            intersected.push(object);
+//            line.scale.z = intersection.distance;
 
         }
 
