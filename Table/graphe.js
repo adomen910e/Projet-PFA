@@ -66,7 +66,7 @@ function init() {
     sphere1.position.z = -30;
     scene.add(sphere1);
     sphere1.id = "no";
-    group_no_move.add(sphere1);
+    group.add(sphere1);
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -79,7 +79,7 @@ function init() {
     sphere2.position.z = -30;
     scene.add(sphere2);
     sphere2.id = "no";
-    group_no_move.add(sphere2);
+    group.add(sphere2);
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     material = new THREE.MeshStandardMaterial({
@@ -91,14 +91,16 @@ function init() {
     sphere3.position.z = -30;
     scene.add(sphere3);
     sphere3.id = "no";
-    group_no_move.add(sphere3);
+    group.add(sphere3);
 
 
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
-    var texture = new THREE.TextureLoader().load( 'tourbi.png' );
+    var texture = new THREE.TextureLoader().load('tourbi.png');
 
-// immediately use the texture for material creation
-    material = new THREE.MeshBasicMaterial( { map: texture } );
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
 
     var cylindre1 = new THREE.Mesh(geometry, material);
     cylindre1.position.x = 0;
@@ -242,10 +244,14 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
+        if (object.id == "no") {
 
-        object.material.emissive.r = 1;
-        intersected.push(object);
-        line.scale.z = intersection.distance;
+        } else {
+            object.material.emissive.r = 1;
+            intersected.push(object);
+            line.scale.z = intersection.distance;
+
+        }
 
 
     } else {
