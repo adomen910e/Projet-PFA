@@ -192,7 +192,7 @@ function onSelectStart(event) {
         var object = intersection.object;
 
         if (object.id == '1') {
-
+            alert("kiki");
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 1;
@@ -214,6 +214,7 @@ function onSelectEnd(event) {
         var object = controller.userData.selected;
 
         if (object.id == '1') {
+            alert("coucou");
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 0;
