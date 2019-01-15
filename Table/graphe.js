@@ -193,11 +193,12 @@ function onSelectStart(event) {
         tempMatrix.getInverse(controller.matrixWorld);
 
         var object = intersection.object;
+        if (object.id == 'yes') {
 
-        object.matrix.premultiply(tempMatrix);
-        object.matrix.decompose(object.position, object.quaternion, object.scale);
-        object.material.emissive.b = 1;
-
+            object.matrix.premultiply(tempMatrix);
+            object.matrix.decompose(object.position, object.quaternion, object.scale);
+            object.material.emissive.b = 1;
+        }
         controller.add(object);
         controller.userData.selected = object;
 
@@ -243,14 +244,11 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.id == 'no') {
 
-        } else {
-//            object.material.emissive.r = 1;
-//            intersected.push(object);
-//            line.scale.z = intersection.distance;
+        object.material.emissive.r = 1;
+        intersected.push(object);
+        line.scale.z = intersection.distance;
 
-        }
 
 
     } else {
