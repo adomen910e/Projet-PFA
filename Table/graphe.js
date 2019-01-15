@@ -286,7 +286,7 @@ function erase_other(object) {
     object.position.y = 2;
     object.position.z = -30;
     
-    scene.add(object);
+    renderer.render(scene, camera);
 
 }
 
