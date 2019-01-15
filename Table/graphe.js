@@ -259,23 +259,14 @@ function intersectObjects(controller) {
 }
 
 function erase_other(object) {
-//    for (var i = 0; i < 4; i++) {
-//        if (object.id == group.children[i].id) {
-//            //RIEN FAIRE
-//        } else if (group.children[i].id != '4') {
-//            group.children[i].color = '0xffffff';
-//            //EFFACE
-//        }
-//    }
-    
-     group.children[0].visible = false ;
-     group.children[1].visible = false ;
-     group.children[2].visible = false ;
-
-    
-
-    
-    
+    for (var i = 0; i < 4; i++) {
+        if (object.id == group.children[i].id) {
+            //RIEN FAIRE
+        } else if (group.children[i].id != '3') {
+             group.children[i].visible = false ;
+            //EFFACE
+        }
+    }    
 }
 
 function cleanIntersected() {
