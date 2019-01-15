@@ -221,7 +221,7 @@ function onSelectEnd(event) {
 
             controller.userData.selected = undefined;
         } else {
-            erase_other(object);
+            //erase_other(object);
             controller.userData.selected = undefined;
         }
 
