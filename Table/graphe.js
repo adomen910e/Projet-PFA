@@ -222,6 +222,7 @@ function onSelectEnd(event) {
             controller.userData.selected = undefined;
         } else {
             erase_other(object);
+            move_to_cam(object);
             controller.userData.selected = undefined;
         }
 
@@ -256,6 +257,37 @@ function intersectObjects(controller) {
     } else {
         line.scale.z = 100;
     }
+}
+
+function erase_other(object) {
+
+    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+        if (object.position.x > 0) {
+            object.position.x--;
+        } else {
+            object.position.x++;
+        }
+
+        if (object.position.y > 0) {
+            object.position.y--;
+        } else {
+            object.position.y++;
+        }
+
+        if (object.position.z > 0) {
+            object.position.z--;
+        } else {
+            object.position.z++;
+        }
+
+        object.matrix.premultiply(controller.matrixWorld);
+        object.matrix.decompose(object.position, object.quaternion, object.scale);
+        object.material.emissive.b = 0;
+
+        group.add(object);
+    }
+
+
 }
 
 function erase_other(object) {
