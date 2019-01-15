@@ -109,7 +109,7 @@ function init() {
     cylindre1.position.x = 0;
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
-    cylindre1.id = '4';
+    cylindre1.id = '3';
 
     scene.add(cylindre1);
     group.add(cylindre1);
@@ -191,7 +191,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.id == '4') {
+        if (object.id == '1') {
 
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
@@ -213,7 +213,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.id == '4') {
+        if (object.id == '1') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 0;
