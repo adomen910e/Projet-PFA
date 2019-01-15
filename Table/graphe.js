@@ -262,11 +262,13 @@ function erase_other(object) {
     for (var i = 0; i < 4; i++) {
         if (object.id == group.children[i].id) {
             //RIEN FAIRE
-        } else if (group.children[i].id != '3') {
-             group.children[i].visible = false ;
+        } else if (group.children[i].id == '3') {
+
+        } else {
+            group.children[i].visible = false;
             //EFFACE
         }
-    }    
+    }
 }
 
 function cleanIntersected() {
