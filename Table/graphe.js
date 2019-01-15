@@ -66,7 +66,7 @@ function init() {
     sphere1.position.z = -30;
     scene.add(sphere1);
     sphere1.id = "no";
-    group.add(sphere1);
+    group_no_move.add(sphere1);
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -79,7 +79,7 @@ function init() {
     sphere2.position.z = -30;
     scene.add(sphere2);
     sphere2.id = "no";
-    group.add(sphere2);
+    group_no_move.add(sphere2);
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     material = new THREE.MeshStandardMaterial({
@@ -91,17 +91,22 @@ function init() {
     sphere3.position.z = -30;
     scene.add(sphere3);
     sphere3.id = "no";
-    group.add(sphere3);
+    group_no_move.add(sphere3);
 
 
-    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64),
-        material = new THREE.MeshStandardMaterial({
-            color: Math.random() * 0xffffff,
-        });
+    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
+    var texture = new THREE.TextureLoader().load( 'tourbi.png' );
+
+// immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial( { map: texture } );
+
     var cylindre1 = new THREE.Mesh(geometry, material);
     cylindre1.position.x = 0;
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
+
+
+
     scene.add(cylindre1);
     group.add(cylindre1);
 
@@ -210,7 +215,7 @@ function onSelectEnd(event) {
         object.material.emissive.b = 0;
 
         group.add(object);
-        
+
         controller.userData.selected = undefined;
 
     }
@@ -237,17 +242,11 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.id == "no") {
-            object.material.emissive.r = 1;
-            line.scale.z = intersection.distance;
-            erase_other(object);
-            //            move_front_camera(object);
-            //            
-        } else {
-            object.material.emissive.r = 1;
-            intersected.push(object);
-            line.scale.z = intersection.distance;
-        }
+
+        object.material.emissive.r = 1;
+        intersected.push(object);
+        line.scale.z = intersection.distance;
+
 
     } else {
         line.scale.z = 100;
