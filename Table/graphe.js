@@ -280,11 +280,6 @@ function erase_other(object) {
             object.position.z++;
         }
 
-        object.matrix.premultiply(controller.matrixWorld);
-        object.matrix.decompose(object.position, object.quaternion, object.scale);
-        object.material.emissive.b = 0;
-
-        group.add(object);
     }
 
 
