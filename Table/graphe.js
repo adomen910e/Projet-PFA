@@ -259,14 +259,18 @@ function intersectObjects(controller) {
 }
 
 function erase_other(object) {
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 4; i++) {
         if (object.id == group.children[i].id) {
             //RIEN FAIRE
         } else if (group.children[i].id != '4') {
-            group_no_move.children[i].transparent = true;
+            group.children[i].transparent = true;
             //EFFACE
         }
     }
+    
+
+    
+    
 }
 
 function cleanIntersected() {
