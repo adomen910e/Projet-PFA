@@ -200,6 +200,7 @@ function onSelectStart(event) {
             controller.add(object);
             controller.userData.selected = object;
         } else {
+            erase_other(object);
             controller.userData.selected = object;
         }
     }
