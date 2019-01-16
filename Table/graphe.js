@@ -14,6 +14,7 @@ var sphere3;
 var sphere2;
 var sphere1;
 
+var selected;
 
 //double buffering pour l'affichage des elements 
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
@@ -119,8 +120,9 @@ function init() {
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
     cylindre1.name = 'numero3';
-    cylindre1.id = 0;
 
+    selected = 0;
+    
     scene.add(cylindre1);
     group.add(cylindre1);
 
@@ -196,7 +198,7 @@ function onSelectStart(event) {
 
             controller.add(object);
             controller.userData.selected = object;
-            cylindre1.id = 1;
+            selected = 1;
         } else {
             erase_other(object);
             controller.userData.selected = object;
@@ -219,7 +221,7 @@ function onSelectEnd(event) {
             group.add(object);
 
             controller.userData.selected = undefined;
-            cylindre1.id = 0;
+            selected = 0;
         } else {
             erase_other(object);
             move_to_cam(object);
@@ -230,9 +232,8 @@ function onSelectEnd(event) {
 }
 
 function getIntersections(controller) {
-    console.log(cylindre1.id);
 
-    if (cylindre1.id == 1) {
+    if (selected == 1) {
         change_color();
         console.log("PASSE");
     }
@@ -247,7 +248,7 @@ function getIntersections(controller) {
 
 function intersectObjects(controller) {
     
-    if (cylindre1.id == 1) {
+    if (selected == 1) {
         change_color();
         console.log("PASSEEEEEEEEEEEE")
     }
