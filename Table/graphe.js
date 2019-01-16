@@ -141,8 +141,6 @@ function init() {
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
-    controller1.addEventListener("mousemove", onMouseMove);
-    controller1.addEventListener("mousedown", onMouseDown);
     scene.add(controller1);
 
 
@@ -172,16 +170,6 @@ function init() {
 
 }
 
-function onMouseMove(e) {
-    camera.position.z += 10;
-    renderer.render(scene, camera);
-}
-
-function onMouseDown(e) {
-    camera.position.z += 10;
-    renderer.render(scene, camera);
-}
-
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -207,6 +195,7 @@ function onSelectStart(event) {
 
             controller.add(object);
             controller.userData.selected = object;
+            change_color();
         } else {
             erase_other(object);
             controller.userData.selected = object;
@@ -239,8 +228,6 @@ function onSelectEnd(event) {
 }
 
 function getIntersections(controller) {
-    
-    change_color();
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
@@ -276,11 +263,6 @@ function change_color() {
     sphere1.material.color.setHex(Math.random() * 0xffffff);
     sphere3.material.color.setHex(Math.random() * 0xffffff);
     
-    console.log("SPHERE1"+sphere1.material.color);
-    console.log("SPHERE2"+sphere2.material.color);
-    console.log("SPHERE3"+sphere3.material.color);
-
-
     renderer.render(scene, camera);
 }
 
