@@ -194,7 +194,7 @@ function onSelectStart(event) {
         if (object.name == 'numero3') {
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
-            object.material.emissive.b = 1;
+//            object.material.emissive.b = 1;
 
             controller.add(object);
             controller.userData.selected = object;
@@ -216,7 +216,7 @@ function onSelectEnd(event) {
         if (object.name == 'numero3') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
-            object.material.emissive.b = 0;
+//            object.material.emissive.b = 0;
 
             group.add(object);
 
