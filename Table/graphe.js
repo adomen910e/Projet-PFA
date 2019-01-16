@@ -274,6 +274,10 @@ function change_color() {
     sphere2.material.color.setHex(Math.random() * 0xffffff);
     sphere1.material.color.setHex(Math.random() * 0xffffff);
     sphere3.material.color.setHex(Math.random() * 0xffffff);
+    
+    console.log("SPHERE1"+sphere1.material.color);
+    console.log("SPHERE2"+sphere2.material.color);
+    console.log("SPHERE3"+sphere3.material.color);
 
 
     renderer.render(scene, camera);
