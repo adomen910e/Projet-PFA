@@ -9,6 +9,11 @@ var line;
 var object;
 var points;
 
+var cylindre1;
+var sphere3;
+var sphere2;
+var sphere1;
+
 
 //double buffering pour l'affichage des elements 
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
@@ -60,7 +65,7 @@ function init() {
     var material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
     });
-    var sphere1 = new THREE.Mesh(geometry, material);
+    sphere1 = new THREE.Mesh(geometry, material);
     sphere1.position.x = -20;
     sphere1.position.y = 2;
     sphere1.position.z = -30;
@@ -74,7 +79,7 @@ function init() {
     material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
     });
-    var sphere2 = new THREE.Mesh(geometry, material);
+    sphere2 = new THREE.Mesh(geometry, material);
     sphere2.position.x = 0;
     sphere2.position.y = 2;
     sphere2.position.z = -30;
@@ -87,7 +92,7 @@ function init() {
     material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
     });
-    var sphere3 = new THREE.Mesh(geometry, material);
+    sphere3 = new THREE.Mesh(geometry, material);
     sphere3.position.x = 20;
     sphere3.position.y = 2;
     sphere3.position.z = -30;
@@ -98,18 +103,18 @@ function init() {
 
 
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
-//    var texture = new THREE.TextureLoader().load('tourbi.png');
-//
-//    // immediately use the texture for material creation
-//    material = new THREE.MeshBasicMaterial({
-//        map: texture
-//    });
-    
+    //    var texture = new THREE.TextureLoader().load('tourbi.png');
+    //
+    //    // immediately use the texture for material creation
+    //    material = new THREE.MeshBasicMaterial({
+    //        map: texture
+    //    });
+
     material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
     });
 
-    var cylindre1 = new THREE.Mesh(geometry, material);
+    cylindre1 = new THREE.Mesh(geometry, material);
     cylindre1.position.x = 0;
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
@@ -224,8 +229,7 @@ function onSelectEnd(event) {
             group.add(object);
 
             controller.userData.selected = undefined;
-            change_color();
-            
+
         } else {
             erase_other(object);
             move_to_cam(object);
@@ -265,46 +269,44 @@ function intersectObjects(controller) {
     }
 }
 
-function change_color(){
-    for(var i=0; i<3; i++){
-         if (group.children[i].name == 'numero3') {
-             
-         } else {
-             group.children[i].material.color = Math.random() * 0xffffff;
-         }
-    }
-    
+function change_color() {
+
+    sphere2.material.color = Math.random() * 0xffffff;
+    sphere1.material.color = Math.random() * 0xffffff;
+    sphere3.material.color = Math.random() * 0xffffff;
+
+
     renderer.render(scene, camera);
 }
 
 function move_to_cam(object) {
 
-        while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
-            if (object.position.x > 0) {
-                object.position.x = object.position.x  - 1;
-            } else {
-                object.position.x = object.position.x + 1;
-            }
-    
-            if (object.position.y > 2) {
-                object.position.y = object.position.y - 1;
-            } else {
-                object.position.y = object.position.y + 1;
-            }
-    
-            if (object.position.z > -30) {
-                object.position.z = object.position.z - 1;
-            } else {
-                object.position.z = object.position.z + 1;
-            }
-    
-            renderer.render(scene, camera);
+    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+        if (object.position.x > 0) {
+            object.position.x = object.position.x - 1;
+        } else {
+            object.position.x = object.position.x + 1;
         }
 
-//    object.userData.velocity = new THREE.Vector3();
-//    object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-//    object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-//    object.userData.velocity.z = Math.random() * 0.01 - 0.005;
+        if (object.position.y > 2) {
+            object.position.y = object.position.y - 1;
+        } else {
+            object.position.y = object.position.y + 1;
+        }
+
+        if (object.position.z > -30) {
+            object.position.z = object.position.z - 1;
+        } else {
+            object.position.z = object.position.z + 1;
+        }
+
+        renderer.render(scene, camera);
+    }
+
+    //    object.userData.velocity = new THREE.Vector3();
+    //    object.userData.velocity.x = Math.random() * 0.01 - 0.005;
+    //    object.userData.velocity.y = Math.random() * 0.01 - 0.005;
+    //    object.userData.velocity.z = Math.random() * 0.01 - 0.005;
 
 }
 
