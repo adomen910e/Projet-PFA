@@ -229,7 +229,7 @@ function onSelectEnd(event) {
             group.add(object);
 
             controller.userData.selected = undefined;
-//            change_color();
+            change_color();
         } else {
             erase_other(object);
             move_to_cam(object);
