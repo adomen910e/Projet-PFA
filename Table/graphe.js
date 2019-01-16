@@ -196,6 +196,8 @@ function onSelectStart(event) {
         var object = intersection.object;
 
         if (object.name == 'numero3') {
+            change_color();
+            
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 1;
@@ -261,6 +263,16 @@ function intersectObjects(controller) {
     } else {
         line.scale.z = 100;
     }
+}
+
+function change_color(){
+    for(var i=0; i<4; i++){
+         if (group.children[i].name != 'numero3') {
+             group.children[i].material.color = Math.random() * 0xffffff;
+         }
+    }
+    
+    renderer.render(scene, camera);
 }
 
 function move_to_cam(object) {
