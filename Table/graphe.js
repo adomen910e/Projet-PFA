@@ -261,35 +261,32 @@ function intersectObjects(controller) {
 
 function move_to_cam(object) {
 
-    //    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
-    //        if (object.position.x > 0) {
-    //            object.position.x--;
-    //        } else {
-    //            object.position.x++;
-    //        }
-    //
-    //        if (object.position.y > 2) {
-    //            object.position.y--;
-    //        } else {
-    //            object.position.y++;
-    //        }
-    //
-    //        if (object.position.z > -30) {
-    //            object.position.z--;
-    //        } else {
-    //            object.position.z++;
-    //        }
-    //
-    //    }
+        while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+            if (object.position.x > 0) {
+                object.position.x--;
+            } else {
+                object.position.x++;
+            }
+    
+            if (object.position.y > 2) {
+                object.position.y--;
+            } else {
+                object.position.y++;
+            }
+    
+            if (object.position.z > -30) {
+                object.position.z--;
+            } else {
+                object.position.z++;
+            }
+    
+        }
 
 //    object.userData.velocity = new THREE.Vector3();
 //    object.userData.velocity.x = Math.random() * 0.01 - 0.005;
 //    object.userData.velocity.y = Math.random() * 0.01 - 0.005;
 //    object.userData.velocity.z = Math.random() * 0.01 - 0.005;
 
-    object.position.x = 0;
-    object.position.y = 2;
-    object.position.z = -30;
 
     renderer.render(scene, camera);
 
