@@ -111,9 +111,9 @@ function init() {
         map: texture
     });
 
-//    material = new THREE.MeshStandardMaterial({
-//        color: Math.random() * 0xffffff,
-//    });
+    //    material = new THREE.MeshStandardMaterial({
+    //        color: Math.random() * 0xffffff,
+    //    });
 
     cylindre1 = new THREE.Mesh(geometry, material);
     cylindre1.position.x = 0;
@@ -194,12 +194,12 @@ function onSelectStart(event) {
         if (object.name == 'numero3') {
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
-//            object.material.emissive.b = 1;
 
             controller.add(object);
             controller.userData.selected = object;
             selected = 1;
         } else {
+            object.material.emissive.b = 1;
             erase_other(object);
             controller.userData.selected = object;
         }
@@ -216,13 +216,13 @@ function onSelectEnd(event) {
         if (object.name == 'numero3') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
-//            object.material.emissive.b = 0;
 
             group.add(object);
 
             controller.userData.selected = undefined;
             selected = 0;
         } else {
+            object.material.emissive.b = 0;
             erase_other(object);
             move_to_cam(object);
             controller.userData.selected = undefined;
@@ -262,7 +262,10 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-//        object.material.emissive.r = 1;
+        if (object.name != "numero3"){
+            object.material.emissive.b = 1;
+        }
+        
         intersected.push(object);
         line.scale.z = intersection.distance;
 
@@ -327,7 +330,11 @@ function erase_other(object) {
 function cleanIntersected() {
     while (intersected.length) {
         var object = intersected.pop();
-//        object.material.emissive.r = 0;
+
+        if (object.name != "numero3"){
+            object.material.emissive.b = 0;
+        }
+
     }
 }
 
