@@ -230,6 +230,7 @@ function onSelectEnd(event) {
 }
 
 function getIntersections(controller) {
+    console.log(cylindre1.id);
 
     if (cylindre1.id == 1) {
         change_color();
