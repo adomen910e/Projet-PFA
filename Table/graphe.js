@@ -196,8 +196,6 @@ function onSelectStart(event) {
         var object = intersection.object;
 
         if (object.name == 'numero3') {
-            change_color();
-            
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
             object.material.emissive.b = 1;
@@ -226,6 +224,8 @@ function onSelectEnd(event) {
             group.add(object);
 
             controller.userData.selected = undefined;
+            change_color();
+            
         } else {
             erase_other(object);
             move_to_cam(object);
