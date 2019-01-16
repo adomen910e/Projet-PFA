@@ -111,9 +111,9 @@ function init() {
         map: texture
     });
 
-    material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
+//    material = new THREE.MeshStandardMaterial({
+//        color: Math.random() * 0xffffff,
+//    });
 
     cylindre1 = new THREE.Mesh(geometry, material);
     cylindre1.position.x = 0;
