@@ -119,7 +119,7 @@ function init() {
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
     cylindre1.name = 'numero3';
-    cylindre.id = 0;
+    cylindre1.id = 0;
 
     scene.add(cylindre1);
     group.add(cylindre1);
