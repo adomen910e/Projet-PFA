@@ -119,6 +119,7 @@ function init() {
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
     cylindre1.name = 'numero3';
+    cylindre.id = 0;
 
     scene.add(cylindre1);
     group.add(cylindre1);
@@ -195,7 +196,7 @@ function onSelectStart(event) {
 
             controller.add(object);
             controller.userData.selected = object;
-            change_color();
+            cylindre1.id = 1;
         } else {
             erase_other(object);
             controller.userData.selected = object;
@@ -218,6 +219,7 @@ function onSelectEnd(event) {
             group.add(object);
 
             controller.userData.selected = undefined;
+            cylindre1.id = 0;
         } else {
             erase_other(object);
             move_to_cam(object);
@@ -228,6 +230,10 @@ function onSelectEnd(event) {
 }
 
 function getIntersections(controller) {
+
+    if (cylindre1.id == 1) {
+        change_color();
+    }
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
@@ -262,7 +268,7 @@ function change_color() {
     sphere2.material.color.setHex(Math.random() * 0xffffff);
     sphere1.material.color.setHex(Math.random() * 0xffffff);
     sphere3.material.color.setHex(Math.random() * 0xffffff);
-    
+
     renderer.render(scene, camera);
 }
 
