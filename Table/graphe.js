@@ -229,7 +229,6 @@ function onSelectEnd(event) {
             group.add(object);
 
             controller.userData.selected = undefined;
-            change_color();
         } else {
             erase_other(object);
             move_to_cam(object);
@@ -240,6 +239,8 @@ function onSelectEnd(event) {
 }
 
 function getIntersections(controller) {
+    
+    change_color();
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
