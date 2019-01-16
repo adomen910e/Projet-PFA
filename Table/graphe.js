@@ -104,12 +104,12 @@ function init() {
 
 
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
-    //    var texture = new THREE.TextureLoader().load('tourbi.png');
-    //
-    //    // immediately use the texture for material creation
-    //    material = new THREE.MeshBasicMaterial({
-    //        map: texture
-    //    });
+    var texture = new THREE.TextureLoader().load('tourbi.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
 
     material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
@@ -122,7 +122,7 @@ function init() {
     cylindre1.name = 'numero3';
 
     selected = 0;
-    
+
     scene.add(cylindre1);
     group.add(cylindre1);
 
@@ -235,7 +235,6 @@ function getIntersections(controller) {
 
     if (selected == 1) {
         change_color();
-        console.log("PASSE");
     }
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
@@ -247,13 +246,12 @@ function getIntersections(controller) {
 }
 
 function intersectObjects(controller) {
-    
+
     if (selected == 1) {
         change_color();
-        console.log("PASSEEEEEEEEEEEE")
     }
 
-    
+
     // Do not highlight when already selected
     if (controller.userData.selected !== undefined) return;
 
