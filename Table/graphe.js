@@ -98,11 +98,15 @@ function init() {
 
 
     geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
-    var texture = new THREE.TextureLoader().load('tourbi.png');
-
-    // immediately use the texture for material creation
-    material = new THREE.MeshBasicMaterial({
-        map: texture
+//    var texture = new THREE.TextureLoader().load('tourbi.png');
+//
+//    // immediately use the texture for material creation
+//    material = new THREE.MeshBasicMaterial({
+//        map: texture
+//    });
+    
+    material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
     });
 
     var cylindre1 = new THREE.Mesh(geometry, material);
@@ -261,35 +265,32 @@ function intersectObjects(controller) {
 
 function move_to_cam(object) {
 
-//        while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
-//            if (object.position.x > 0) {
-//                object.position.x--;
-//            } else {
-//                object.position.x++;
-//            }
-//    
-//            if (object.position.y > 2) {
-//                object.position.y--;
-//            } else {
-//                object.position.y++;
-//            }
-//    
-//            if (object.position.z > -30) {
-//                object.position.z--;
-//            } else {
-//                object.position.z++;
-//            }
-//    
-//        }
+        while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+            if (object.position.x > 0) {
+                object.position.x--;
+            } else {
+                object.position.x++;
+            }
+    
+            if (object.position.y > 2) {
+                object.position.y--;
+            } else {
+                object.position.y++;
+            }
+    
+            if (object.position.z > -30) {
+                object.position.z--;
+            } else {
+                object.position.z++;
+            }
+    
+            renderer.render(scene, camera);
+        }
 
-    object.userData.velocity = new THREE.Vector3();
-    object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-    object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-    object.userData.velocity.z = Math.random() * 0.01 - 0.005;
-
-
-    renderer.render(scene, camera);
-
+//    object.userData.velocity = new THREE.Vector3();
+//    object.userData.velocity.x = Math.random() * 0.01 - 0.005;
+//    object.userData.velocity.y = Math.random() * 0.01 - 0.005;
+//    object.userData.velocity.z = Math.random() * 0.01 - 0.005;
 
 }
 
