@@ -271,9 +271,9 @@ function intersectObjects(controller) {
 
 function change_color() {
 
-    sphere2.material.color = Math.random() * 0xffffff;
-    sphere1.material.color = Math.random() * 0xffffff;
-    sphere3.material.color = Math.random() * 0xffffff;
+    sphere2.color = Math.random() * 0xffffff;
+    sphere1.color = Math.random() * 0xffffff;
+    sphere3.color = Math.random() * 0xffffff;
 
 
     renderer.render(scene, camera);
