@@ -266,7 +266,7 @@ function intersectObjects(controller) {
 }
 
 function change_color(){
-    for(var i=0; i<4; i++){
+    for(var i=0; i<3; i++){
          if (group.children[i].name == 'numero3') {
              
          } else {
@@ -281,21 +281,21 @@ function move_to_cam(object) {
 
         while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
             if (object.position.x > 0) {
-                object.position.x = object.position.x  - 0.5;
+                object.position.x = object.position.x  - 1;
             } else {
-                object.position.x = object.position.x + 0.5;
+                object.position.x = object.position.x + 1;
             }
     
             if (object.position.y > 2) {
-                object.position.y = object.position.y - 0.5;
+                object.position.y = object.position.y - 1;
             } else {
-                object.position.y = object.position.y + 0.5;
+                object.position.y = object.position.y + 1;
             }
     
             if (object.position.z > -30) {
-                object.position.z = object.position.z - 0.5;
+                object.position.z = object.position.z - 1;
             } else {
-                object.position.z = object.position.z + 0.5;
+                object.position.z = object.position.z + 1;
             }
     
             renderer.render(scene, camera);
