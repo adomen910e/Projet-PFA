@@ -233,6 +233,7 @@ function getIntersections(controller) {
 
     if (cylindre1.id == 1) {
         change_color();
+        console.log("PASSE");
     }
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
@@ -244,6 +245,13 @@ function getIntersections(controller) {
 }
 
 function intersectObjects(controller) {
+    
+    if (cylindre1.id == 1) {
+        change_color();
+        console.log("PASSEEEEEEEEEEEE")
+    }
+
+    
     // Do not highlight when already selected
     if (controller.userData.selected !== undefined) return;
 
