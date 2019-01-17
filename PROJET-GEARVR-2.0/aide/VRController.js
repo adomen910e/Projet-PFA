@@ -279,7 +279,9 @@ THREE.VRController = function( gamepad ){
 		controller     = this,
 		controllerInfo = '> #'+ controller.gamepad.index +' '+ controller.gamepad.id +' (Handedness: '+ handedness +') ',
 		axesNames      = Object.keys( axes.byName ),
-		axesChanged    = false
+		axesChanged    = false,
+		axesMoved 	   = false,
+		stickStep	   = 0.25	
 
 
 		//  Did the handedness change?
@@ -309,6 +311,9 @@ THREE.VRController = function( gamepad ){
 						axesChanged = true
 						axes[ index ] = gamepad.axes[ index ]
 					}
+					if ((gamepad.axes[ index ] > stickStep) || (gamepad.axes[ index ] < -stickStep)){
+						axesMoved = true
+					}
 					axesValues.push( axes[ index ])
 				})
 				if( axesChanged ){
@@ -322,6 +327,18 @@ THREE.VRController = function( gamepad ){
 
 					if( verbosity >= 0.7 ) console.log( controllerInfo + axesName +' axes changed', axesValues )
 					controller.dispatchEvent({ type: axesName +' axes changed', axes: axesValues })
+				}
+				if( axesMoved ){
+
+
+					//  Vive’s thumbpad is the only controller axes that uses 
+					//  a “Goofy” Y-axis. We’re going to INVERT it so you
+					//  don’t have to worry about it!
+
+					if( controller.style === 'vive' && axesName === 'thumbpad' ) axesValues[ 1 ] *= -1
+
+					if( verbosity >= 0.7 ) console.log( controllerInfo + axesName +' axes moved', axesValues )
+					controller.dispatchEvent({ type: axesName +' axes moved', axes: axesValues })
 				}
 			})
 		}
@@ -338,11 +355,19 @@ THREE.VRController = function( gamepad ){
 					axesChanged = true
 					axes[ i ] = axis
 				}
+				if ((axis > stickStep) || (axis < stickStep)){
+					axesMoved = true
+				}
 			})
 			if( axesChanged ){
 
 				if( verbosity >= 0.7 ) console.log( controllerInfo +'axes changed', axes )
 				controller.dispatchEvent({ type: 'axes changed', axes: axes })
+			}
+			if( axesMoved ){
+
+				if( verbosity >= 0.7 ) console.log( controllerInfo +'axes moved', axes )
+				controller.dispatchEvent({ type: 'axes moved', axes: axes })
 			}
 		}
 
@@ -396,6 +421,13 @@ THREE.VRController = function( gamepad ){
 				if( verbosity >= 0.5 ) console.log( controllerAndButtonInfo +'press '+ eventAction )
 				controller.dispatchEvent({ type: button.name +' press '+ eventAction })
 				if( isPrimary ) controller.dispatchEvent({ type: 'primary press '+ eventAction })
+			}
+
+			//TEST : event every time the button is pressed (even if it is not released)
+			if( gamepad.buttons[ i ].pressed){
+
+				if( verbosity >= 0.5 ) console.log( controllerAndButtonInfo +'pressed' )
+				if (!isPrimary) controller.dispatchEvent({ type: button.name +' pressed' })
 			}
 		})
 	}

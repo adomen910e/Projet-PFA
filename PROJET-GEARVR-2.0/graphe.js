@@ -4,9 +4,12 @@ var controller1, controller2;
 var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
 var group;
-var line;
+var vertices;
+var edges;
 var object;
 var points;
+
+const CAMSTEP = 0.03;
 
 
 //double buffering pour l'affichage des elements 
@@ -49,18 +52,20 @@ function init() {
 
 
     //on initialise les lignes
-    line = new THREE.Geometry();
+    var line = new THREE.Geometry();
 
 
     var geometries = [
-					new THREE.BoxBufferGeometry(0.2, 0.2, 0.2),
-					new THREE.ConeBufferGeometry(0.2, 0.2, 64),
-					new THREE.CylinderBufferGeometry(0.2, 0.2, 0.2, 64),
-					new THREE.IcosahedronBufferGeometry(0.03, 3),
-					new THREE.TorusBufferGeometry(0.2, 0.04, 64, 32)
-				];
+        new THREE.BoxBufferGeometry(0.2, 0.2, 0.2),
+        new THREE.ConeBufferGeometry(0.2, 0.2, 64),
+        new THREE.CylinderBufferGeometry(0.2, 0.2, 0.2, 64),
+        new THREE.IcosahedronBufferGeometry(0.03, 3),
+        new THREE.TorusBufferGeometry(0.2, 0.04, 64, 32)
+    ];
 
     points = [];
+    vertices = new THREE.Group();
+    group.add(vertices);
 
     for (var i = 0; i < 50; i++) {
 
@@ -85,21 +90,21 @@ function init() {
         //object.scale.setScalar(Math.random() + 0.5);
         object.castShadow = true;
         object.receiveShadow = true;
-        group.add(object);
+        vertices.add(object);
 
         points.push(object.position);
 
 
     }
-    
+
     line = new THREE.BufferGeometry().setFromPoints(points);
 
-    var link = new THREE.Line(line, new THREE.LineBasicMaterial({
+    edges = new THREE.Line(line, new THREE.LineBasicMaterial({
         color: 0xffffff,
         opacity: 0.05
     }));
 
-    scene.add(link);
+    group.add(edges);
 
 
     renderer = new THREE.WebGLRenderer({
@@ -117,8 +122,8 @@ function init() {
 
     // controllers gamepad
     controller1 = renderer.vr.getController(0);
-    controller1.addEventListener('selectstart', onSelectStart);
-    controller1.addEventListener('selectend', onSelectEnd);
+    // controller1.addEventListener('selectstart', onSelectStart);
+    // controller1.addEventListener('selectend', onSelectEnd);
     controller1.addEventListener("mousemove", onMouseMove);
     controller1.addEventListener("mousedown", onMouseDown);
     scene.add(controller1);
@@ -126,8 +131,8 @@ function init() {
 
 
     controller2 = renderer.vr.getController(1);
-    controller2.addEventListener('selectstart', onSelectStart);
-    controller2.addEventListener('selectend', onSelectEnd);
+    // controller2.addEventListener('selectstart', onSelectStart);
+    // controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
 
 
@@ -143,14 +148,12 @@ function init() {
     controller2.add(line.clone());
     raycaster = new THREE.Raycaster();
     //
-    
-
     window.addEventListener('resize', onWindowResize, false);
 
-    window.addEventListener( 'vr controller connected', function( event ){
+    window.addEventListener('vr controller connected', function (event) {
         //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
         var controller = event.detail;
-        scene.add( controller );
+        scene.add(controller);
         //  For standing experiences (not seated) we need to set the standingMatrix
         //  otherwise you’ll wonder why your controller appears on the floor
         //  instead of in your hands! And for seated experiences this will have no
@@ -163,31 +166,31 @@ function init() {
         //  Right now your controller has no visual.
         //  It’s just an empty THREE.Object3D.
         var
-        meshColorOff = 0xDB3236,//  Red.
-        meshColorOn  = 0xF4C20D,//  Yellow.
-        controllerMaterial = new THREE.MeshStandardMaterial({
-            color: meshColorOff
-        }),
-        controllerMesh = new THREE.Mesh(
-            new THREE.CylinderGeometry( 0.005, 0.05, 0.1, 6 ),
-            controllerMaterial
-        ),
-        handleMesh = new THREE.Mesh(
-            new THREE.BoxGeometry( 0.03, 0.1, 0.03 ),
-            controllerMaterial
-        );
+            meshColorOff = 0xDB3236, //  Red.
+            meshColorOn = 0xF4C20D, //  Yellow.
+            controllerMaterial = new THREE.MeshStandardMaterial({
+                color: meshColorOff
+            }),
+            controllerMesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.005, 0.05, 0.1, 6),
+                controllerMaterial
+            ),
+            handleMesh = new THREE.Mesh(
+                new THREE.BoxGeometry(0.03, 0.1, 0.03),
+                controllerMaterial
+            );
         controllerMaterial.flatShading = true;
         controllerMesh.rotation.x = -Math.PI / 2;
         handleMesh.position.y = -0.05;
-        controllerMesh.add( handleMesh );
-        controller.userData.mesh = controllerMesh;//  So we can change the color later.
-        controller.add( controllerMesh );
-        controller.addEventListener( 'primary press began', onSelectStart);
-        controller.addEventListener( 'primary press ended', onSelectEnd);
-        controller.addEventListener( 'grip press began', onSelectStart);
-        controller.addEventListener( 'grip press ended', onSelectEnd);
-        controller.addEventListener( 'disconnected', function( event ){
-            controller.parent.remove( controller );
+        controllerMesh.add(handleMesh);
+        controller.userData.mesh = controllerMesh; //  So we can change the color later.
+        controller.add(controllerMesh);
+        controller.addEventListener('primary press began', onSelectStart);
+        controller.addEventListener('primary press ended', onSelectEnd);
+        controller.addEventListener('thumbstick axes moved', onThumbstickMove);
+        controller.addEventListener('thumbpad pressed', onThumbpadPress);
+        controller.addEventListener('disconnected', function (event) {
+            controller.parent.remove(controller);
         });
     })
     onWindowResize();
@@ -241,17 +244,40 @@ function onSelectEnd(event) {
         object.matrix.premultiply(controller.matrixWorld);
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.material.emissive.b = 0;
-        group.add(object);
+        vertices.add(object);
         controller.userData.selected = undefined;
 
     }
+}
+
+function onThumbstickMove(event) {
+    var x = parseFloat(event.axes[0].toFixed(2));
+    var y = parseFloat(event.axes[1].toFixed(2));
+    var xstep = CAMSTEP * x;
+    var ystep = CAMSTEP * y;
+
+    group.translateX(xstep);
+
+    group.translateY(-ystep);
+
+}
+
+function onThumbpadPress(event) {
+
+    var controller = event.target;
+    if (controller.getHandedness() == 'right') {
+        group.translateZ(CAMSTEP);
+    } else {
+        group.translateZ(-CAMSTEP);
+    }
+
 }
 
 function getIntersections(controller) {
     tempMatrix.identity().extractRotation(controller.matrixWorld);
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-    return raycaster.intersectObjects(group.children);
+    return raycaster.intersectObjects(vertices.children);
 }
 
 function intersectObjects(controller) {
