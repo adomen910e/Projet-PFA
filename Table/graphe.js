@@ -218,14 +218,17 @@ function onSelectStart(event) {
             sphere1.position.x = -20;
             sphere1.position.y = 2;
             sphere1.position.z = -30;
+            sphere1.visible = true;
            
             sphere2.position.x = 0;
             sphere2.position.y = 2;
             sphere2.position.z = -30;
+            sphere2.visible = true;
 
             sphere3.position.x = 20;
             sphere3.position.y = 2;
             sphere3.position.z = -30;
+            sphere3.visible = true;
 
             is_selected = 1;
             
