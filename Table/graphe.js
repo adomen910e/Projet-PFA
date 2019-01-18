@@ -205,13 +205,15 @@ function onSelectStart(event) {
             controller.userData.selected = object;
             selected = 1;
             
-            cylindre1.lookAt(event.x, event.y, event.z);
+//            cylindre1.lookAt(event.x, event.y, event.z);
             
         } else {
             object.material.emissive.b = 1;
             erase_other(object);
             controller.userData.selected = object;
         }
+    }else{
+        sphere1.material.emissive.b = 1;
     }
 
 }
