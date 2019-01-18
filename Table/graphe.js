@@ -126,8 +126,6 @@ function init() {
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
     cylindre1.name = 'numero3';
-    
-    cylindre1.lookAt(new THREE.Vector3(0, 1, 0));
 
     selected = 0;
 
