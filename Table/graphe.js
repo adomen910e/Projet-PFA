@@ -204,7 +204,8 @@ function onSelectStart(event) {
             controller.add(object);
             controller.userData.selected = object;
             selected = 1;
-            controller.addEventListener("mousemove", onmousemove, false);
+            
+            cylindre1.lookAt(event.x, event.y, event.z);
             
         } else {
             object.material.emissive.b = 1;
@@ -213,16 +214,6 @@ function onSelectStart(event) {
         }
     }
 
-}
-
-function onmousemove(event) {
-  //get mouse coordinates
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);//set raycaster
-  raycaster.ray.intersectPlane(plane, intersectPoint); // find the point of intersection
-  cylindre1.lookAt(intersectPoint); // face our arrow to this point
 }
 
 function onSelectEnd(event) {
