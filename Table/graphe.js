@@ -326,25 +326,25 @@ function change_color() {
 
 function move(object, dx, dy, dz) {
 
-     while ((object.position.x != dx) && (object.position.y != 0) && (object.position.z != 0)) {
+     while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
 
         if (object.position.x > dx) {
             object.position.x = object.position.x - 1;
-        } else {
+        } else if (object.position.x < dx){
             object.position.x = object.position.x + 1;
         }
 
 
         if (object.position.y > dy) {
             object.position.y = object.position.y - 1;
-        } else {
+        } else if (object.position.y < dy){
             object.position.y = object.position.y + 1;
         }
 
 
         if (object.position.z > dz) {
             object.position.z = object.position.z - 1;
-        } else {
+        } else  if (object.position.z < dz) {
             object.position.z = object.position.z + 1;
         }
 
