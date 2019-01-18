@@ -354,7 +354,7 @@ function move(object, dx, dy, dz) {
 
 function move_to_cam(object) {
 
-    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+    while ((object.position.x != 0) && (object.position.y != 2) && (object.position.z != -30)) {
         if (object.position.x > 0) {
             object.position.x = object.position.x - 1;
         } else {
