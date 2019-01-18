@@ -15,12 +15,12 @@ var sphere2;
 var sphere1;
 
 var selected;
-
+var is_selected;
 
 var plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); // it's up to you how you will create THREE.Plane(), there are several methods
 var raycaster = new THREE.Raycaster(); //for reuse
-var mouse = new THREE.Vector2();       //for reuse
-var intersectPoint = new THREE.Vector3();//for reuse
+var mouse = new THREE.Vector2(); //for reuse
+var intersectPoint = new THREE.Vector3(); //for reuse
 
 //double buffering pour l'affichage des elements 
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
@@ -204,16 +204,34 @@ function onSelectStart(event) {
             controller.add(object);
             controller.userData.selected = object;
             selected = 1;
-            
-//            cylindre1.lookAt(event.x, event.y, event.z);
-            
+
+            //            cylindre1.lookAt(event.x, event.y, event.z);
+
         } else {
+            is_selected = 0;
             object.material.emissive.b = 1;
             erase_other(object);
             controller.userData.selected = object;
         }
-    }else{
-        sphere1.material.emissive.b = 1;
+    } else {
+        if (is_selected == 0) {
+            sphere1.position.x = -20;
+            sphere1.position.y = 2;
+            sphere1.position.z = -30;
+           
+            sphere2.position.x = 0;
+            sphere2.position.y = 2;
+            sphere2.position.z = -30;
+
+            sphere3.position.x = 20;
+            sphere3.position.y = 2;
+            sphere3.position.z = -30;
+
+            is_selected = 1;
+            
+            renderer.render(scene, camera);
+        }
+
     }
 
 }
@@ -273,10 +291,10 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.name != "numero3"){
+        if (object.name != "numero3") {
             object.material.emissive.b = 1;
         }
-        
+
         intersected.push(object);
         line.scale.z = intersection.distance;
 
@@ -342,7 +360,7 @@ function cleanIntersected() {
     while (intersected.length) {
         var object = intersected.pop();
 
-        if (object.name != "numero3"){
+        if (object.name != "numero3") {
             object.material.emissive.b = 0;
         }
 
