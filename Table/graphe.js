@@ -16,6 +16,12 @@ var sphere1;
 
 var selected;
 
+
+var plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); // it's up to you how you will create THREE.Plane(), there are several methods
+var raycaster = new THREE.Raycaster(); //for reuse
+var mouse = new THREE.Vector2();       //for reuse
+var intersectPoint = new THREE.Vector3();//for reuse
+
 //double buffering pour l'affichage des elements 
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
 
@@ -120,6 +126,8 @@ function init() {
     cylindre1.position.y = -5;
     cylindre1.position.z = -20;
     cylindre1.name = 'numero3';
+    
+    cylindre1.lookAt(new THREE.Vector3(0, 1, 0));
 
     selected = 0;
 
@@ -198,6 +206,8 @@ function onSelectStart(event) {
             controller.add(object);
             controller.userData.selected = object;
             selected = 1;
+            controller.addEventListener("mousemove", onmousemove, false);
+            
         } else {
             object.material.emissive.b = 1;
             erase_other(object);
@@ -205,6 +215,16 @@ function onSelectStart(event) {
         }
     }
 
+}
+
+function onmousemove(event) {
+  //get mouse coordinates
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);//set raycaster
+  raycaster.ray.intersectPlane(plane, intersectPoint); // find the point of intersection
+  cylindre1.lookAt(intersectPoint); // face our arrow to this point
 }
 
 function onSelectEnd(event) {
