@@ -215,23 +215,32 @@ function onSelectStart(event) {
         }
     } else {
         if (is_selected == 0) {
-            sphere1.position.x = -20;
-            sphere1.position.y = 2;
-            sphere1.position.z = -30;
-            sphere1.visible = true;
-           
-            sphere2.position.x = 0;
-            sphere2.position.y = 2;
-            sphere2.position.z = -30;
-            sphere2.visible = true;
 
-            sphere3.position.x = 20;
-            sphere3.position.y = 2;
-            sphere3.position.z = -30;
+            sphere1.visible = true;
+            sphere2.visible = true;
             sphere3.visible = true;
 
+            move(sphere1, -20, 2, -30)
+            //            sphere1.position.x = -20;
+            //            sphere1.position.y = 2;
+            //            sphere1.position.z = -30;
+
+
+            move(sphere2, 0, 2, -30)
+
+            //            sphere2.position.x = 0;
+            //            sphere2.position.y = 2;
+            //            sphere2.position.z = -30;
+
+
+            move(sphere3, 20, 2, -30)
+            //            sphere3.position.x = 20;
+            //            sphere3.position.y = 2;
+            //            sphere3.position.z = -30;
+
+
             is_selected = 1;
-            
+
             renderer.render(scene, camera);
         }
 
@@ -315,37 +324,63 @@ function change_color() {
     renderer.render(scene, camera);
 }
 
+function move(object, dx, dy, dz) {
+
+    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+
+        if (object.position.x > dx) {
+            object.position.x = object.position.x - 1;
+        } else {
+            object.position.x = object.position.x + 1;
+        }
+
+
+        if (object.position.y > dy) {
+            object.position.y = object.position.y - 1;
+        } else {
+            object.position.y = object.position.y + 1;
+        }
+
+
+        if (object.position.z > dz) {
+            object.position.z = object.position.z - 1;
+        } else {
+            object.position.z = object.position.z + 1;
+        }
+
+        renderer.render(scene, camera);
+    }
+}
+
 function move_to_cam(object) {
 
-//    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
-//        if (object.position.x > 0) {
-//            object.position.x = object.position.x - 1;
-//        } else {
-//            object.position.x = object.position.x + 1;
-//        }
-//
-//        if (object.position.y > 2) {
-//            object.position.y = object.position.y - 1;
-//        } else {
-//            object.position.y = object.position.y + 1;
-//        }
-//
-//        if (object.position.z > -30) {
-//            object.position.z = object.position.z - 1;
-//        } else {
-//            object.position.z = object.position.z + 1;
-//        }
-//
-//        renderer.render(scene, camera);
-//    }
+    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+        if (object.position.x > 0) {
+            object.position.x = object.position.x - 1;
+        } else {
+            object.position.x = object.position.x + 1;
+        }
 
-        object.userData.velocity = new THREE.Vector3();
-        object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-        object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-        object.userData.velocity.z = Math.random() * 0.01 - 0.005;
+        if (object.position.y > 2) {
+            object.position.y = object.position.y - 1;
+        } else {
+            object.position.y = object.position.y + 1;
+        }
 
-    
-    renderer.render(scene, camera);
+        if (object.position.z > -30) {
+            object.position.z = object.position.z - 1;
+        } else {
+            object.position.z = object.position.z + 1;
+        }
+
+        renderer.render(scene, camera);
+    }
+
+    //        object.userData.velocity = new THREE.Vector3();
+    //        object.userData.velocity.x = Math.random() * 0.01 - 0.005;
+    //        object.userData.velocity.y = Math.random() * 0.01 - 0.005;
+    //        object.userData.velocity.z = Math.random() * 0.01 - 0.005;  
+    //    renderer.render(scene, camera);
 }
 
 function erase_other(object) {
