@@ -317,33 +317,35 @@ function change_color() {
 
 function move_to_cam(object) {
 
-    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
-        if (object.position.x > 0) {
-            object.position.x = object.position.x - 1;
-        } else {
-            object.position.x = object.position.x + 1;
-        }
+//    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+//        if (object.position.x > 0) {
+//            object.position.x = object.position.x - 1;
+//        } else {
+//            object.position.x = object.position.x + 1;
+//        }
+//
+//        if (object.position.y > 2) {
+//            object.position.y = object.position.y - 1;
+//        } else {
+//            object.position.y = object.position.y + 1;
+//        }
+//
+//        if (object.position.z > -30) {
+//            object.position.z = object.position.z - 1;
+//        } else {
+//            object.position.z = object.position.z + 1;
+//        }
+//
+//        renderer.render(scene, camera);
+//    }
 
-        if (object.position.y > 2) {
-            object.position.y = object.position.y - 1;
-        } else {
-            object.position.y = object.position.y + 1;
-        }
+        object.userData.velocity = new THREE.Vector3();
+        object.userData.velocity.x = Math.random() * 0.01 - 0.005;
+        object.userData.velocity.y = Math.random() * 0.01 - 0.005;
+        object.userData.velocity.z = Math.random() * 0.01 - 0.005;
 
-        if (object.position.z > -30) {
-            object.position.z = object.position.z - 1;
-        } else {
-            object.position.z = object.position.z + 1;
-        }
-
-        renderer.render(scene, camera);
-    }
-
-    //    object.userData.velocity = new THREE.Vector3();
-    //    object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-    //    object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-    //    object.userData.velocity.z = Math.random() * 0.01 - 0.005;
-
+    
+    renderer.render(scene, camera);
 }
 
 function erase_other(object) {
