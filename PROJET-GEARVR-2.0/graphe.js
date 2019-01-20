@@ -228,8 +228,14 @@ function onSelectStart(event) {
         var intersection = intersections[0];
         tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
-        object.matrix.premultiply(tempMatrix);
+        object.matrix.premultiply(tempMatrix);        
         object.matrix.decompose(object.position, object.quaternion, object.scale);
+        object.position.x = 0;
+        object.position.y = 0;
+        if (object.geometry.parameters.radius !== undefined) 
+            object.position.z = -intersection.distance - object.geometry.parameters.radius;
+        if (object.geometry.parameters.depth !== undefined) 
+            object.position.z = -intersection.distance - object.geometry.parameters.depth/2;
         object.material.emissive.b = 1;
         controller.add(object);
         controller.userData.selected = object;
@@ -241,10 +247,16 @@ function onSelectEnd(event) {
     var controller = event.target;
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
+        var test = new THREE.Vector3();
+        object.getWorldPosition(test);
         object.matrix.premultiply(controller.matrixWorld);
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.material.emissive.b = 0;
         vertices.add(object);
+        object.position = test;
+        object.position.x -= group.position.x;
+        object.position.y -= group.position.y;
+        object.position.z -= group.position.z;
         controller.userData.selected = undefined;
 
     }
