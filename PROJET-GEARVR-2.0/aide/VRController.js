@@ -436,6 +436,7 @@ THREE.VRController = function( gamepad ){
 
 				if( verbosity >= 0.5 ) console.log( controllerAndButtonInfo +'pressed' )
 				if (!isPrimary) controller.dispatchEvent({ type: button.name +' pressed' })
+				if (isPrimary) controller.dispatchEvent({ type: 'primary pressed' })
 			}
 		})
 	}

@@ -4,6 +4,7 @@ var controller1, controller2;
 var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
 var group;
+var cameraGroup;
 var vertices;
 var edges;
 var object;
@@ -31,9 +32,11 @@ function init() {
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
+    cameraGroup = new THREE.Group();
 
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
+    cameraGroup.add(camera);
 
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
@@ -268,20 +271,25 @@ function onThumbstickMove(event) {
     var xstep = CAMSTEP * x;
     var ystep = CAMSTEP * y;
 
-    group.translateX(xstep);
+    // Permet de se déplacer vers l'avant et vers l'arrière suivant la direction de la caméra
+    var direction = new THREE.Vector3();
+    camera.getWorldDirection( direction );
+    group.position.add( direction.multiplyScalar(ystep) );
 
-    group.translateY(-ystep);
+    // Déplacement en absolu (sans prendre en compte la direction de la caméra)
+    /*group.translateX(xstep);
+    group.translateY(-ystep);*/
 
 }
 
 function onThumbpadPress(event) {
 
-    var controller = event.target;
+    /*var controller = event.target;
     if (controller.getHandedness() == 'right') {
         group.translateZ(CAMSTEP);
     } else {
         group.translateZ(-CAMSTEP);
-    }
+    }*/
 
 }
 
