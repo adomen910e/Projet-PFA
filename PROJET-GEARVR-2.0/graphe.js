@@ -265,16 +265,25 @@ function onSelectEnd(event) {
     }
 }
 
+// Permet de se deplacer dans l'espace suivant la direction du regard
+function moveInSpace(xAxisValue, yAxisValue){
+    var xstep = CAMSTEP * xAxisValue;
+    var ystep = CAMSTEP * yAxisValue;
+
+    var direction = new THREE.Vector3();
+    camera.getWorldDirection( direction );
+    var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
+    var quad = new THREE.Quaternion().setFromAxisAngle( axisOfRotation, Math.PI / 2 );
+    var ymove = direction.clone().multiplyScalar(ystep);
+    direction.applyQuaternion(quad);
+    var xmove = direction.multiplyScalar(xstep);
+    group.position.add( xmove.add(ymove) );
+}
+
 function onThumbstickMove(event) {
     var x = parseFloat(event.axes[0].toFixed(2));
     var y = parseFloat(event.axes[1].toFixed(2));
-    var xstep = CAMSTEP * x;
-    var ystep = CAMSTEP * y;
-
-    // Permet de se déplacer vers l'avant et vers l'arrière suivant la direction de la caméra
-    var direction = new THREE.Vector3();
-    camera.getWorldDirection( direction );
-    group.position.add( direction.multiplyScalar(ystep) );
+    moveInSpace(x, y);
 
     // Déplacement en absolu (sans prendre en compte la direction de la caméra)
     /*group.translateX(xstep);
