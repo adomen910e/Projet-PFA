@@ -180,6 +180,7 @@ function init() {
 }
 
 
+
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -326,25 +327,25 @@ function change_color() {
 
 function move(object, dx, dy, dz) {
 
-     while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
+    while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
 
         if (object.position.x > dx) {
             object.position.x = object.position.x - 1;
-        } else if (object.position.x < dx){
+        } else if (object.position.x < dx) {
             object.position.x = object.position.x + 1;
         }
 
 
         if (object.position.y > dy) {
             object.position.y = object.position.y - 1;
-        } else if (object.position.y < dy){
+        } else if (object.position.y < dy) {
             object.position.y = object.position.y + 1;
         }
 
 
         if (object.position.z > dz) {
             object.position.z = object.position.z - 1;
-        } else  if (object.position.z < dz) {
+        } else if (object.position.z < dz) {
             object.position.z = object.position.z + 1;
         }
 
@@ -357,13 +358,13 @@ function move_to_cam(object) {
     while ((object.position.x != 0) || (object.position.y != 2) || (object.position.z != -30)) {
         if (object.position.x > 0) {
             object.position.x = object.position.x - 1;
-        } else if(object.position.x < 0) {
+        } else if (object.position.x < 0) {
             object.position.x = object.position.x + 1;
         }
 
         if (object.position.y > 2) {
             object.position.y = object.position.y - 1;
-        } else if (object.position.y < 2){
+        } else if (object.position.y < 2) {
             object.position.y = object.position.y + 1;
         }
 
