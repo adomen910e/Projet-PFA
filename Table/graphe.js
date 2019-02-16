@@ -176,6 +176,14 @@ function init() {
 
     window.addEventListener('resize', onWindowResize, false);
     onWindowResize();
+    
+    var slider = document.getElementById("myRange");
+        var output = document.getElementById("demo");
+        output.innerHTML = slider.value;
+
+        slider.oninput = function() {
+            output.innerHTML = this.value;
+        }
 
 }
 
