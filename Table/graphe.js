@@ -177,8 +177,8 @@ function init() {
     window.addEventListener('resize', onWindowResize, false);
     onWindowResize();
 
-    var slider = document.getElementById("myRange");
-    var output = document.getElementById("demo");
+    var slider = new document.getElementById("myRange");
+    var output = new document.getElementById("demo");
     output.innerHTML = slider.value;
 
     slider.oninput = function () {
