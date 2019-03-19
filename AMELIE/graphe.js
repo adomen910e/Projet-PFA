@@ -103,11 +103,6 @@ function init() {
     timestamp3 = new THREE.Group();
     timestamp3.type = 'timestamp3';
 
-
-    //var myString = JSON.stringify(file);
-
-    //var obj = JSON.parse(myString);
-
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
     var material = new THREE.MeshStandardMaterial({
@@ -155,7 +150,7 @@ function init() {
     
     var two_node = [];
     
-    //Mise en place des aretes dans les differrents timestamp
+    //Mise en place des aretes dans les differents timestamp
     for (var i = 0; i < file.edges.length; i++) {
         
         
@@ -198,8 +193,8 @@ function init() {
         two_node = [];
     }
     
-//   var slider =  document.createElement('slidecontainer');
-//    scene.add(slider);
+   var slider =  document.createElement('slidecontainer');
+   scene.add(slider);
 
     
     

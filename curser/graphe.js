@@ -3,7 +3,9 @@ var camera, scene, renderer;
 var controller1, controller2;
 var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
-var group;
+var allGraphs;
+var graph;
+var cursor;
 var cameraGroup;
 var vertices;
 var edges;
@@ -15,7 +17,6 @@ const CAMSTEP = 0.03;
 
 //double buffering pour l'affichage des elements 
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
-
 
 init();
 animate();
@@ -50,8 +51,18 @@ function init() {
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
     scene.add(light);
-    group = new THREE.Group();
-    scene.add(group);
+
+    allGraphs = new THREE.Group();
+    scene.add(allGraphs);
+
+    //Creation du curseur
+    var geometry = new THREE.PlaneBufferGeometry( 0.75, 0.1);
+    var material = new THREE.MeshStandardMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+    cursor = new THREE.Mesh( geometry, material );
+    scene.add( cursor );
+    cursor.position.x = camera.position.x;
+    cursor.position.y = camera.position.y + 1;
+    cursor.position.z = camera.position.z - 1;
 
 
     //on initialise les lignes
@@ -66,9 +77,14 @@ function init() {
         new THREE.TorusBufferGeometry(0.2, 0.04, 64, 32)
     ];
 
+    //Creation du graphe
+
+    graph = new THREE.Group();
+    allGraphs.add(graph);
+
     points = [];
     vertices = new THREE.Group();
-    group.add(vertices);
+    graph.add(vertices);
 
     for (var i = 0; i < 50; i++) {
 
@@ -107,7 +123,7 @@ function init() {
         opacity: 0.05
     }));
 
-    group.add(edges);
+    graph.add(edges);
 
 
     renderer = new THREE.WebGLRenderer({
@@ -229,6 +245,7 @@ function onSelectStart(event) {
 
     if (intersections.length > 0) {
         var intersection = intersections[0];
+        //console.log(intersection);
         tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
         object.matrix.premultiply(tempMatrix);        
@@ -257,9 +274,9 @@ function onSelectEnd(event) {
         object.material.emissive.b = 0;
         vertices.add(object);
         object.position = test;
-        object.position.x -= group.position.x;
-        object.position.y -= group.position.y;
-        object.position.z -= group.position.z;
+        object.position.x -= graph.position.x;
+        object.position.y -= graph.position.y;
+        object.position.z -= graph.position.z;
         controller.userData.selected = undefined;
 
     }
@@ -277,7 +294,7 @@ function moveInSpace(xAxisValue, yAxisValue){
     var ymove = direction.clone().multiplyScalar(ystep);
     direction.applyQuaternion(quad);
     var xmove = direction.multiplyScalar(xstep);
-    group.position.add( xmove.add(ymove) );
+    graph.position.add( xmove.add(ymove) );
 }
 
 function onThumbstickMove(event) {
@@ -286,8 +303,8 @@ function onThumbstickMove(event) {
     moveInSpace(x, y);
 
     // Déplacement en absolu (sans prendre en compte la direction de la caméra)
-    /*group.translateX(xstep);
-    group.translateY(-ystep);*/
+    /*graph.translateX(xstep);
+    graph.translateY(-ystep);*/
 
 }
 
@@ -295,9 +312,9 @@ function onThumbpadPress(event) {
 
     /*var controller = event.target;
     if (controller.getHandedness() == 'right') {
-        group.translateZ(CAMSTEP);
+        graph.translateZ(CAMSTEP);
     } else {
-        group.translateZ(-CAMSTEP);
+        graph.translateZ(-CAMSTEP);
     }*/
 
 }
@@ -306,7 +323,11 @@ function getIntersections(controller) {
     tempMatrix.identity().extractRotation(controller.matrixWorld);
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-    return raycaster.intersectObjects(vertices.children);
+    var toIntersect = [cursor];
+    for (var i = 0; i < allGraphs.children.length; i++){
+        toIntersect = toIntersect.concat(allGraphs.children[i].children[0].children);
+    }
+    return raycaster.intersectObjects(toIntersect);
 }
 
 function intersectObjects(controller) {
@@ -341,5 +362,10 @@ function render() {
     intersectObjects(controller1);
     intersectObjects(controller2);
     THREE.VRController.update();
+    cursor.lookAt(camera.position);
     renderer.render(scene, camera);
+}
+
+function sliderTest(event){
+    console.log(event);
 }

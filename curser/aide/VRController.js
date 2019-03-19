@@ -372,10 +372,7 @@ THREE.VRController = function( gamepad ){
 
 				if( verbosity >= 0.7 ) console.log( controllerInfo +'axes moved', axes )
 
-				// Get the vector determining where the camera is looking, and pass it to the event
-				var lookAtVector = new THREE.Vector3( 0, 0, - 1 );
-				lookAtVector.applyQuaternion( camera.quaternion );
-				controller.dispatchEvent({ type: 'axes moved', axes: axes, cameraVector: lookAtVector })
+				controller.dispatchEvent({ type: 'axes moved', axes: axes})
 			}
 		}
 
