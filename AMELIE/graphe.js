@@ -189,7 +189,12 @@ function init() {
         scene.add(edges);
         two_node = [];
     }
+    
+//   var slider =  document.createElement('slidecontainer');
+//    scene.add(slider);
 
+    
+    
 
 
 //
