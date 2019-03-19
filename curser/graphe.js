@@ -9,11 +9,13 @@ var vertices;
 var edges;
 var object;
 var points;
+var cursor;
+var CursorSize = 500
 
 const CAMSTEP = 0.03;
 
 
-//double buffering pour l'affichage des elements 
+//double buffering pour l'affichage des elements
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
 
 
@@ -40,6 +42,13 @@ function init() {
 
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
+    var reticle = new THREE.Mesh(
+          new THREE.RingBufferGeometry( 0.85 * CursorSize, CursorSize, 32),
+          new THREE.MeshBasicMaterial( {color: 0xffffff, blending: THREE.AdditiveBlending, side: THREE.DoubleSide })
+        );
+        reticle.position.z = -3 * SCALE;
+        reticle.lookAt(camera.position)
+        camera.add(reticle);
     //mise en place de la lumière
     var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
@@ -231,13 +240,13 @@ function onSelectStart(event) {
         var intersection = intersections[0];
         tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
-        object.matrix.premultiply(tempMatrix);        
+        object.matrix.premultiply(tempMatrix);
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.position.x = 0;
         object.position.y = 0;
-        if (object.geometry.parameters.radius !== undefined) 
+        if (object.geometry.parameters.radius !== undefined)
             object.position.z = -intersection.distance - object.geometry.parameters.radius;
-        if (object.geometry.parameters.depth !== undefined) 
+        if (object.geometry.parameters.depth !== undefined)
             object.position.z = -intersection.distance - object.geometry.parameters.depth/2;
         object.material.emissive.b = 1;
         controller.add(object);
