@@ -27,26 +27,26 @@ var file;
 //double buffering pour l'affichage des elements 
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
 
-loadJSON(function(response) {
-        // Parse JSON string into object
-        file = JSON.parse(response);
-        init();
-        animate();
+loadJSON(function (response) {
+    // Parse JSON string into object
+    file = JSON.parse(response);
+    init();
+    animate();
 });
 
 
-function loadJSON(callback) {   
+function loadJSON(callback) {
 
-        var xobj = new XMLHttpRequest();
-        xobj.overrideMimeType("application/json");
-        xobj.open('GET', 'vrgraph.json', true);
-        xobj.onreadystatechange = function () {
-              if (xobj.readyState == 4 && xobj.status == "200") {
-                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-                callback(xobj.responseText);
-              }
-        };
-        xobj.send(null);  
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'vrgraph.json', true);
+    xobj.onreadystatechange = function () {
+        if (xobj.readyState == 4 && xobj.status == "200") {
+            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+            callback(xobj.responseText);
+        }
+    };
+    xobj.send(null);
 }
 
 function init() {
@@ -91,6 +91,19 @@ function init() {
 
 
 
+    timestamp0 = new THREE.Group();
+    timestamp0.type = 'timestamp0';
+
+    timestamp1 = new THREE.Group();
+    timestamp1.type = 'timestamp1';
+
+    timestamp2 = new THREE.Group();
+    timestamp2.type = 'timestamp2';
+
+    timestamp3 = new THREE.Group();
+    timestamp3.type = 'timestamp3';
+
+
     //var myString = JSON.stringify(file);
 
     //var obj = JSON.parse(myString);
@@ -102,68 +115,145 @@ function init() {
     });
 
 
-    for (var i = 0; i <  file.nodes.length; i++) {
+    points = [];
+
+    //Mise en place des noeud dans les differrents timestamp
+    for (var i = 0; i < file.nodes.length; i++) {
         sphere1 = new THREE.Points(geometry, material);
         sphere1.position.x = file.nodes[i].pos[0];
         sphere1.position.y = file.nodes[i].pos[1];
         sphere1.position.z = file.nodes[i].pos[2];
+        sphere1.visible = false;
+
+
+        for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
+
+            if (file.nodes[i].timestamp[j] == 0) {
+                timestamp0.add(sphere1);
+                sphere1.visible = true;
+
+            } else if (file.nodes[i].timestamp[j] == 1) {
+                timestamp1.add(sphere1);
+
+            } else if (file.nodes[i].timestamp[j] == 2) {
+                timestamp2.add(sphere1);
+
+            } else if (file.nodes[i].timestamp[j] == 3) {
+                timestamp3.add(sphere1);
+
+            }
+        }
+        
         scene.add(sphere1);
-        //        group.add(sphere1);
+        points.push(sphere1);
+    }
+
+    
+    var two_node = [];
+    
+    //Mise en place des aretes dans les differrents timestamp
+    for (var i = 0; i < file.edges.length; i++) {
+        
+        
+        two_node.push(points[file.edges[i].src].position);
+        two_node.push(points[file.edges[i].tgt].position);
+        
+        
+        line = new THREE.BufferGeometry().setFromPoints(two_node);
+
+        edges = new THREE.Line(line, new THREE.LineBasicMaterial({
+            color: Math.random() * 0xffffff,
+            opacity: 0.01
+        }));
+        
+        edges.visible = false;  
+
+        for (var j = 0; j < file.edges[i].timestamp.length; j++) {
+
+            if (file.edges[i].timestamp[j] == 0) {
+                timestamp0.add(edges);
+                edges.visible = true; 
+
+            } else if (file.edges[i].timestamp[j] == 1) {
+                timestamp1.add(edges);
+
+            } else if (file.edges[i].timestamp[j] == 2) {
+                timestamp2.add(edges);
+
+            } else if (file.edges[i].timestamp[j] == 3) {
+                timestamp3.add(edges);
+
+            }
+        }
+        
+        scene.add(edges);
+        two_node = [];
     }
 
 
 
-    console.log(sphere1.position.x);
-    console.log(sphere1.position.y);
-    console.log(sphere1.position.z);
+//
+//    line = new THREE.BufferGeometry().setFromPoints(points);
+//
+//    edges = new THREE.Line(line, new THREE.LineBasicMaterial({
+//        color: 0xffffff,
+//        opacity: 0.05
+//    }));
+//
+//    group.add(edges);
+//
+//
+//    console.log(sphere1.position.x);
+//    console.log(sphere1.position.y);
+//    console.log(sphere1.position.z);
 
 
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-    sphere2 = new THREE.Mesh(geometry, material);
-    sphere2.position.x = 0;
-    sphere2.position.y = 2;
-    sphere2.position.z = -30;
-    //        scene.add(sphere2);
-    sphere2.name = 'numero1';
-    //        group.add(sphere2);
-
-
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-    sphere3 = new THREE.Mesh(geometry, material);
-    sphere3.position.x = 20;
-    sphere3.position.y = 2;
-    sphere3.position.z = -30;
-    //        scene.add(sphere3);
-    sphere3.name = 'numero2';
-    //        group.add(sphere3);
-
-
-
-    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
-    var texture = new THREE.TextureLoader().load('tourbi.png');
-
-    // immediately use the texture for material creation
-    material = new THREE.MeshBasicMaterial({
-        map: texture
-    });
-
+    //    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     //    material = new THREE.MeshStandardMaterial({
     //        color: Math.random() * 0xffffff,
     //    });
-
-    cylindre1 = new THREE.Mesh(geometry, material);
-    cylindre1.position.x = 0;
-    cylindre1.position.y = -5;
-    cylindre1.position.z = -20;
-    cylindre1.name = 'numero3';
-
-    selected = 0;
+    //    sphere2 = new THREE.Mesh(geometry, material);
+    //    sphere2.position.x = 0;
+    //    sphere2.position.y = 2;
+    //    sphere2.position.z = -30;
+    //    //        scene.add(sphere2);
+    //    sphere2.name = 'numero1';
+    //    //        group.add(sphere2);
+    //
+    //
+    //    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    //    material = new THREE.MeshStandardMaterial({
+    //        color: Math.random() * 0xffffff,
+    //    });
+    //    sphere3 = new THREE.Mesh(geometry, material);
+    //    sphere3.position.x = 20;
+    //    sphere3.position.y = 2;
+    //    sphere3.position.z = -30;
+    //    //        scene.add(sphere3);
+    //    sphere3.name = 'numero2';
+    //    //        group.add(sphere3);
+    //
+    //
+    //
+    //    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
+    //    var texture = new THREE.TextureLoader().load('tourbi.png');
+    //
+    //    // immediately use the texture for material creation
+    //    material = new THREE.MeshBasicMaterial({
+    //        map: texture
+    //    });
+    //
+    //    //    material = new THREE.MeshStandardMaterial({
+    //    //        color: Math.random() * 0xffffff,
+    //    //    });
+    //
+    //    cylindre1 = new THREE.Mesh(geometry, material);
+    //    cylindre1.position.x = 0;
+    //    cylindre1.position.y = -5;
+    //    cylindre1.position.z = -20;
+    //    cylindre1.name = 'numero3';
+    //
+    //    selected = 0;
 
     //        scene.add(cylindre1);
     //        group.add(cylindre1);
