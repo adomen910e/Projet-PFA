@@ -13,7 +13,8 @@ var object;
 var points;
 var cursor;
 var SCALE = 3;
-var CursorSize = 500
+var CursorSize = 500;
+var cursorStartPos = null;
 
 const CAMSTEP = 0.03;
 
@@ -259,17 +260,22 @@ function onSelectStart(event) {
         //console.log(intersection);
         tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
-        object.matrix.premultiply(tempMatrix);
-        object.matrix.decompose(object.position, object.quaternion, object.scale);
-        object.position.x = 0;
-        object.position.y = 0;
-        if (object.geometry.parameters.radius !== undefined)
-            object.position.z = -intersection.distance - object.geometry.parameters.radius;
-        if (object.geometry.parameters.depth !== undefined)
-            object.position.z = -intersection.distance - object.geometry.parameters.depth/2;
-        object.material.emissive.b = 1;
-        controller.add(object);
-        controller.userData.selected = object;
+        if (object == cursor){
+            cursorStartPos = intersection.uv;
+            //console.log(cursorStartPos);
+        } else {
+            object.matrix.premultiply(tempMatrix);
+            object.matrix.decompose(object.position, object.quaternion, object.scale);
+            object.position.x = 0;
+            object.position.y = 0;
+            if (object.geometry.parameters.radius !== undefined)
+                object.position.z = -intersection.distance - object.geometry.parameters.radius;
+            if (object.geometry.parameters.depth !== undefined)
+                object.position.z = -intersection.distance - object.geometry.parameters.depth / 2;
+            object.material.emissive.b = 1;
+            controller.add(object);
+            controller.userData.selected = object;
+        }
     }
 
 }
@@ -278,18 +284,21 @@ function onSelectEnd(event) {
     var controller = event.target;
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
-        var test = new THREE.Vector3();
-        object.getWorldPosition(test);
-        object.matrix.premultiply(controller.matrixWorld);
-        object.matrix.decompose(object.position, object.quaternion, object.scale);
-        object.material.emissive.b = 0;
-        vertices.add(object);
-        object.position = test;
-        object.position.x -= graph.position.x;
-        object.position.y -= graph.position.y;
-        object.position.z -= graph.position.z;
-        controller.userData.selected = undefined;
-
+        if (!(cursorStartPos === null)){
+            cursorStartPos = null;
+        } else {
+            var test = new THREE.Vector3();
+            object.getWorldPosition(test);
+            object.matrix.premultiply(controller.matrixWorld);
+            object.matrix.decompose(object.position, object.quaternion, object.scale);
+            object.material.emissive.b = 0;
+            vertices.add(object);
+            object.position = test;
+            object.position.x -= graph.position.x;
+            object.position.y -= graph.position.y;
+            object.position.z -= graph.position.z;
+            controller.userData.selected = undefined;
+        }
     }
 }
 
@@ -352,8 +361,10 @@ function intersectObjects(controller) {
         object.material.emissive.r = 1;
         intersected.push(object);
         line.scale.z = intersection.distance;
+        return intersection;
     } else {
         line.scale.z = 5;
+        return null;
     }
 }
 
@@ -370,13 +381,35 @@ function animate() {
 
 function render() {
     cleanIntersected();
-    intersectObjects(controller1);
-    intersectObjects(controller2);
+    var intersection1 = intersectObjects(controller1);
+    var intersection2 = intersectObjects(controller2);
     THREE.VRController.update();
     cursor.lookAt(camera.position);
+    if (!(cursorStartPos === null)) {
+        if (!(intersection1 === null) && (intersection1.object == cursor)) {
+            var diff = intersection1.uv.x - cursorStartPos.x;
+            if (diff > 0.5)
+                change1();
+            if (diff < -0.5)
+                change2();
+        }
+        if (!(intersection2 === null) && (intersection2.object == cursor)) {
+            var diff = intersection1.uv.x - cursorStartPos.x;
+            if (diff > 0.5)
+                change1();
+            if (diff < -0.5)
+                change2();
+        }
+    }
     renderer.render(scene, camera);
 }
 
-function sliderTest(event){
-    console.log(event);
+function change1(){
+    cursor.material.color.setHex(0x5eacff);
+    cursorStartPos = null;
+}
+
+function change2(){
+    cursor.material.color.setHex(0xff0000);
+    cursorStartPos = null;
 }
