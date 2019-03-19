@@ -82,55 +82,55 @@ function init() {
 
 
 
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-    sphere2 = new THREE.Mesh(geometry, material);
-    sphere2.position.x = 0;
-    sphere2.position.y = 2;
-    sphere2.position.z = -30;
-    scene.add(sphere2);
-    sphere2.name = 'numero1';
-    group.add(sphere2);
-
-
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-    sphere3 = new THREE.Mesh(geometry, material);
-    sphere3.position.x = 20;
-    sphere3.position.y = 2;
-    sphere3.position.z = -30;
-    scene.add(sphere3);
-    sphere3.name = 'numero2';
-    group.add(sphere3);
-
-
-
-    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
-    var texture = new THREE.TextureLoader().load('tourbi.png');
-
-    // immediately use the texture for material creation
-    material = new THREE.MeshBasicMaterial({
-        map: texture
-    });
-
-    //    material = new THREE.MeshStandardMaterial({
-    //        color: Math.random() * 0xffffff,
-    //    });
-
-    cylindre1 = new THREE.Mesh(geometry, material);
-    cylindre1.position.x = 0;
-    cylindre1.position.y = -5;
-    cylindre1.position.z = -20;
-    cylindre1.name = 'numero3';
-
-    selected = 0;
-
-    scene.add(cylindre1);
-    group.add(cylindre1);
+//    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+//    material = new THREE.MeshStandardMaterial({
+//        color: Math.random() * 0xffffff,
+//    });
+//    sphere2 = new THREE.Mesh(geometry, material);
+//    sphere2.position.x = 0;
+//    sphere2.position.y = 2;
+//    sphere2.position.z = -30;
+//    scene.add(sphere2);
+//    sphere2.name = 'numero1';
+//    group.add(sphere2);
+//
+//
+//    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+//    material = new THREE.MeshStandardMaterial({
+//        color: Math.random() * 0xffffff,
+//    });
+//    sphere3 = new THREE.Mesh(geometry, material);
+//    sphere3.position.x = 20;
+//    sphere3.position.y = 2;
+//    sphere3.position.z = -30;
+//    scene.add(sphere3);
+//    sphere3.name = 'numero2';
+//    group.add(sphere3);
+//
+//
+//
+//    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
+//    var texture = new THREE.TextureLoader().load('tourbi.png');
+//
+//    // immediately use the texture for material creation
+//    material = new THREE.MeshBasicMaterial({
+//        map: texture
+//    });
+//
+//    //    material = new THREE.MeshStandardMaterial({
+//    //        color: Math.random() * 0xffffff,
+//    //    });
+//
+//    cylindre1 = new THREE.Mesh(geometry, material);
+//    cylindre1.position.x = 0;
+//    cylindre1.position.y = -5;
+//    cylindre1.position.z = -20;
+//    cylindre1.name = 'numero3';
+//
+//    selected = 0;
+//
+//    scene.add(cylindre1);
+//    group.add(cylindre1);
 
 
     renderer = new THREE.WebGLRenderer({
