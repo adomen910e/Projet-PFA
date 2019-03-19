@@ -10,6 +10,7 @@ var edges;
 var object;
 var points;
 var cursor;
+var SCALE = 3;
 var CursorSize = 500
 
 const CAMSTEP = 0.03;
@@ -46,9 +47,10 @@ function init() {
           new THREE.RingBufferGeometry( 0.85 * CursorSize, CursorSize, 32),
           new THREE.MeshBasicMaterial( {color: 0xffffff, blending: THREE.AdditiveBlending, side: THREE.DoubleSide })
         );
-        reticle.position.z = -3 * SCALE;
-        reticle.lookAt(camera.position)
-        camera.add(reticle);
+     reticle.position.z = -3 * SCALE;
+    reticle.lookAt(camera.position)
+    scene.add(reticle);
+        //camera.add(reticle);
     //mise en place de la lumière
     var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
