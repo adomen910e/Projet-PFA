@@ -134,16 +134,20 @@ function init() {
 
             } else if (file.nodes[i].timestamp[j] == 1) {
                 timestamp1.add(sphere1);
+//                sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 2) {
                 timestamp2.add(sphere1);
+//                sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 3) {
                 timestamp3.add(sphere1);
+//                sphere1.visible = true;
 
             }
         }
         
+        group.add(sphere1);
         scene.add(sphere1);
         points.push(sphere1);
     }
@@ -176,16 +180,20 @@ function init() {
 
             } else if (file.edges[i].timestamp[j] == 1) {
                 timestamp1.add(edges);
+//                edges.visible = true; 
 
             } else if (file.edges[i].timestamp[j] == 2) {
                 timestamp2.add(edges);
+//                edges.visible = true; 
 
             } else if (file.edges[i].timestamp[j] == 3) {
                 timestamp3.add(edges);
+//                edges.visible = true;
 
             }
         }
         
+        group.add(edges);
         scene.add(edges);
         two_node = [];
     }
