@@ -6,10 +6,6 @@ var tempMatrix = new THREE.Matrix4();
 var group_no_move;
 var group;
 var timestamp0, timestamp1, timestamp2, timestamp1;
-var timestamp0_length = 0;
-var timestamp1_length = 0;
-var timestamp2_length = 0;
-var timestamp3_length = 0;
 var line;
 var object;
 var points;
@@ -134,22 +130,18 @@ function init() {
 
             if (file.nodes[i].timestamp[j] == 0) {
                 timestamp0.add(sphere1);
-                timestamp0_length++;
                 sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 1) {
                 timestamp1.add(sphere1);
-                timestamp1_length++;
                 //                                sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 2) {
                 timestamp2.add(sphere1);
-                timestamp2_length++;
                 //                                sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 3) {
                 timestamp3.add(sphere1);
-                timestamp3_length++;
                 //                                sphere1.visible = true;
 
             }
@@ -184,22 +176,18 @@ function init() {
 
             if (file.edges[i].timestamp[j] == 0) {
                 timestamp0.add(edges);
-                timestamp0_length++;
                 edges.visible = true;
 
             } else if (file.edges[i].timestamp[j] == 1) {
                 timestamp1.add(edges);
-                timestamp1_length++;
                 //                edges.visible = true; 
 
             } else if (file.edges[i].timestamp[j] == 2) {
                 timestamp2.add(edges);
-                timestamp2_length++;
                 //                edges.visible = true; 
 
             } else if (file.edges[i].timestamp[j] == 3) {
                 timestamp3.add(edges);
-                timestamp3_length++;
                 //                edges.visible = true;
 
             }
@@ -283,68 +271,8 @@ function init() {
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
 
-    var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
-    var line = new THREE.Line(geometry);
-    line.name = 'line';
-    //    line.scale.z = 5;
-    controller1.add(line.clone());
-    controller2.add(line.clone());
-    raycaster = new THREE.Raycaster();
-    //
-
-    window.addEventListener('resize', onWindowResize, false);
-
-    window.addEventListener('vr controller connected', function (event) {
-        //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
-        var controller = event.detail;
-        scene.add(controller);
-        //  For standing experiences (not seated) we need to set the standingMatrix
-        //  otherwise you’ll wonder why your controller appears on the floor
-        //  instead of in your hands! And for seated experiences this will have no
-        //  effect, so safe to do either way:
-        controller.standingMatrix = renderer.vr.getStandingMatrix();
-        //  And for 3DOF (seated) controllers you need to set the controller.head
-        //  to reference your camera. That way we can make an educated guess where
-        //  your hand ought to appear based on the camera’s rotation.
-        controller.head = window.camera;
-        //  Right now your controller has no visual.
-        //  It’s just an empty THREE.Object3D.
-        var
-            meshColorOff = 0xDB3236, //  Red.
-            meshColorOn = 0xF4C20D, //  Yellow.
-            controllerMaterial = new THREE.MeshStandardMaterial({
-                color: meshColorOff
-            }),
-            controllerMesh = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.005, 0.05, 0.1, 6),
-                controllerMaterial
-            ),
-            handleMesh = new THREE.Mesh(
-                new THREE.BoxGeometry(0.03, 0.1, 0.03),
-                controllerMaterial
-            );
-        controllerMaterial.flatShading = true;
-        controllerMesh.rotation.x = -Math.PI / 2;
-        handleMesh.position.y = -0.05;
-        controllerMesh.add(handleMesh);
-        controller.userData.mesh = controllerMesh; //  So we can change the color later.
-        controller.add(controllerMesh);
-        controller.addEventListener('primary press began', onSelectStart);
-        controller.addEventListener('primary press ended', onSelectEnd);
-        controller.addEventListener('thumbstick axes moved', onThumbstickMove);
-        controller.addEventListener('thumbpad pressed', onThumbpadPress);
-        controller.addEventListener('disconnected', function (event) {
-            controller.parent.remove(controller);
-        });
-    })
-    onWindowResize();
 }
 
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
 
 function onSelectStart(event) {
     var controller = event.target;
@@ -357,12 +285,22 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        object.matrix.premultiply(tempMatrix);
-        object.matrix.decompose(object.position, object.quaternion, object.scale);
+        if (object.name.charAt(0) != 'n') {
+            object.matrix.premultiply(tempMatrix);
+            object.matrix.decompose(object.position, object.quaternion, object.scale);
 
-        controller.add(object);
-        controller.userData.selected = object;
-        object.material.emissive.b = 1;
+            controller.add(object);
+            controller.userData.selected = object;
+            selected = 1;
+
+        } else {
+            is_selected = 0;
+            object.material.emissive.b = 1;
+            erase_other(object);
+            controller.userData.selected = object;
+        }
+    } else {
+
     }
 
 }
@@ -373,15 +311,19 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
+        if (object.name.charAt(0) != 'n') {
+            object.matrix.premultiply(controller.matrixWorld);
+            object.matrix.decompose(object.position, object.quaternion, object.scale);
 
-        object.matrix.premultiply(controller.matrixWorld);
-        object.matrix.decompose(object.position, object.quaternion, object.scale);
+            group.add(object);
 
-        group.add(object);
-
-        controller.userData.selected = undefined;
-
-        object.material.emissive.b = 0;
+            controller.userData.selected = undefined;
+            selected = 0;
+        } else {
+            object.material.emissive.b = 0;
+            erase_other(object);
+            controller.userData.selected = undefined;
+        }
 
     }
 }
@@ -394,14 +336,10 @@ function getIntersections(controller) {
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-    return raycaster.intersectObjects(group.children);
+    return raycaster.intersectObjects(group_no_move.children);
 }
 
 function intersectObjects(controller) {
-
-    if (selected == 1) {
-        change_color();
-    }
 
 
     // Do not highlight when already selected
@@ -414,281 +352,72 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-
-        object.material.emissive.b = 1;
+        if (object.name.charAt(0) == 'n') {
+            object.material.emissive.b = 1;
+        }
 
         intersected.push(object);
         line.scale.z = intersection.distance;
 
     } else {
-        line.scale.z = 1000;
+        //        line.scale.z = 1000;
     }
 }
 
-function change_color() {
 
-    sphere2.material.color.setHex(Math.random() * 0xffffff);
-    sphere1.material.color.setHex(Math.random() * 0xffffff);
-    sphere3.material.color.setHex(Math.random() * 0xffffff);
+function move(object, dx, dy, dz) {
 
-    renderer.render(scene, camera);
+    while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
+
+        if (object.position.x > dx) {
+            object.position.x = object.position.x - 1;
+        } else if (object.position.x < dx) {
+            object.position.x = object.position.x + 1;
+        }
+
+
+        if (object.position.y > dy) {
+            object.position.y = object.position.y - 1;
+        } else if (object.position.y < dy) {
+            object.position.y = object.position.y + 1;
+        }
+
+
+        if (object.position.z > dz) {
+            object.position.z = object.position.z - 1;
+        } else if (object.position.z < dz) {
+            object.position.z = object.position.z + 1;
+        }
+
+        renderer.render(scene, camera);
+    }
 }
 
 function move_to_cam(object) {
 
-    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
+    while ((object.position.x != 0) || (object.position.y != 2) || (object.position.z != -30)) {
         if (object.position.x > 0) {
             object.position.x = object.position.x - 1;
-        } else {
+        } else if (object.position.x < 0) {
             object.position.x = object.position.x + 1;
         }
 
         if (object.position.y > 2) {
             object.position.y = object.position.y - 1;
-        } else {
+        } else if (object.position.y < 2) {
             object.position.y = object.position.y + 1;
         }
 
         if (object.position.z > -30) {
             object.position.z = object.position.z - 1;
-        } else {
+        } else if (object.position.z < -30) {
             object.position.z = object.position.z + 1;
         }
 
         renderer.render(scene, camera);
     }
 
-    //    object.userData.velocity = new THREE.Vector3();
-    //    object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-    //    object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-    //    object.userData.velocity.z = Math.random() * 0.01 - 0.005;
-
 }
-
-function erase_other(object) {
-    for (var i = 0; i < 4; i++) {
-        if (object.name == group.children[i].name) {
-            //RIEN FAIRE
-        } else if (group.children[i].name == 'numero3') {
-
-        } else {
-            group.children[i].visible = false;
-            //EFFACE
-        }
-    }
-}
-
-function cleanIntersected() {
-    while (intersected.length) {
-        var object = intersected.pop();
-
-        if (object.name != "numero3") {
-            object.material.emissive.b = 0;
-        }
-
-    }
-}
-
-//
-function animate() {
-    renderer.setAnimationLoop(render);
-}
-
-function render() {
-    cleanIntersected();
-    intersectObjects(controller1);
-    intersectObjects(controller2);
-    renderer.render(scene, camera);
-}
-
-//
-//function onSelectStart(event) {
-//    var controller = event.target;
-//    var intersections = getIntersections(controller);
-//
-//    if (intersections.length > 0) {
-//        var intersection = intersections[0];
-//
-//        tempMatrix.getInverse(controller.matrixWorld);
-//
-//        var object = intersection.object;
-//
-//        if (object.name.charAt(0) != 'n') {
-//            object.matrix.premultiply(tempMatrix);
-//            object.matrix.decompose(object.position, object.quaternion, object.scale);
-//
-//            controller.add(object);
-//            controller.userData.selected = object;
-//            selected = 1;
-//
-//        } else {
-//            is_selected = 0;
-//            object.material.emissive.b = 1;
-//            erase_other(object);
-//            controller.userData.selected = object;
-//        }
-//    } else {
-//
-//    }
-//
-//}
-//
-//function onSelectEnd(event) {
-//    var controller = event.target;
-//
-//    if (controller.userData.selected !== undefined) {
-//        var object = controller.userData.selected;
-//
-//        if (object.name.charAt(0) != 'n') {
-//            object.matrix.premultiply(controller.matrixWorld);
-//            object.matrix.decompose(object.position, object.quaternion, object.scale);
-//
-//            group.add(object);
-//
-//            controller.userData.selected = undefined;
-//            selected = 0;
-//        } else {
-//            object.material.emissive.b = 0;
-//            erase_other(object);
-//            controller.userData.selected = undefined;
-//        }
-//
-//    }
-//}
-//
-//function getIntersections(controller) {
-//
-//
-//    tempMatrix.identity().extractRotation(controller.matrixWorld);
-//
-//    raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-//    raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-//
-//    return raycaster.intersectObjects(group_no_move.children);
-//}
-//
-//function intersectObjects(controller) {
-//
-//
-//    // Do not highlight when already selected
-//    if (controller.userData.selected !== undefined) return;
-//
-//    var line = controller.getObjectByName('line');
-//    var intersections = getIntersections(controller);
-//
-//    if (intersections.length > 0) {
-//        var intersection = intersections[0];
-//        var object = intersection.object;
-//
-////        if (object.name.charAt(0) == 'n') {
-//            object.material.emissive.b = 1;
-////        }
-//
-//        intersected.push(object);
-//        line.scale.z = intersection.distance;
-//
-//    } else {
-//                line.scale.z = 1000;
-//    }
-//}
-//
-//
-//function move(object, dx, dy, dz) {
-//
-//    while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
-//
-//        if (object.position.x > dx) {
-//            object.position.x = object.position.x - 1;
-//        } else if (object.position.x < dx) {
-//            object.position.x = object.position.x + 1;
-//        }
-//
-//
-//        if (object.position.y > dy) {
-//            object.position.y = object.position.y - 1;
-//        } else if (object.position.y < dy) {
-//            object.position.y = object.position.y + 1;
-//        }
-//
-//
-//        if (object.position.z > dz) {
-//            object.position.z = object.position.z - 1;
-//        } else if (object.position.z < dz) {
-//            object.position.z = object.position.z + 1;
-//        }
-//
-//        renderer.render(scene, camera);
-//    }
-//}
-//
-//function move_to_cam(object) {
-//
-//    while ((object.position.x != 0) || (object.position.y != 2) || (object.position.z != -30)) {
-//        if (object.position.x > 0) {
-//            object.position.x = object.position.x - 1;
-//        } else if (object.position.x < 0) {
-//            object.position.x = object.position.x + 1;
-//        }
-//
-//        if (object.position.y > 2) {
-//            object.position.y = object.position.y - 1;
-//        } else if (object.position.y < 2) {
-//            object.position.y = object.position.y + 1;
-//        }
-//
-//        if (object.position.z > -30) {
-//            object.position.z = object.position.z - 1;
-//        } else if (object.position.z < -30) {
-//            object.position.z = object.position.z + 1;
-//        }
-//
-//        renderer.render(scene, camera);
-//    }
-//
-//    //        object.userData.velocity = new THREE.Vector3();
-//    //        object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-//    //        object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-//    //        object.userData.velocity.z = Math.random() * 0.01 - 0.005;  
-//    //    renderer.render(scene, camera);
-//}
-
-//
-//function erase_other1(object) {
-//    //for (var i = 0; i < timestamp0.length; i++) {
-//    if (object.name == timestamp0.children[i].name) {
-//        timestamp0.visible = true;
-//        timestamp1.visible = false;
-//        timestamp2.visible = false;
-//        timestamp3.visible = false;
-//        //        }
-//        //    }
-//        //    for (var i = 0; i < timestamp1.length; i++) {
-//    } else if (object.name == timestamp1.children[i].name) {
-//        timestamp0.visible = false;
-//        timestamp1.visible = true;
-//        timestamp2.visible = false;
-//        timestamp3.visible = false;
-//        //        }
-//        //    }
-//        //    for (var i = 0; i < timestamp2.length; i++) {
-//    } else if (object.name == timestamp2.children[i].name) {
-//        timestamp0.visible = false;
-//        timestamp1.visible = false;
-//        timestamp2.visible = true;
-//        timestamp3.visible = false;
-//        //        }
-//        //    }
-//        //    for (var i = 0; i < timestamp3.length; i++) {
-//    } else if (object.name == timestamp3.children[i].name) {
-//        timestamp0.visible = false;
-//        timestamp1.visible = false;
-//        timestamp2.visible = true;
-//        timestamp3.visible = false;
-//    }
-//    //    }
-//}
-
-
 
 
 function erase_other(object) {
@@ -719,26 +448,25 @@ function erase_other(object) {
     }
 }
 
-//function cleanIntersected() {
-//    while (intersected.length) {
-//        var object = intersected.pop();
-//
-//        if (object.namecharAt(0) == 'n') {
-//            object.material.emissive.b = 0;
-//        }
-//
-//    }
-//}
-//
-////
-//function animate() {
-//    renderer.setAnimationLoop(render);
-//}
-//
-//function render() {
-//    cleanIntersected();
-//    intersectObjects(controller1);
-//    intersectObjects(controller2);
-//    THREE.VRController.update();
-//    renderer.render(scene, camera);
-//}
+function cleanIntersected() {
+    while (intersected.length) {
+        var object = intersected.pop();
+
+        if (object.namecharAt(0) == 'n') {
+            object.material.emissive.b = 0;
+        }
+
+    }
+}
+
+function animate() {
+    renderer.setAnimationLoop(render);
+}
+
+function render() {
+    cleanIntersected();
+    intersectObjects(controller1);
+    intersectObjects(controller2);
+    THREE.VRController.update();
+    renderer.render(scene, camera);
+}
