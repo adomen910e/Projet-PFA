@@ -400,23 +400,16 @@ function onSelectEnd(event) {
 
 function getIntersections(controller) {
 
-    if (selected == 1) {
-        change_color();
-    }
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-    return raycaster.intersectObjects(group.children);
+    return raycaster.intersectObjects(group_no_move.children);
 }
 
 function intersectObjects(controller) {
-
-    if (selected == 1) {
-        change_color();
-    }
 
 
     // Do not highlight when already selected
