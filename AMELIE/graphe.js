@@ -580,5 +580,6 @@ function render() {
     cleanIntersected();
     intersectObjects(controller1);
     intersectObjects(controller2);
+    THREE.VRController.update();
     renderer.render(scene, camera);
 }
