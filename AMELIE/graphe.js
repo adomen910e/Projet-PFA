@@ -422,9 +422,9 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.name.charAt(0) == 'n') {
+//        if (object.name.charAt(0) == 'n') {
             object.material.emissive.b = 1;
-        }
+//        }
 
         intersected.push(object);
         line.scale.z = intersection.distance;
