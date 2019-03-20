@@ -6,6 +6,10 @@ var tempMatrix = new THREE.Matrix4();
 var group_no_move;
 var group;
 var timestamp0, timestamp1, timestamp2, timestamp1;
+var timestamp0_length = 0;
+var timestamp1_length = 0;
+var timestamp2_length = 0;
+var timestamp3_length = 0;
 var line;
 var object;
 var points;
@@ -94,15 +98,19 @@ function init() {
 
     timestamp0 = new THREE.Group();
     timestamp0.type = 'timestamp0';
-
+    
+    
     timestamp1 = new THREE.Group();
     timestamp1.type = 'timestamp1';
+ 
 
     timestamp2 = new THREE.Group();
     timestamp2.type = 'timestamp2';
+  
 
     timestamp3 = new THREE.Group();
     timestamp3.type = 'timestamp3';
+ 
 
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
@@ -120,24 +128,28 @@ function init() {
         sphere1.position.y = file.nodes[i].pos[1];
         sphere1.position.z = file.nodes[i].pos[2];
         sphere1.visible = false;
-
+	
 
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
 
             if (file.nodes[i].timestamp[j] == 0) {
                 timestamp0.add(sphere1);
+		timestamp0_length ++;
                 sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 1) {
                 timestamp1.add(sphere1);
+		timestamp1_length ++;
                 //                                sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 2) {
                 timestamp2.add(sphere1);
+		timestamp2_length ++;
                 //                                sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 3) {
                 timestamp3.add(sphere1);
+		timestamp3_length ++;
                 //                                sphere1.visible = true;
 
             }
@@ -172,18 +184,22 @@ function init() {
 
             if (file.edges[i].timestamp[j] == 0) {
                 timestamp0.add(edges);
+		timestamp0_length ++;
                 edges.visible = true;
 
             } else if (file.edges[i].timestamp[j] == 1) {
                 timestamp1.add(edges);
+		timestamp1_length ++;
                 //                edges.visible = true; 
 
             } else if (file.edges[i].timestamp[j] == 2) {
                 timestamp2.add(edges);
+		timestamp2_length ++;
                 //                edges.visible = true; 
 
             } else if (file.edges[i].timestamp[j] == 3) {
                 timestamp3.add(edges);
+		timestamp3_length ++;
                 //                edges.visible = true;
 
             }
@@ -429,6 +445,45 @@ function move_to_cam(object) {
     //        object.userData.velocity.z = Math.random() * 0.01 - 0.005;  
     //    renderer.render(scene, camera);
 }
+
+
+function erase_other1(object) {
+    for (var i = 0; i < timestamp0.length; i++) {
+        if (object.name == timestamp0.children[i].name) {
+            timestamp0.visible = true;
+	    timestamp1.visible = false;
+	    timestamp2.visible = false;
+	    timestamp3.visible = false;
+	    }
+    }
+    for (var i = 0; i < timestamp1.length; i++) {
+	else if (object.name == timestamp1.children[i].name) {
+	    timestamp0.visible = false;
+	    timestamp1.visible = true;
+	    timestamp2.visible = false;
+	    timestamp3.visible = false;
+	     }
+    }
+    for (var i = 0; i < timestamp2.length; i++) {
+	else if (object.name == timestamp2.children[i].name) {
+	    timestamp0.visible = false;
+	    timestamp1.visible = false;
+	    timestamp2.visible = true;
+	    timestamp3.visible = false;
+	}
+    }
+    for (var i = 0; i < timestamp3.length; i++) {
+	else if (object.name == timestamp3.children[i].name) {
+	    timestamp0.visible = false;
+	    timestamp1.visible = false;
+	    timestamp2.visible = true;
+	    timestamp3.visible = false;
+	}
+    }
+}
+
+
+
 
 function erase_other(object) {
     if (object.name == 'numero') {
