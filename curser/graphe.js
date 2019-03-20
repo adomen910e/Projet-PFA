@@ -3,28 +3,24 @@ var camera, scene, renderer;
 var controller1, controller2;
 var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
-var group_no_move;
 var group;
-var line;
+var cameraGroup;
+var vertices;
+
+
+var edges;
 var object;
 var points;
+var cursor;
+var SCALE =3
+var CursorSize = 500;
+var cursorStartPos = null;
 
-var cylindre1;
-var sphere3;
-var sphere2;
-var sphere1;
+const CAMSTEP = 0.03;
 
-var gallery, cursor;
 
-var SCALE = 3;
-
-var CursorSize = 50
-
-var selected;
-
-//double buffering pour l'affichage des elements 
+//double buffering pour l'affichage des elements
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
-
 
 init();
 animate();
@@ -41,11 +37,22 @@ function init() {
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
+    cameraGroup = new THREE.Group();
 
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
+    cameraGroup.add(camera);
 
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+
+    var reticle = new THREE.Mesh(
+          new THREE.RingBufferGeometry( 0.85 * CursorSize, CursorSize, 32),
+          new THREE.MeshBasicMaterial( {color: 0xffffff, blending: THREE.AdditiveBlending, side: THREE.DoubleSide })
+        );
+        reticle.position.z = -3 * SCALE;
+    reticle.lookAt(camera.position)
+    scene.add(reticle);
+        //camera.add(reticle);
 
     //mise en place de la lumière
     var light = new THREE.DirectionalLight(0xffffff);
@@ -57,142 +64,64 @@ function init() {
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
     scene.add(light);
-
-
     group = new THREE.Group();
-    group.type = 'yes';
     scene.add(group);
 
-    group_no_move = new THREE.Group();
-    group_no_move.type = 'no';
-    scene.add(group_no_move);
+
+    //on initialise les lignes
+    var line = new THREE.Geometry();
 
 
-    var reticle = new THREE.Mesh(
-          new THREE.RingBufferGeometry( 0.85 * CursorSize, CursorSize, 32),
-          new THREE.MeshBasicMaterial( {color: 0xffffff, blending: THREE.AdditiveBlending, side: THREE.DoubleSide })
-        );
-    reticle.position.z = -2000;
-    reticle.lookAt(camera.position)
-    camera.add(reticle);
-    scene.add(camera);
+    var geometries = [
+        new THREE.BoxBufferGeometry(0.2, 0.2, 0.2),
+        new THREE.ConeBufferGeometry(0.2, 0.2, 64),
+        new THREE.CylinderBufferGeometry(0.2, 0.2, 0.2, 64),
+        new THREE.IcosahedronBufferGeometry(0.03, 3),
+        new THREE.TorusBufferGeometry(0.2, 0.04, 64, 32)
+    ];
 
-    /*for (var i = 0; i<4 ;i++) {
-	sphere1 = new THREE.Mesh(geometry, material);
-	sphere1.position.x = -20+i^5;
-	sphere1.position.y = 2+i^4;
-	sphere1.position.z = -30+i^5;
-	scene.add(sphere1);
-	sphere1.name = 'numero';
-	group.add(sphere1);
-	//scene.add(sphere1);
-	}*/
+    points = [];
+    vertices = new THREE.Group();
+    group.add(vertices);
 
-    timestamp0 = new THREE.Group();
-    timestamp0.type = 'timestamp0';
+    for (var i = 0; i < 50; i++) {
 
-    timestamp1 = new THREE.Group();
-    timestamp1.type = 'timestamp1';
+        //creation de spheres
+        var geometry = geometries[3];
 
-    
-    var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    var material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-    sphere1 = new THREE.Mesh(geometry, material);
-    sphere1.position.x = -20;
-    sphere1.position.y = 2;
-    sphere1.position.z = -30;
-    timestamp0.add(sphere1);
-    scene.add(sphere1);
-    sphere1.name = 'numero';
-    group.add(sphere1);
+        var material = new THREE.MeshStandardMaterial({
+            color: Math.random() * 0xffffff,
+            roughness: 0.7,
+            metalness: 0.0
+        });
 
+        object = new THREE.Mesh(geometry, material);
+
+        object.position.x = Math.random() * 4 - 2;
+        object.position.y = Math.random() * 2;
+        object.position.z = Math.random() * 4 - 2;
+        object.rotation.x = Math.random() * 2 * Math.PI;
+        object.rotation.y = Math.random() * 2 * Math.PI;
+        object.rotation.z = Math.random() * 2 * Math.PI;
+
+        //object.scale.setScalar(Math.random() + 0.5);
+        object.castShadow = true;
+        object.receiveShadow = true;
+        vertices.add(object);
+
+        points.push(object.position);
 
 
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-    sphere2 = new THREE.Mesh(geometry, material);
-    sphere2.position.x = -10;
-    sphere2.position.y = 2;
-    sphere2.position.z = -30;
-    timestamp0.add(sphere2);
-    timestamp1.add(sphere2);
-    scene.add(sphere2);
-    sphere2.name = 'numero1';
-    group.add(sphere2);
+    }
 
-
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-    sphere3 = new THREE.Mesh(geometry, material);
-    sphere3.position.x = 20;
-    sphere3.position.y = 2;
-    sphere3.position.z = -30;
-    timestamp1.add(sphere3);
-    scene.add(sphere3);
-    sphere3.name = 'numero2';
-    group.add(sphere3);
-
-    var two_node = [];
-    two_node.push(sphere1.position);
-    two_node.push(sphere2.position);
-
-    
-    line = new THREE.BufferGeometry().setFromPoints(two_node);
+    line = new THREE.BufferGeometry().setFromPoints(points);
 
     edges = new THREE.Line(line, new THREE.LineBasicMaterial({
-        color: Math.random() * 0xffffff,
-        opacity: 0.01
+        color: 0xffffff,
+        opacity: 0.05
     }));
-    
-    edges.visible = true;
-    timestamp0.add(edges);
-    scene.add(edges);
 
-    var two_node2 = [];
-    
-    two_node2.push(sphere2.position);
-    two_node2.push(sphere3.position);
-
-    line1 = new THREE.BufferGeometry().setFromPoints(two_node2);
-
-    edges1 = new THREE.Line(line1, new THREE.LineBasicMaterial({
-        color: Math.random() * 0xffffff,
-        opacity: 0.01
-    }));
-        
-    edges1.visible = true;
-    timestamp0.add(edges1);
-    scene.add(edges1);
-    
-
-    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
-    var texture = new THREE.TextureLoader().load('tourbi.png');
-
-    // immediately use the texture for material creation
-    material = new THREE.MeshBasicMaterial({
-        map: texture
-    });
-
-    //    material = new THREE.MeshStandardMaterial({
-    //        color: Math.random() * 0xffffff,
-    //    });
-
-    cylindre1 = new THREE.Mesh(geometry, material);
-    cylindre1.position.x = 0;
-    cylindre1.position.y = -5;
-    cylindre1.position.z = -20;
-    cylindre1.name = 'numero3';
-
-    selected = 0;
-
-    scene.add(cylindre1);
-    group.add(cylindre1);
+    group.add(edges);
 
 
     renderer = new THREE.WebGLRenderer({
@@ -210,15 +139,17 @@ function init() {
 
     // controllers gamepad
     controller1 = renderer.vr.getController(0);
-    controller1.addEventListener('selectstart', onSelectStart);
-    controller1.addEventListener('selectend', onSelectEnd);
+    // controller1.addEventListener('selectstart', onSelectStart);
+    // controller1.addEentListener('selectend', onSelectEnd);
+    controller1.addEventListener("mousemove", onMouseMove);
+    controller1.addEventListener("mousedown", onMouseDown);
     scene.add(controller1);
 
 
 
     controller2 = renderer.vr.getController(1);
-    controller2.addEventListener('selectstart', onSelectStart);
-    controller2.addEventListener('selectend', onSelectEnd);
+    // controller2.addEventListener('selectstart', onSelectStart);
+    // controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
 
 
@@ -229,16 +160,74 @@ function init() {
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     var line = new THREE.Line(geometry);
     line.name = 'line';
-    line.scale.z = 100;
+    line.scale.z = 5;
     controller1.add(line.clone());
     controller2.add(line.clone());
     raycaster = new THREE.Raycaster();
     //
-
-
     window.addEventListener('resize', onWindowResize, false);
+
+    window.addEventListener('vr controller connected', function (event) {
+        //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
+        var controller = event.detail;
+        scene.add(controller);
+        //  For standing experiences (not seated) we need to set the standingMatrix
+        //  otherwise you’ll wonder why your controller appears on the floor
+        //  instead of in your hands! And for seated experiences this will have no
+        //  effect, so safe to do either way:
+        controller.standingMatrix = renderer.vr.getStandingMatrix();
+        //  And for 3DOF (seated) controllers you need to set the controller.head
+        //  to reference your camera. That way we can make an educated guess where
+        //  your hand ought to appear based on the camera’s rotation.
+        controller.head = window.camera;
+        //  Right now your controller has no visual.
+        //  It’s just an empty THREE.Object3D.
+        var
+            meshColorOff = 0xDB3236, //  Red.
+            meshColorOn = 0xF4C20D, //  Yellow.
+            controllerMaterial = new THREE.MeshStandardMaterial({
+                color: meshColorOff
+            }),
+            controllerMesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.005, 0.05, 0.1, 6),
+                controllerMaterial
+            ),
+            handleMesh = new THREE.Mesh(
+                new THREE.BoxGeometry(0.03, 0.1, 0.03),
+                controllerMaterial
+            );
+        controllerMaterial.flatShading = true;
+        controllerMesh.rotation.x = -Math.PI / 2;
+        handleMesh.position.y = -0.05;
+        controllerMesh.add(handleMesh);
+        controller.userData.mesh = controllerMesh; //  So we can change the color later.
+        controller.add(controllerMesh);
+        controller.addEventListener('primary press began', onSelectStart);
+        controller.addEventListener('primary press ended', onSelectEnd);
+        controller.addEventListener('thumbstick axes moved', onThumbstickMove);
+        controller.addEventListener('thumbpad pressed', onThumbpadPress);
+        controller.addEventListener('disconnected', function (event) {
+            controller.parent.remove(controller);
+        });
+    })
     onWindowResize();
 
+}
+
+function onMouseMove(e) {
+
+    camera.position.z += 10;
+
+
+    renderer.render(scene, camera);
+}
+
+function onMouseDown(e) {
+
+    camera.position.z += 10;
+
+
+    renderer.render(scene, camera);
 }
 
 
@@ -254,158 +243,119 @@ function onSelectStart(event) {
 
     if (intersections.length > 0) {
         var intersection = intersections[0];
-
         tempMatrix.getInverse(controller.matrixWorld);
-
         var object = intersection.object;
-
-        if (object.name == 'numero3') {
+	if (object == cursor){
+	    cursorStartPos = intersection.uv;
+	    //console.log(cursorStartPos);
+	} else {
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
-
+            object.position.x = 0;
+            object.position.y = 0;
+            if (object.geometry.parameters.radius !== undefined)
+		object.position.z = -intersection.distance - object.geometry.parameters.radius;
+            if (object.geometry.parameters.depth !== undefined)
+		object.position.z = -intersection.distance - object.geometry.parameters.depth/2;
+            object.material.emissive.b = 1;
             controller.add(object);
             controller.userData.selected = object;
-            selected = 1;
-        } else {
-            object.material.emissive.b = 1;
-            erase_other(object);
-            controller.userData.selected = object;
-        }
+	}
     }
+	
 
 }
 
 function onSelectEnd(event) {
-    var controller = event.target;
-
-    if (controller.userData.selected !== undefined) {
-        var object = controller.userData.selected;
-
-        if (object.name == 'numero3') {
+    if (!(cursorStartPos === null)){
+	cursorStartPos = null;
+    } else {
+	var controller = event.target;
+	if (controller.userData.selected !== undefined) {
+            var object = controller.userData.selected;
+            var test = new THREE.Vector3();
+            object.getWorldPosition(test);
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
-
-            group.add(object);
-
-            controller.userData.selected = undefined;
-            selected = 0;
-        } else {
             object.material.emissive.b = 0;
-            erase_other(object);
-            move_to_cam(object);
+            vertices.add(object);
+            object.position = test;
+            object.position.x -= group.position.x;
+            object.position.y -= group.position.y;
+            object.position.z -= group.position.z;
             controller.userData.selected = undefined;
-        }
-
+	} 
     }
+}
+
+// Permet de se deplacer dans l'espace suivant la direction du regard
+function moveInSpace(xAxisValue, yAxisValue){
+    var xstep = CAMSTEP * xAxisValue;
+    var ystep = CAMSTEP * yAxisValue;
+
+    var direction = new THREE.Vector3();
+    camera.getWorldDirection( direction );
+    var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
+    var quad = new THREE.Quaternion().setFromAxisAngle( axisOfRotation, Math.PI / 2 );
+    var ymove = direction.clone().multiplyScalar(ystep);
+    direction.applyQuaternion(quad);
+    var xmove = direction.multiplyScalar(xstep);
+    group.position.add( xmove.add(ymove) );
+}
+
+function onThumbstickMove(event) {
+    var x = parseFloat(event.axes[0].toFixed(2));
+    var y = parseFloat(event.axes[1].toFixed(2));
+    moveInSpace(x, y);
+
+    // Déplacement en absolu (sans prendre en compte la direction de la caméra)
+    /*group.translateX(xstep);
+    group.translateY(-ystep);*/
+
+}
+
+function onThumbpadPress(event) {
+
+    /*var controller = event.target;
+    if (controller.getHandedness() == 'right') {
+        group.translateZ(CAMSTEP);
+    } else {
+        group.translateZ(-CAMSTEP);
+    }*/
+
 }
 
 function getIntersections(controller) {
-
-    if (selected == 1) {
-        change_color();
-    }
-
     tempMatrix.identity().extractRotation(controller.matrixWorld);
-
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-
-    return raycaster.intersectObjects(group.children);
+    return raycaster.intersectObjects(vertices.children);
 }
 
 function intersectObjects(controller) {
-
-    if (selected == 1) {
-        change_color();
-    }
-
-
     // Do not highlight when already selected
     if (controller.userData.selected !== undefined) return;
-
     var line = controller.getObjectByName('line');
     var intersections = getIntersections(controller);
-
     if (intersections.length > 0) {
         var intersection = intersections[0];
         var object = intersection.object;
-
-        if (object.name != "numero3"){
-            object.material.emissive.b = 1;
-        }
-        
+        object.material.emissive.r = 1;
         intersected.push(object);
         line.scale.z = intersection.distance;
-
+	return intersection;
     } else {
-        line.scale.z = 100;
-    }
-}
-
-function change_color() {
-
-    sphere2.material.color.setHex(Math.random() * 0xffffff);
-    sphere1.material.color.setHex(Math.random() * 0xffffff);
-    sphere3.material.color.setHex(Math.random() * 0xffffff);
-
-    renderer.render(scene, camera);
-}
-
-function move_to_cam(object) {
-
-    while ((object.position.x != 0) && (object.position.y != 0) && (object.position.z != 0)) {
-        if (object.position.x > 0) {
-            object.position.x = object.position.x - 1;
-        } else {
-            object.position.x = object.position.x + 1;
-        }
-
-        if (object.position.y > 2) {
-            object.position.y = object.position.y - 1;
-        } else {
-            object.position.y = object.position.y + 1;
-        }
-
-        if (object.position.z > -30) {
-            object.position.z = object.position.z - 1;
-        } else {
-            object.position.z = object.position.z + 1;
-        }
-
-        renderer.render(scene, camera);
-    }
-
-    //    object.userData.velocity = new THREE.Vector3();
-    //    object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-    //    object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-    //    object.userData.velocity.z = Math.random() * 0.01 - 0.005;
-
-}
-
-function erase_other(object) {
-    for (var i = 0; i < 4; i++) {
-        if (object.name == group.children[i].name) {
-            //RIEN FAIRE
-        } else if (group.children[i].name == 'numero3') {
-
-        } else {
-            group.children[i].visible = false;
-            //EFFACE
-        }
+        line.scale.z = 5;
+	return null;
     }
 }
 
 function cleanIntersected() {
     while (intersected.length) {
         var object = intersected.pop();
-
-        if (object.name != "numero3"){
-            object.material.emissive.b = 0;
-        }
-
+        object.material.emissive.r = 0;
     }
 }
-
 //
 function animate() {
     renderer.setAnimationLoop(render);
@@ -415,5 +365,36 @@ function render() {
     cleanIntersected();
     intersectObjects(controller1);
     intersectObjects(controller2);
+    var intersection1 = intersectObjects(controller1);
+    var intersection2 = intersectObjects(controller2);
+    THREE.VRController.update();
+    cursor.lookAt(camera.position);
+    if (!(cursorStartPos === null)) {
+        if (!(intersection1 === null) && (intersection1.object == cursor)) {
+            var diff = intersection1.uv.x - cursorStartPos.x;
+            if (diff > 0.5)
+                change1();
+            if (diff < -0.5)
+                change2();
+        }
+        if (!(intersection2 === null) && (intersection2.object == cursor)) {
+            var diff = intersection1.uv.x - cursorStartPos.x;
+            if (diff > 0.5)
+                change1();
+            if (diff < -0.5)
+                change2();
+        }
+    }
+
     renderer.render(scene, camera);
+}
+
+function change1(){
+    cursor.material.color.setHex(0x5eacff);
+    cursorStartPos = null;
+}
+
+function change2(){
+    cursor.material.color.setHex(0xff0000);
+    cursorStartPos = null;
 }
