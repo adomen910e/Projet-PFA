@@ -194,13 +194,6 @@ function init() {
         two_node = [];
     }
 
-    var slider = document.createElement('slidecontainer');
-    scene.add(slider);
-
-
-
-
-
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
@@ -291,7 +284,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.name[0] != 'n') {
+        if (object.name.charAt(0) != 'n') {
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
 
@@ -317,7 +310,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.name[0] != 'n') {
+        if (object.name.charAt(0) != 'n') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
 
@@ -365,7 +358,7 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.name[0] == 'n') {
+        if (object.name.charAt(0) == 'n') {
             object.material.emissive.b = 1;
         }
 
@@ -469,7 +462,7 @@ function cleanIntersected() {
     while (intersected.length) {
         var object = intersected.pop();
 
-        if (object.name != "numero3") {
+        if (object.namecharAt(0) == 'n') {
             object.material.emissive.b = 0;
         }
 
