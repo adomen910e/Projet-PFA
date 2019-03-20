@@ -5,11 +5,12 @@ var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
 var group_no_move;
 var group;
+var timestamp0, timestamp1, timestamp2, timestamp1;
 var line;
 var object;
 var points;
 
-var cylindre1;
+var sphere4;
 var sphere3;
 var sphere2;
 var sphere1;
@@ -94,14 +95,18 @@ function init() {
     timestamp0 = new THREE.Group();
     timestamp0.type = 'timestamp0';
 
+
     timestamp1 = new THREE.Group();
     timestamp1.type = 'timestamp1';
+
 
     timestamp2 = new THREE.Group();
     timestamp2.type = 'timestamp2';
 
+
     timestamp3 = new THREE.Group();
     timestamp3.type = 'timestamp3';
+
 
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
@@ -112,7 +117,7 @@ function init() {
 
     points = [];
 
-    //Mise en place des noeud dans les differrents timestamp
+    //Mise en place des noeuds dans les differrents timestamp
     for (var i = 0; i < file.nodes.length; i++) {
         sphere1 = new THREE.Points(geometry, material);
         sphere1.position.x = file.nodes[i].pos[0];
@@ -129,142 +134,115 @@ function init() {
 
             } else if (file.nodes[i].timestamp[j] == 1) {
                 timestamp1.add(sphere1);
-//                sphere1.visible = true;
+                //                                sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 2) {
                 timestamp2.add(sphere1);
-//                sphere1.visible = true;
+                //                                sphere1.visible = true;
 
             } else if (file.nodes[i].timestamp[j] == 3) {
                 timestamp3.add(sphere1);
-//                sphere1.visible = true;
+                //                                sphere1.visible = true;
 
             }
         }
-        
+
         group.add(sphere1);
         scene.add(sphere1);
         points.push(sphere1);
     }
 
-    
+
     var two_node = [];
-    
+
     //Mise en place des aretes dans les differents timestamp
     for (var i = 0; i < file.edges.length; i++) {
-        
-        
+
+
         two_node.push(points[file.edges[i].src].position);
         two_node.push(points[file.edges[i].tgt].position);
-        
-        
+
+
         line = new THREE.BufferGeometry().setFromPoints(two_node);
 
         edges = new THREE.Line(line, new THREE.LineBasicMaterial({
             color: Math.random() * 0xffffff,
             opacity: 0.01
         }));
-        
-        edges.visible = false;  
+
+        edges.visible = false;
 
         for (var j = 0; j < file.edges[i].timestamp.length; j++) {
 
             if (file.edges[i].timestamp[j] == 0) {
                 timestamp0.add(edges);
-                edges.visible = true; 
+                edges.visible = true;
 
             } else if (file.edges[i].timestamp[j] == 1) {
                 timestamp1.add(edges);
-//                edges.visible = true; 
+                //                edges.visible = true; 
 
             } else if (file.edges[i].timestamp[j] == 2) {
                 timestamp2.add(edges);
-//                edges.visible = true; 
+                //                edges.visible = true; 
 
             } else if (file.edges[i].timestamp[j] == 3) {
                 timestamp3.add(edges);
-//                edges.visible = true;
+                //                edges.visible = true;
 
             }
         }
-        
+
         group.add(edges);
         scene.add(edges);
         two_node = [];
     }
-    
-   var slider =  document.createElement('slidecontainer');
-   scene.add(slider);
-
-    
-    
 
 
-//
-//    line = new THREE.BufferGeometry().setFromPoints(points);
-//
-//    edges = new THREE.Line(line, new THREE.LineBasicMaterial({
-//        color: 0xffffff,
-//        opacity: 0.05
-//    }));
-//
-//    group.add(edges);
-//
-//
-//    console.log(sphere1.position.x);
-//    console.log(sphere1.position.y);
-//    console.log(sphere1.position.z);
+    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+
+    material = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+    });
+    sphere1 = new THREE.Mesh(geometry, material);
+    sphere2 = new THREE.Mesh(geometry, material);
+    sphere3 = new THREE.Mesh(geometry, material);
+    sphere4 = new THREE.Mesh(geometry, material);
+
+    sphere1.position.x = -15;
+    sphere1.position.y = -15;
+    sphere1.position.z = -30;
+    sphere1.name = 'numero';
+        group_no_move.add(sphere1);
+//    group.add(sphere1);
+    scene.add(sphere1);
+
+    sphere2.position.x = -5;
+    sphere2.position.y = -15;
+    sphere2.position.z = -30;
+    sphere2.name = 'numero1';
+        group_no_move.add(sphere2);
+//    group.add(sphere2);
+    scene.add(sphere2);
+
+    sphere3.position.x = 5;
+    sphere3.position.y = -15;
+    sphere3.position.z = -30;
+    sphere3.name = 'numero2';
+        group_no_move.add(sphere3);
+//    group.add(sphere3);
+    scene.add(sphere3);
+
+    sphere4.position.x = 15;
+    sphere4.position.y = -15;
+    sphere4.position.z = -30;
+    sphere4.name = 'numero3';
+        group_no_move.add(sphere4);
+//    group.add(sphere4);
+    scene.add(sphere4);
 
 
-    //    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    //    material = new THREE.MeshStandardMaterial({
-    //        color: Math.random() * 0xffffff,
-    //    });
-    //    sphere2 = new THREE.Mesh(geometry, material);
-    //    sphere2.position.x = 0;
-    //    sphere2.position.y = 2;
-    //    sphere2.position.z = -30;
-    //    //        scene.add(sphere2);
-    //    sphere2.name = 'numero1';
-    //    //        group.add(sphere2);
-    //
-    //
-    //    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    //    material = new THREE.MeshStandardMaterial({
-    //        color: Math.random() * 0xffffff,
-    //    });
-    //    sphere3 = new THREE.Mesh(geometry, material);
-    //    sphere3.position.x = 20;
-    //    sphere3.position.y = 2;
-    //    sphere3.position.z = -30;
-    //    //        scene.add(sphere3);
-    //    sphere3.name = 'numero2';
-    //    //        group.add(sphere3);
-    //
-    //
-    //
-    //    geometry = new THREE.CylinderBufferGeometry(4, 4, 0.1, 64);
-    //    var texture = new THREE.TextureLoader().load('tourbi.png');
-    //
-    //    // immediately use the texture for material creation
-    //    material = new THREE.MeshBasicMaterial({
-    //        map: texture
-    //    });
-    //
-    //    //    material = new THREE.MeshStandardMaterial({
-    //    //        color: Math.random() * 0xffffff,
-    //    //    });
-    //
-    //    cylindre1 = new THREE.Mesh(geometry, material);
-    //    cylindre1.position.x = 0;
-    //    cylindre1.position.y = -5;
-    //    cylindre1.position.z = -20;
-    //    cylindre1.name = 'numero3';
-    //
-    //    selected = 0;
 
-    //        scene.add(cylindre1);
-    //        group.add(cylindre1);
 
 
     renderer = new THREE.WebGLRenderer({
@@ -293,43 +271,8 @@ function init() {
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
 
-    //
-    //
-    //
-    //
-    //    //
-    //    var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
-    //    var line = new THREE.Line(geometry);
-    //    line.name = 'line';
-    //    line.scale.z = 100;
-    //    controller1.add(line.clone());
-    //    controller2.add(line.clone());
-    //    raycaster = new THREE.Raycaster();
-    //    //
-    //
-    //
-    //    window.addEventListener('resize', onWindowResize, false);
-    //    onWindowResize();
-
-    //    var slider = new document.getElementById("myRange");
-    //    var output = new document.getElementById("demo");
-    //    output.innerHTML = slider.value;
-    //
-    //    slider.oninput = function () {
-    //        output.innerHTML = this.value;
-    //    }
-    //    
-    //    scene.add(slider);
-    //    scene.add(output);
 }
 
-
-
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
 
 function onSelectStart(event) {
     var controller = event.target;
@@ -342,15 +285,13 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.name == 'numero3') {
+        if (object.name.charAt(0) != 'n') {
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
 
             controller.add(object);
             controller.userData.selected = object;
             selected = 1;
-
-            //            cylindre1.lookAt(event.x, event.y, event.z);
 
         } else {
             is_selected = 0;
@@ -359,35 +300,6 @@ function onSelectStart(event) {
             controller.userData.selected = object;
         }
     } else {
-        if (is_selected == 0) {
-
-            sphere1.visible = true;
-            sphere2.visible = true;
-            sphere3.visible = true;
-
-            move(sphere1, -20, 2, -30)
-            //            sphere1.position.x = -20;
-            //            sphere1.position.y = 2;
-            //            sphere1.position.z = -30;
-
-
-            move(sphere2, 0, 2, -30)
-
-            //            sphere2.position.x = 0;
-            //            sphere2.position.y = 2;
-            //            sphere2.position.z = -30;
-
-
-            move(sphere3, 20, 2, -30)
-            //            sphere3.position.x = 20;
-            //            sphere3.position.y = 2;
-            //            sphere3.position.z = -30;
-
-
-            is_selected = 1;
-
-            renderer.render(scene, camera);
-        }
 
     }
 
@@ -399,7 +311,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.name == 'numero3') {
+        if (object.name.charAt(0) != 'n') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
 
@@ -410,7 +322,6 @@ function onSelectEnd(event) {
         } else {
             object.material.emissive.b = 0;
             erase_other(object);
-            move_to_cam(object);
             controller.userData.selected = undefined;
         }
 
@@ -419,23 +330,16 @@ function onSelectEnd(event) {
 
 function getIntersections(controller) {
 
-    if (selected == 1) {
-        change_color();
-    }
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-    return raycaster.intersectObjects(group.children);
+    return raycaster.intersectObjects(group_no_move.children);
 }
 
 function intersectObjects(controller) {
-
-    if (selected == 1) {
-        change_color();
-    }
 
 
     // Do not highlight when already selected
@@ -448,7 +352,7 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.name != "numero3") {
+        if (object.name.charAt(0) == 'n') {
             object.material.emissive.b = 1;
         }
 
@@ -456,18 +360,10 @@ function intersectObjects(controller) {
         line.scale.z = intersection.distance;
 
     } else {
-        //        line.scale.z = 100;
+        //        line.scale.z = 1000;
     }
 }
 
-function change_color() {
-
-    sphere2.material.color.setHex(Math.random() * 0xffffff);
-    sphere1.material.color.setHex(Math.random() * 0xffffff);
-    sphere3.material.color.setHex(Math.random() * 0xffffff);
-
-    renderer.render(scene, camera);
-}
 
 function move(object, dx, dy, dz) {
 
@@ -521,23 +417,35 @@ function move_to_cam(object) {
         renderer.render(scene, camera);
     }
 
-    //        object.userData.velocity = new THREE.Vector3();
-    //        object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-    //        object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-    //        object.userData.velocity.z = Math.random() * 0.01 - 0.005;  
-    //    renderer.render(scene, camera);
 }
 
-function erase_other(object) {
-    for (var i = 0; i < 4; i++) {
-        if (object.name == group.children[i].name) {
-            //RIEN FAIRE
-        } else if (group.children[i].name == 'numero3') {
 
-        } else {
-            group.children[i].visible = false;
-            //EFFACE
-        }
+//Afiiche LE bon timestamps en fonction de la sphere selectionner
+function erase_other(object) {
+    if (object.name == 'numero') {
+        timestamp1.visible = false;
+        timestamp2.visible = false;
+        timestamp3.visible = false;
+        imestamp0.visible = true;
+
+    } else if (object.name == 'numero1') {
+        timestamp0.visible = false;
+        timestamp2.visible = false;
+        timestamp3.visible = false;
+        timestamp1.visible = true;
+
+    } else if (object.name == 'numero2') {
+        timestamp0.visible = false;
+        timestamp1.visible = false;
+        timestamp3.visible = false;
+        timestamp2.visible = true;
+
+    } else if (object.name == 'numero3') {
+        timestamp0.visible = false;
+        timestamp1.visible = false;
+        timestamp2.visible = false;
+        timestamp3.visible = true;
+
     }
 }
 
@@ -545,14 +453,13 @@ function cleanIntersected() {
     while (intersected.length) {
         var object = intersected.pop();
 
-        if (object.name != "numero3") {
+        if (object.namecharAt(0) == 'n') {
             object.material.emissive.b = 0;
         }
 
     }
 }
 
-//
 function animate() {
     renderer.setAnimationLoop(render);
 }
@@ -561,5 +468,6 @@ function render() {
     cleanIntersected();
     intersectObjects(controller1);
     intersectObjects(controller2);
+    THREE.VRController.update();
     renderer.render(scene, camera);
 }
