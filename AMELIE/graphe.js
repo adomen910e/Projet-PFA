@@ -372,7 +372,7 @@ function onSelectEnd(event) {
         object.matrix.premultiply(controller.matrixWorld);
         object.matrix.decompose(object.position, object.quaternion, object.scale);
         object.material.emissive.b = 0;
-        vertices.add(object);
+        group.add(object);
         object.position = test;
         object.position.x -= group.position.x;
         object.position.y -= group.position.y;
@@ -423,7 +423,7 @@ function getIntersections(controller) {
     tempMatrix.identity().extractRotation(controller.matrixWorld);
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-    return raycaster.intersectObjects(vertices.children);
+    return raycaster.intersectObjects(group.children);
 }
 
 function intersectObjects(controller) {
@@ -463,11 +463,11 @@ function render() {
 
 
 
-//function onWindowResize() {
-//    camera.aspect = window.innerWidth / window.innerHeight;
-//    camera.updateProjectionMatrix();
-//    renderer.setSize(window.innerWidth, window.innerHeight);
-//}
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
 //
 //function onSelectStart(event) {
 //    var controller = event.target;
