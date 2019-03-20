@@ -225,7 +225,7 @@ function init() {
     sphere1.position.y = -15;
     sphere1.position.z = -30;
     sphere1.name = 'numero';
-    group_no_move.add(sphere1);
+//    group_no_move.add(sphere1);
     group.add(sphere1);
     scene.add(sphere1);
 
@@ -233,7 +233,7 @@ function init() {
     sphere2.position.y = -15;
     sphere2.position.z = -30;
     sphere2.name = 'numero1';
-    group_no_move.add(sphere2);
+//    group_no_move.add(sphere2);
     group.add(sphere2);
     scene.add(sphere2);
 
@@ -241,7 +241,7 @@ function init() {
     sphere3.position.y = -15;
     sphere3.position.z = -30;
     sphere3.name = 'numero2';
-    group_no_move.add(sphere3);
+//    group_no_move.add(sphere3);
     group.add(sphere3);
     scene.add(sphere3);
 
@@ -249,7 +249,7 @@ function init() {
     sphere4.position.y = -15;
     sphere4.position.z = -30;
     sphere4.name = 'numero3';
-    group_no_move.add(sphere4);
+//    group_no_move.add(sphere4);
     group.add(sphere4);
     scene.add(sphere4);
 
