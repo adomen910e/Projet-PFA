@@ -282,7 +282,7 @@ function init() {
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     var line = new THREE.Line(geometry);
     line.name = 'line';
-    line.scale.z = 5;
+//    line.scale.z = 5;
     controller1.add(line.clone());
     controller2.add(line.clone());
     raycaster = new THREE.Raycaster();
