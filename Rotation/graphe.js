@@ -5,6 +5,7 @@ var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
 var group_no_move;
 var group;
+var test;
 var line;
 var object;
 var points;
@@ -61,6 +62,10 @@ function init() {
     group_no_move.type = 'no';
     scene.add(group_no_move);
 
+    
+    test = new THREE.Group();
+    scene.add(test);
+
 
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     var material = new THREE.MeshStandardMaterial({
@@ -87,6 +92,7 @@ function init() {
     scene.add(sphere2);
     sphere2.name = 'numero1';
     group.add(sphere2);
+    test.add(sphere2);
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -153,6 +159,8 @@ function init() {
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
 
+    group.visible = false;
+    test.visible = true;
 
 
 

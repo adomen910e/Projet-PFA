@@ -291,7 +291,7 @@ function onSelectStart(event) {
 
         var object = intersection.object;
 
-        if (object.name == 'numero3') {
+        if (object.name[0] != 'n') {
             object.matrix.premultiply(tempMatrix);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
 
@@ -317,7 +317,7 @@ function onSelectEnd(event) {
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.name == 'numero3') {
+        if (object.name[0] != 'n') {
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
 
@@ -328,7 +328,6 @@ function onSelectEnd(event) {
         } else {
             object.material.emissive.b = 0;
             erase_other(object);
-            move_to_cam(object);
             controller.userData.selected = undefined;
         }
 
@@ -366,7 +365,7 @@ function intersectObjects(controller) {
         var intersection = intersections[0];
         var object = intersection.object;
 
-        if (object.name != "numero3") {
+        if (object.name[0] == 'n') {
             object.material.emissive.b = 1;
         }
 
