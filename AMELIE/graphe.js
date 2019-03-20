@@ -438,7 +438,7 @@ function intersectObjects(controller) {
         intersected.push(object);
         line.scale.z = intersection.distance;
     } else {
-        line.scale.z = 5;
+        line.scale.z = 1000;
     }
 }
 
