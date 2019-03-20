@@ -340,199 +340,320 @@ function init() {
     onWindowResize();
 }
 
-
-
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
 function onSelectStart(event) {
     var controller = event.target;
     var intersections = getIntersections(controller);
 
     if (intersections.length > 0) {
         var intersection = intersections[0];
-
         tempMatrix.getInverse(controller.matrixWorld);
-
         var object = intersection.object;
-
-        if (object.name.charAt(0) != 'n') {
-            object.matrix.premultiply(tempMatrix);
-            object.matrix.decompose(object.position, object.quaternion, object.scale);
-
-            controller.add(object);
-            controller.userData.selected = object;
-            selected = 1;
-
-        } else {
-            is_selected = 0;
-            object.material.emissive.b = 1;
-            erase_other(object);
-            controller.userData.selected = object;
-        }
-    } else {
-
+        object.matrix.premultiply(tempMatrix);        
+        object.matrix.decompose(object.position, object.quaternion, object.scale);
+        object.position.x = 0;
+        object.position.y = 0;
+        if (object.geometry.parameters.radius !== undefined) 
+            object.position.z = -intersection.distance - object.geometry.parameters.radius;
+        if (object.geometry.parameters.depth !== undefined) 
+            object.position.z = -intersection.distance - object.geometry.parameters.depth/2;
+        object.material.emissive.b = 1;
+        controller.add(object);
+        controller.userData.selected = object;
     }
 
 }
 
 function onSelectEnd(event) {
     var controller = event.target;
-
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
-
-        if (object.name.charAt(0) != 'n') {
-            object.matrix.premultiply(controller.matrixWorld);
-            object.matrix.decompose(object.position, object.quaternion, object.scale);
-
-            group.add(object);
-
-            controller.userData.selected = undefined;
-            selected = 0;
-        } else {
-            object.material.emissive.b = 0;
-            erase_other(object);
-            controller.userData.selected = undefined;
-        }
+        var test = new THREE.Vector3();
+        object.getWorldPosition(test);
+        object.matrix.premultiply(controller.matrixWorld);
+        object.matrix.decompose(object.position, object.quaternion, object.scale);
+        object.material.emissive.b = 0;
+        vertices.add(object);
+        object.position = test;
+        object.position.x -= group.position.x;
+        object.position.y -= group.position.y;
+        object.position.z -= group.position.z;
+        controller.userData.selected = undefined;
 
     }
+}
+
+// Permet de se deplacer dans l'espace suivant la direction du regard
+function moveInSpace(xAxisValue, yAxisValue){
+    var xstep = CAMSTEP * xAxisValue;
+    var ystep = CAMSTEP * yAxisValue;
+
+    var direction = new THREE.Vector3();
+    camera.getWorldDirection( direction );
+    var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
+    var quad = new THREE.Quaternion().setFromAxisAngle( axisOfRotation, Math.PI / 2 );
+    var ymove = direction.clone().multiplyScalar(ystep);
+    direction.applyQuaternion(quad);
+    var xmove = direction.multiplyScalar(xstep);
+    group.position.add( xmove.add(ymove) );
+}
+
+function onThumbstickMove(event) {
+    var x = parseFloat(event.axes[0].toFixed(2));
+    var y = parseFloat(event.axes[1].toFixed(2));
+    moveInSpace(x, y);
+
+    // Déplacement en absolu (sans prendre en compte la direction de la caméra)
+    /*group.translateX(xstep);
+    group.translateY(-ystep);*/
+
+}
+
+function onThumbpadPress(event) {
+
+    /*var controller = event.target;
+    if (controller.getHandedness() == 'right') {
+        group.translateZ(CAMSTEP);
+    } else {
+        group.translateZ(-CAMSTEP);
+    }*/
+
 }
 
 function getIntersections(controller) {
-
-
     tempMatrix.identity().extractRotation(controller.matrixWorld);
-
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-
-    return raycaster.intersectObjects(group_no_move.children);
+    return raycaster.intersectObjects(vertices.children);
 }
 
 function intersectObjects(controller) {
-
-
     // Do not highlight when already selected
     if (controller.userData.selected !== undefined) return;
-
     var line = controller.getObjectByName('line');
     var intersections = getIntersections(controller);
-
     if (intersections.length > 0) {
         var intersection = intersections[0];
         var object = intersection.object;
-
-//        if (object.name.charAt(0) == 'n') {
-            object.material.emissive.b = 1;
-//        }
-
+        object.material.emissive.r = 1;
         intersected.push(object);
         line.scale.z = intersection.distance;
-
     } else {
-                line.scale.z = 1000;
+        line.scale.z = 5;
     }
 }
 
-
-function move(object, dx, dy, dz) {
-
-    while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
-
-        if (object.position.x > dx) {
-            object.position.x = object.position.x - 1;
-        } else if (object.position.x < dx) {
-            object.position.x = object.position.x + 1;
-        }
-
-
-        if (object.position.y > dy) {
-            object.position.y = object.position.y - 1;
-        } else if (object.position.y < dy) {
-            object.position.y = object.position.y + 1;
-        }
-
-
-        if (object.position.z > dz) {
-            object.position.z = object.position.z - 1;
-        } else if (object.position.z < dz) {
-            object.position.z = object.position.z + 1;
-        }
-
-        renderer.render(scene, camera);
+function cleanIntersected() {
+    while (intersected.length) {
+        var object = intersected.pop();
+        object.material.emissive.r = 0;
     }
 }
+//
+function animate() {
+    renderer.setAnimationLoop(render);
+}
 
-function move_to_cam(object) {
-
-    while ((object.position.x != 0) || (object.position.y != 2) || (object.position.z != -30)) {
-        if (object.position.x > 0) {
-            object.position.x = object.position.x - 1;
-        } else if (object.position.x < 0) {
-            object.position.x = object.position.x + 1;
-        }
-
-        if (object.position.y > 2) {
-            object.position.y = object.position.y - 1;
-        } else if (object.position.y < 2) {
-            object.position.y = object.position.y + 1;
-        }
-
-        if (object.position.z > -30) {
-            object.position.z = object.position.z - 1;
-        } else if (object.position.z < -30) {
-            object.position.z = object.position.z + 1;
-        }
-
-        renderer.render(scene, camera);
-    }
-
-    //        object.userData.velocity = new THREE.Vector3();
-    //        object.userData.velocity.x = Math.random() * 0.01 - 0.005;
-    //        object.userData.velocity.y = Math.random() * 0.01 - 0.005;
-    //        object.userData.velocity.z = Math.random() * 0.01 - 0.005;  
-    //    renderer.render(scene, camera);
+function render() {
+    cleanIntersected();
+    intersectObjects(controller1);
+    intersectObjects(controller2);
+    THREE.VRController.update();
+    renderer.render(scene, camera);
 }
 
 
-function erase_other1(object) {
-    //for (var i = 0; i < timestamp0.length; i++) {
-    if (object.name == timestamp0.children[i].name) {
-        timestamp0.visible = true;
-        timestamp1.visible = false;
-        timestamp2.visible = false;
-        timestamp3.visible = false;
-        //        }
-        //    }
-        //    for (var i = 0; i < timestamp1.length; i++) {
-    } else if (object.name == timestamp1.children[i].name) {
-        timestamp0.visible = false;
-        timestamp1.visible = true;
-        timestamp2.visible = false;
-        timestamp3.visible = false;
-        //        }
-        //    }
-        //    for (var i = 0; i < timestamp2.length; i++) {
-    } else if (object.name == timestamp2.children[i].name) {
-        timestamp0.visible = false;
-        timestamp1.visible = false;
-        timestamp2.visible = true;
-        timestamp3.visible = false;
-        //        }
-        //    }
-        //    for (var i = 0; i < timestamp3.length; i++) {
-    } else if (object.name == timestamp3.children[i].name) {
-        timestamp0.visible = false;
-        timestamp1.visible = false;
-        timestamp2.visible = true;
-        timestamp3.visible = false;
-    }
-    //    }
-}
+
+//function onWindowResize() {
+//    camera.aspect = window.innerWidth / window.innerHeight;
+//    camera.updateProjectionMatrix();
+//    renderer.setSize(window.innerWidth, window.innerHeight);
+//}
+//
+//function onSelectStart(event) {
+//    var controller = event.target;
+//    var intersections = getIntersections(controller);
+//
+//    if (intersections.length > 0) {
+//        var intersection = intersections[0];
+//
+//        tempMatrix.getInverse(controller.matrixWorld);
+//
+//        var object = intersection.object;
+//
+//        if (object.name.charAt(0) != 'n') {
+//            object.matrix.premultiply(tempMatrix);
+//            object.matrix.decompose(object.position, object.quaternion, object.scale);
+//
+//            controller.add(object);
+//            controller.userData.selected = object;
+//            selected = 1;
+//
+//        } else {
+//            is_selected = 0;
+//            object.material.emissive.b = 1;
+//            erase_other(object);
+//            controller.userData.selected = object;
+//        }
+//    } else {
+//
+//    }
+//
+//}
+//
+//function onSelectEnd(event) {
+//    var controller = event.target;
+//
+//    if (controller.userData.selected !== undefined) {
+//        var object = controller.userData.selected;
+//
+//        if (object.name.charAt(0) != 'n') {
+//            object.matrix.premultiply(controller.matrixWorld);
+//            object.matrix.decompose(object.position, object.quaternion, object.scale);
+//
+//            group.add(object);
+//
+//            controller.userData.selected = undefined;
+//            selected = 0;
+//        } else {
+//            object.material.emissive.b = 0;
+//            erase_other(object);
+//            controller.userData.selected = undefined;
+//        }
+//
+//    }
+//}
+//
+//function getIntersections(controller) {
+//
+//
+//    tempMatrix.identity().extractRotation(controller.matrixWorld);
+//
+//    raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+//    raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+//
+//    return raycaster.intersectObjects(group_no_move.children);
+//}
+//
+//function intersectObjects(controller) {
+//
+//
+//    // Do not highlight when already selected
+//    if (controller.userData.selected !== undefined) return;
+//
+//    var line = controller.getObjectByName('line');
+//    var intersections = getIntersections(controller);
+//
+//    if (intersections.length > 0) {
+//        var intersection = intersections[0];
+//        var object = intersection.object;
+//
+////        if (object.name.charAt(0) == 'n') {
+//            object.material.emissive.b = 1;
+////        }
+//
+//        intersected.push(object);
+//        line.scale.z = intersection.distance;
+//
+//    } else {
+//                line.scale.z = 1000;
+//    }
+//}
+//
+//
+//function move(object, dx, dy, dz) {
+//
+//    while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
+//
+//        if (object.position.x > dx) {
+//            object.position.x = object.position.x - 1;
+//        } else if (object.position.x < dx) {
+//            object.position.x = object.position.x + 1;
+//        }
+//
+//
+//        if (object.position.y > dy) {
+//            object.position.y = object.position.y - 1;
+//        } else if (object.position.y < dy) {
+//            object.position.y = object.position.y + 1;
+//        }
+//
+//
+//        if (object.position.z > dz) {
+//            object.position.z = object.position.z - 1;
+//        } else if (object.position.z < dz) {
+//            object.position.z = object.position.z + 1;
+//        }
+//
+//        renderer.render(scene, camera);
+//    }
+//}
+//
+//function move_to_cam(object) {
+//
+//    while ((object.position.x != 0) || (object.position.y != 2) || (object.position.z != -30)) {
+//        if (object.position.x > 0) {
+//            object.position.x = object.position.x - 1;
+//        } else if (object.position.x < 0) {
+//            object.position.x = object.position.x + 1;
+//        }
+//
+//        if (object.position.y > 2) {
+//            object.position.y = object.position.y - 1;
+//        } else if (object.position.y < 2) {
+//            object.position.y = object.position.y + 1;
+//        }
+//
+//        if (object.position.z > -30) {
+//            object.position.z = object.position.z - 1;
+//        } else if (object.position.z < -30) {
+//            object.position.z = object.position.z + 1;
+//        }
+//
+//        renderer.render(scene, camera);
+//    }
+//
+//    //        object.userData.velocity = new THREE.Vector3();
+//    //        object.userData.velocity.x = Math.random() * 0.01 - 0.005;
+//    //        object.userData.velocity.y = Math.random() * 0.01 - 0.005;
+//    //        object.userData.velocity.z = Math.random() * 0.01 - 0.005;  
+//    //    renderer.render(scene, camera);
+//}
+
+//
+//function erase_other1(object) {
+//    //for (var i = 0; i < timestamp0.length; i++) {
+//    if (object.name == timestamp0.children[i].name) {
+//        timestamp0.visible = true;
+//        timestamp1.visible = false;
+//        timestamp2.visible = false;
+//        timestamp3.visible = false;
+//        //        }
+//        //    }
+//        //    for (var i = 0; i < timestamp1.length; i++) {
+//    } else if (object.name == timestamp1.children[i].name) {
+//        timestamp0.visible = false;
+//        timestamp1.visible = true;
+//        timestamp2.visible = false;
+//        timestamp3.visible = false;
+//        //        }
+//        //    }
+//        //    for (var i = 0; i < timestamp2.length; i++) {
+//    } else if (object.name == timestamp2.children[i].name) {
+//        timestamp0.visible = false;
+//        timestamp1.visible = false;
+//        timestamp2.visible = true;
+//        timestamp3.visible = false;
+//        //        }
+//        //    }
+//        //    for (var i = 0; i < timestamp3.length; i++) {
+//    } else if (object.name == timestamp3.children[i].name) {
+//        timestamp0.visible = false;
+//        timestamp1.visible = false;
+//        timestamp2.visible = true;
+//        timestamp3.visible = false;
+//    }
+//    //    }
+//}
 
 
 
@@ -565,26 +686,26 @@ function erase_other(object) {
     }
 }
 
-function cleanIntersected() {
-    while (intersected.length) {
-        var object = intersected.pop();
-
-        if (object.namecharAt(0) == 'n') {
-            object.material.emissive.b = 0;
-        }
-
-    }
-}
-
+//function cleanIntersected() {
+//    while (intersected.length) {
+//        var object = intersected.pop();
 //
-function animate() {
-    renderer.setAnimationLoop(render);
-}
-
-function render() {
-    cleanIntersected();
-    intersectObjects(controller1);
-    intersectObjects(controller2);
-    THREE.VRController.update();
-    renderer.render(scene, camera);
-}
+//        if (object.namecharAt(0) == 'n') {
+//            object.material.emissive.b = 0;
+//        }
+//
+//    }
+//}
+//
+////
+//function animate() {
+//    renderer.setAnimationLoop(render);
+//}
+//
+//function render() {
+//    cleanIntersected();
+//    intersectObjects(controller1);
+//    intersectObjects(controller2);
+//    THREE.VRController.update();
+//    renderer.render(scene, camera);
+//}
