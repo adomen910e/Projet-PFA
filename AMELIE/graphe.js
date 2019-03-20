@@ -279,6 +279,53 @@ function init() {
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
 
+    
+    window.addEventListener('resize', onWindowResize, false);
+
+    window.addEventListener('vr controller connected', function (event) {
+        //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
+        var controller = event.detail;
+        scene.add(controller);
+        //  For standing experiences (not seated) we need to set the standingMatrix
+        //  otherwise you’ll wonder why your controller appears on the floor
+        //  instead of in your hands! And for seated experiences this will have no
+        //  effect, so safe to do either way:
+        controller.standingMatrix = renderer.vr.getStandingMatrix();
+        //  And for 3DOF (seated) controllers you need to set the controller.head
+        //  to reference your camera. That way we can make an educated guess where
+        //  your hand ought to appear based on the camera’s rotation.
+        controller.head = window.camera;
+        //  Right now your controller has no visual.
+        //  It’s just an empty THREE.Object3D.
+        var
+            meshColorOff = 0xDB3236, //  Red.
+            meshColorOn = 0xF4C20D, //  Yellow.
+            controllerMaterial = new THREE.MeshStandardMaterial({
+                color: meshColorOff
+            }),
+            controllerMesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.005, 0.05, 0.1, 6),
+                controllerMaterial
+            ),
+            handleMesh = new THREE.Mesh(
+                new THREE.BoxGeometry(0.03, 0.1, 0.03),
+                controllerMaterial
+            );
+        controllerMaterial.flatShading = true;
+        controllerMesh.rotation.x = -Math.PI / 2;
+        handleMesh.position.y = -0.05;
+        controllerMesh.add(handleMesh);
+        controller.userData.mesh = controllerMesh; //  So we can change the color later.
+        controller.add(controllerMesh);
+        controller.addEventListener('primary press began', onSelectStart);
+        controller.addEventListener('primary press ended', onSelectEnd);
+        controller.addEventListener('thumbstick axes moved', onThumbstickMove);
+        controller.addEventListener('thumbpad pressed', onThumbpadPress);
+        controller.addEventListener('disconnected', function (event) {
+            controller.parent.remove(controller);
+        });
+    })
+    onWindowResize();
 }
 
 
