@@ -279,7 +279,15 @@ function init() {
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
 
-    
+    var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
+    var line = new THREE.Line(geometry);
+    line.name = 'line';
+    line.scale.z = 5;
+    controller1.add(line.clone());
+    controller2.add(line.clone());
+    raycaster = new THREE.Raycaster();
+    //
+
     window.addEventListener('resize', onWindowResize, false);
 
     window.addEventListener('vr controller connected', function (event) {
@@ -496,37 +504,37 @@ function move_to_cam(object) {
 
 function erase_other1(object) {
     //for (var i = 0; i < timestamp0.length; i++) {
-        if (object.name == timestamp0.children[i].name) {
-            timestamp0.visible = true;
-            timestamp1.visible = false;
-            timestamp2.visible = false;
-            timestamp3.visible = false;
-//        }
-//    }
-//    for (var i = 0; i < timestamp1.length; i++) {
-        }else if (object.name == timestamp1.children[i].name) {
-            timestamp0.visible = false;
-            timestamp1.visible = true;
-            timestamp2.visible = false;
-            timestamp3.visible = false;
-//        }
-//    }
-//    for (var i = 0; i < timestamp2.length; i++) {
-        }else if (object.name == timestamp2.children[i].name) {
-            timestamp0.visible = false;
-         timestamp1.visible = false;
-            timestamp2.visible = true;
-            timestamp3.visible = false;
-//        }
-//    }
-//    for (var i = 0; i < timestamp3.length; i++) {
-        }else if (object.name == timestamp3.children[i].name) {
-            timestamp0.visible = false;
-            timestamp1.visible = false;
-            timestamp2.visible = true;
-            timestamp3.visible = false;
-        }
-//    }
+    if (object.name == timestamp0.children[i].name) {
+        timestamp0.visible = true;
+        timestamp1.visible = false;
+        timestamp2.visible = false;
+        timestamp3.visible = false;
+        //        }
+        //    }
+        //    for (var i = 0; i < timestamp1.length; i++) {
+    } else if (object.name == timestamp1.children[i].name) {
+        timestamp0.visible = false;
+        timestamp1.visible = true;
+        timestamp2.visible = false;
+        timestamp3.visible = false;
+        //        }
+        //    }
+        //    for (var i = 0; i < timestamp2.length; i++) {
+    } else if (object.name == timestamp2.children[i].name) {
+        timestamp0.visible = false;
+        timestamp1.visible = false;
+        timestamp2.visible = true;
+        timestamp3.visible = false;
+        //        }
+        //    }
+        //    for (var i = 0; i < timestamp3.length; i++) {
+    } else if (object.name == timestamp3.children[i].name) {
+        timestamp0.visible = false;
+        timestamp1.visible = false;
+        timestamp2.visible = true;
+        timestamp3.visible = false;
+    }
+    //    }
 }
 
 
