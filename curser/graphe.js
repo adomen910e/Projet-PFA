@@ -12,7 +12,7 @@ var edges;
 var object;
 var points;
 var cursor;
-var SCALE =3
+var SCALE =3;
 var CursorSize = 500;
 var cursorStartPos = null;
 
@@ -389,12 +389,6 @@ function render() {
     renderer.render(scene, camera);
 }
 
-function change1(){
-    cursor.material.color.setHex(0x5eacff);
-    cursorStartPos = null;
-}
-
-function change2(){
-    cursor.material.color.setHex(0xff0000);
-    cursorStartPos = null;
+function sliderTest(event){
+    console.log(event);
 }
