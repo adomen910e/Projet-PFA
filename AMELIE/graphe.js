@@ -438,6 +438,36 @@ function move_to_cam(object) {
     //    renderer.render(scene, camera);
 }
 
+
+function erase_other1(object) {
+    for (var i = 0; i < 4; i++) {
+        if (object.name == timestamp0.children[i].name) {
+            timestamp0.children[i].visible = true;
+	    timestamp1.children[i].visible = false;
+	    timestamp2.children[i].visible = false;
+	    timestamp3.children[i].visible = false;
+        } else if (object.name == timestamp1.children[i].name) {
+	    timestamp0.children[i].visible = false;
+	    timestamp1.children[i].visible = true;
+	    timestamp2.children[i].visible = false;
+	    timestamp3.children[i].visible = false;
+	} else if (object.name == timestamp2.children[i].name) {
+	    timestamp0.children[i].visible = false;
+	    timestamp1.children[i].visible = false;
+	    timestamp2.children[i].visible = true;
+	    timestamp3.children[i].visible = false;
+	} else if (object.name == timestamp3.children[i].name) {
+	    timestamp0.children[i].visible = false;
+	    timestamp1.children[i].visible = false;
+	    timestamp2.children[i].visible = true;
+	    timestamp3.children[i].visible = false;
+	}
+    }
+}
+
+
+
+
 function erase_other(object) {
     if (object.name == 'numero') {
         timestamp1.visible = false;
