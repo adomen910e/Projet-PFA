@@ -104,7 +104,7 @@ function init() {
     timestamp3 = new THREE.Group();
     timestamp3.type = 'timestamp3';
 
-    var geometry = new THREE.IcosahedronBufferGeometry(5, 7);
+    var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
     var material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
