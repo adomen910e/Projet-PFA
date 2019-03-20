@@ -5,10 +5,14 @@ var raycaster, intersected = [];
 var tempMatrix = new THREE.Matrix4();
 var group_no_move;
 var group;
-var timestamp0, timestamp1, timestamp2, timestamp1;
+// var timestamp0, timestamp1, timestamp2, timestamp1;
 var line;
 var object;
 var points;
+const NBTIMESTAMPS = 4;
+var timestamps=[];
+
+const CAMSTEP = 1;
 
 var sphere4;
 var sphere3;
@@ -84,28 +88,29 @@ function init() {
 
     group = new THREE.Group();
     group.type = 'yes';
-    //    scene.add(group);
+       scene.add(group);
 
     group_no_move = new THREE.Group();
     group_no_move.type = 'no';
-    //    scene.add(group_no_move);
+       scene.add(group_no_move);
 
 
 
-    timestamp0 = new THREE.Group();
+   /* timestamp0 = new THREE.Group();
     timestamp0.type = 'timestamp0';
-
+    group.add(timestamp0);
 
     timestamp1 = new THREE.Group();
     timestamp1.type = 'timestamp1';
-
+    group.add(timestamp1);
 
     timestamp2 = new THREE.Group();
     timestamp2.type = 'timestamp2';
-
+    group.add(timestamp2);
 
     timestamp3 = new THREE.Group();
     timestamp3.type = 'timestamp3';
+    group.add(timestamp3);*/
 
 
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -114,12 +119,15 @@ function init() {
         color: Math.random() * 0xffffff,
     });
 
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        timestamps.push([]);
+    }
 
     points = [];
 
     //Mise en place des noeuds dans les differrents timestamp
     for (var i = 0; i < file.nodes.length; i++) {
-        sphere1 = new THREE.Points(geometry, material);
+        sphere1 = new THREE.Mesh(geometry, material);
         sphere1.position.x = file.nodes[i].pos[0];
         sphere1.position.y = file.nodes[i].pos[1];
         sphere1.position.z = file.nodes[i].pos[2];
@@ -127,12 +135,13 @@ function init() {
 
 
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
+            timestamps[file.nodes[i].timestamp[j]].push(sphere1);
 
             if (file.nodes[i].timestamp[j] == 0) {
-                timestamp0.add(sphere1);
+                // timestamp0.add(sphere1);
                 sphere1.visible = true;
 
-            } else if (file.nodes[i].timestamp[j] == 1) {
+            } /*else if (file.nodes[i].timestamp[j] == 1) {
                 timestamp1.add(sphere1);
                 //                                sphere1.visible = true;
 
@@ -144,11 +153,11 @@ function init() {
                 timestamp3.add(sphere1);
                 //                                sphere1.visible = true;
 
-            }
+            }*/
         }
 
         group.add(sphere1);
-        scene.add(sphere1);
+        // scene.add(sphere1);
         points.push(sphere1);
     }
 
@@ -173,12 +182,12 @@ function init() {
         edges.visible = false;
 
         for (var j = 0; j < file.edges[i].timestamp.length; j++) {
-
+            timestamps[file.edges[i].timestamp[j]].push(edges);
             if (file.edges[i].timestamp[j] == 0) {
-                timestamp0.add(edges);
+                // timestamp0.add(edges);
                 edges.visible = true;
 
-            } else if (file.edges[i].timestamp[j] == 1) {
+            } /*else if (file.edges[i].timestamp[j] == 1) {
                 timestamp1.add(edges);
                 //                edges.visible = true; 
 
@@ -190,14 +199,13 @@ function init() {
                 timestamp3.add(edges);
                 //                edges.visible = true;
 
-            }
+            }*/
         }
 
         group.add(edges);
-        scene.add(edges);
+        // scene.add(edges);
         two_node = [];
     }
-
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
@@ -212,34 +220,34 @@ function init() {
     sphere1.position.x = -15;
     sphere1.position.y = -15;
     sphere1.position.z = -30;
-    sphere1.name = 'numero';
-        group_no_move.add(sphere1);
-//    group.add(sphere1);
-    scene.add(sphere1);
+    sphere1.name = 'numero0';
+    group_no_move.add(sphere1);
+    // group.add(sphere1);
+    // scene.add(sphere1);
 
     sphere2.position.x = -5;
     sphere2.position.y = -15;
     sphere2.position.z = -30;
     sphere2.name = 'numero1';
-        group_no_move.add(sphere2);
-//    group.add(sphere2);
-    scene.add(sphere2);
+    group_no_move.add(sphere2);
+    // group.add(sphere2);
+    // scene.add(sphere2);
 
     sphere3.position.x = 5;
     sphere3.position.y = -15;
     sphere3.position.z = -30;
     sphere3.name = 'numero2';
-        group_no_move.add(sphere3);
-//    group.add(sphere3);
-    scene.add(sphere3);
+    group_no_move.add(sphere3);
+    // group.add(sphere3);
+    // scene.add(sphere3);
 
     sphere4.position.x = 15;
     sphere4.position.y = -15;
     sphere4.position.z = -30;
     sphere4.name = 'numero3';
-        group_no_move.add(sphere4);
-//    group.add(sphere4);
-    scene.add(sphere4);
+    group_no_move.add(sphere4);
+    // group.add(sphere4);
+    // scene.add(sphere4);
 
 
 
@@ -271,8 +279,57 @@ function init() {
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
 
-}
+    var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
+    var line = new THREE.Line(geometry);
+    line.name = 'line';
+    line.scale.z = 2000;
+    controller1.add(line.clone());
+    controller2.add(line.clone());
 
+    window.addEventListener('vr controller connected', function (event) {
+        //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
+        var controller = event.detail;
+        scene.add(controller);
+        //  For standing experiences (not seated) we need to set the standingMatrix
+        //  otherwise you’ll wonder why your controller appears on the floor
+        //  instead of in your hands! And for seated experiences this will have no
+        //  effect, so safe to do either way:
+        controller.standingMatrix = renderer.vr.getStandingMatrix();
+        //  And for 3DOF (seated) controllers you need to set the controller.head
+        //  to reference your camera. That way we can make an educated guess where
+        //  your hand ought to appear based on the camera’s rotation.
+        controller.head = window.camera;
+        //  Right now your controller has no visual.
+        //  It’s just an empty THREE.Object3D.
+        var
+            meshColorOff = 0xDB3236, //  Red.
+            meshColorOn = 0xF4C20D, //  Yellow.
+            controllerMaterial = new THREE.MeshStandardMaterial({
+                color: meshColorOff
+            }),
+            controllerMesh = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.005, 0.05, 0.1, 6),
+                controllerMaterial
+            ),
+            handleMesh = new THREE.Mesh(
+                new THREE.BoxGeometry(0.03, 0.1, 0.03),
+                controllerMaterial
+            );
+        controllerMaterial.flatShading = true;
+        controllerMesh.rotation.x = -Math.PI / 2;
+        handleMesh.position.y = -0.05;
+        controllerMesh.add(handleMesh);
+        controller.userData.mesh = controllerMesh; //  So we can change the color later.
+        controller.add(controllerMesh);
+        controller.addEventListener('primary press began', onSelectStart);
+        controller.addEventListener('primary press ended', onSelectEnd);
+        controller.addEventListener('thumbstick axes moved', onThumbstickMove);
+        // controller.addEventListener('thumbpad pressed', onThumbpadPress);
+        controller.addEventListener('disconnected', function (event) {
+            controller.parent.remove(controller);
+        });
+    })
+}
 
 function onSelectStart(event) {
     var controller = event.target;
@@ -282,27 +339,34 @@ function onSelectStart(event) {
         var intersection = intersections[0];
 
         tempMatrix.getInverse(controller.matrixWorld);
-
         var object = intersection.object;
 
-        if (object.name.charAt(0) != 'n') {
-            object.matrix.premultiply(tempMatrix);
-            object.matrix.decompose(object.position, object.quaternion, object.scale);
+        if (object.type === "Mesh") {
 
-            controller.add(object);
-            controller.userData.selected = object;
-            selected = 1;
+            if (object.name.charAt(0) != 'n') {
+                object.matrix.premultiply(tempMatrix);
+                object.matrix.decompose(object.position, object.quaternion, object.scale);
+                object.position.x = 0;
+                object.position.y = 0;
+                console.log("test");
+                console.log(object);
+                if (object.geometry.parameters.radius !== undefined)
+                    object.position.z = -intersection.distance - object.geometry.parameters.radius;
+                if (object.geometry.parameters.depth !== undefined)
+                    object.position.z = -intersection.distance - object.geometry.parameters.depth / 2;
+                // object.material.emissive.b = 1;
+                controller.add(object);
+                controller.userData.selected = object;
+                selected = 1;
 
-        } else {
-            is_selected = 0;
-            object.material.emissive.b = 1;
-            erase_other(object);
-            controller.userData.selected = object;
+            } else {
+                is_selected = 0;
+                object.material.emissive.b = 1;
+                erase_other(object);
+                controller.userData.selected = object;
+            }
         }
-    } else {
-
     }
-
 }
 
 function onSelectEnd(event) {
@@ -312,20 +376,54 @@ function onSelectEnd(event) {
         var object = controller.userData.selected;
 
         if (object.name.charAt(0) != 'n') {
+            var newPos = new THREE.Vector3();
+            object.getWorldPosition(newPos);
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
+            // object.material.emissive.b = 0;
 
             group.add(object);
+
+            object.position = newPos;
+            object.position.x -= group.position.x;
+            object.position.y -= group.position.y;
+            object.position.z -= group.position.z;
 
             controller.userData.selected = undefined;
             selected = 0;
         } else {
             object.material.emissive.b = 0;
-            erase_other(object);
+            // erase_other(object);
             controller.userData.selected = undefined;
         }
 
     }
+}
+
+// Permet de se deplacer dans l'espace suivant la direction du regard
+function moveInSpace(xAxisValue, yAxisValue){
+    var xstep = CAMSTEP * xAxisValue;
+    var ystep = CAMSTEP * yAxisValue;
+
+    var direction = new THREE.Vector3();
+    camera.getWorldDirection( direction );
+    var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
+    var quad = new THREE.Quaternion().setFromAxisAngle( axisOfRotation, Math.PI / 2 );
+    var ymove = direction.clone().multiplyScalar(ystep);
+    direction.applyQuaternion(quad);
+    var xmove = direction.multiplyScalar(xstep);
+    group.position.add( xmove.add(ymove) );
+}
+
+function onThumbstickMove(event) {
+    var x = parseFloat(event.axes[0].toFixed(2));
+    var y = parseFloat(event.axes[1].toFixed(2));
+    moveInSpace(x, y);
+
+    // Déplacement en absolu (sans prendre en compte la direction de la caméra)
+    /*group.translateX(xstep);
+    group.translateY(-ystep);*/
+
 }
 
 function getIntersections(controller) {
@@ -335,8 +433,9 @@ function getIntersections(controller) {
 
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-
-    return raycaster.intersectObjects(group_no_move.children);
+    var toIntersect = group.children.slice();
+    toIntersect = toIntersect.concat(group_no_move.children);
+    return raycaster.intersectObjects(toIntersect);
 }
 
 function intersectObjects(controller) {
@@ -360,7 +459,7 @@ function intersectObjects(controller) {
         line.scale.z = intersection.distance;
 
     } else {
-        //        line.scale.z = 1000;
+            //    line.scale.z = 1000;
     }
 }
 
@@ -420,13 +519,23 @@ function move_to_cam(object) {
 }
 
 
-//Afiiche LE bon timestamps en fonction de la sphere selectionner
+//Affiche LE bon timestamps en fonction de la sphere selectionnee
 function erase_other(object) {
-    if (object.name == 'numero') {
+    var timestamp = parseInt(object.name.slice(-1));
+    for (var i = 0; i < NBTIMESTAMPS; i++) {
+        for (var j = 0; j < timestamps[i].length; j++) {
+            timestamps[i][j].visible = false;
+        }
+
+    }
+    for (var j = 0; j < timestamps[timestamp].length; j++) {
+        timestamps[timestamp][j].visible = true;
+    }
+    /*if (object.name == 'numero0') {
         timestamp1.visible = false;
         timestamp2.visible = false;
         timestamp3.visible = false;
-        imestamp0.visible = true;
+        timestamp0.visible = true;
 
     } else if (object.name == 'numero1') {
         timestamp0.visible = false;
@@ -446,14 +555,14 @@ function erase_other(object) {
         timestamp2.visible = false;
         timestamp3.visible = true;
 
-    }
+    }*/
 }
 
 function cleanIntersected() {
     while (intersected.length) {
         var object = intersected.pop();
 
-        if (object.namecharAt(0) == 'n') {
+        if (object.name.charAt(0) == 'n') {
             object.material.emissive.b = 0;
         }
 
