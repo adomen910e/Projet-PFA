@@ -10,7 +10,9 @@ var line;
 var object;
 var points;
 const NBTIMESTAMPS = 4;
-var timestamps=[];
+var timestamps = [];
+
+var oldCursorPos = new THREE.Vector3();
 
 const CAMSTEP = 1;
 
@@ -218,7 +220,7 @@ function init() {
     sphere4 = new THREE.Mesh(geometry, material);
 
     sphere1.position.x = -15;
-    sphere1.position.y = -15;
+    sphere1.position.y = -20;
     sphere1.position.z = -30;
     sphere1.name = 'numero0';
     group_no_move.add(sphere1);
@@ -226,7 +228,7 @@ function init() {
     // scene.add(sphere1);
 
     sphere2.position.x = -5;
-    sphere2.position.y = -15;
+    sphere2.position.y = -20;
     sphere2.position.z = -30;
     sphere2.name = 'numero1';
     group_no_move.add(sphere2);
@@ -234,7 +236,7 @@ function init() {
     // scene.add(sphere2);
 
     sphere3.position.x = 5;
-    sphere3.position.y = -15;
+    sphere3.position.y = -20;
     sphere3.position.z = -30;
     sphere3.name = 'numero2';
     group_no_move.add(sphere3);
@@ -242,7 +244,7 @@ function init() {
     // scene.add(sphere3);
 
     sphere4.position.x = 15;
-    sphere4.position.y = -15;
+    sphere4.position.y = -20;
     sphere4.position.z = -30;
     sphere4.name = 'numero3';
     group_no_move.add(sphere4);
@@ -348,8 +350,6 @@ function onSelectStart(event) {
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
                 object.position.y = 0;
-                console.log("test");
-                console.log(object);
                 if (object.geometry.parameters.radius !== undefined)
                     object.position.z = -intersection.distance - object.geometry.parameters.radius;
                 if (object.geometry.parameters.depth !== undefined)
@@ -569,6 +569,13 @@ function cleanIntersected() {
     }
 }
 
+function moveCursor(){
+    var direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+    group_no_move.position.copy(direction).multiplyScalar(20);
+    group_no_move.lookAt(camera.position);
+}
+
 function animate() {
     renderer.setAnimationLoop(render);
 }
@@ -577,6 +584,7 @@ function render() {
     cleanIntersected();
     intersectObjects(controller1);
     intersectObjects(controller2);
+    moveCursor();
     THREE.VRController.update();
     renderer.render(scene, camera);
 }
