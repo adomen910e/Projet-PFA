@@ -77,38 +77,19 @@
 
 </head>
 
-<body>
-
-
-<!--
-    <div class="slidecontainer">
-        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-        <p>Value: <span id="demo"></span></p>
+<body ng-app="app" ng-controller="ctrl" ng-class="{'split':editor.splitMode}">
+    <div class="editor">
+      <iframe src="https://rawgit.com/mrdoob/three.js/master/examples/webgl_lines_dashed.html"></iframe>
+      <div ng-style="{opacity:editor.opacity*.01}" ui-ace="{
+      useWrapMode : editor.useWrapMode,
+      showGutter: editor.gutter,
+      theme:editor.theme,
+      mode: editor.mode,
+      onLoad: aceLoaded,
+      onChange: aceChanged
+    }" ng-model='value'></div>
     </div>
--->
-
-
-    <!--
-    <script>
-    var getJSON = function(url, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'json';
-    xhr.onload = function() {
-      var status = xhr.status;
-      if (status === 200) {
-        callback(null, xhr.response);
-      } else {
-        callback(status, xhr.response);
-      }
-    };
-    xhr.send();
-};
-    </script>
--->
-
-
-
+  
 </body>
 <script src="aide/three.js"></script>
 <script src="aide/webVR.js"></script>

@@ -123,27 +123,12 @@ function init() {
             timestamps[file.nodes[i].timestamp[j]].push(sphere1);
 
             if (file.nodes[i].timestamp[j] == 0) {
-                // timestamp0.add(sphere1);
                 sphere1.visible = true;
 
             }
-            /*else if (file.nodes[i].timestamp[j] == 1) {
-                           timestamp1.add(sphere1);
-                           //                                sphere1.visible = true;
-
-                       } else if (file.nodes[i].timestamp[j] == 2) {
-                           timestamp2.add(sphere1);
-                           //                                sphere1.visible = true;
-
-                       } else if (file.nodes[i].timestamp[j] == 3) {
-                           timestamp3.add(sphere1);
-                           //                                sphere1.visible = true;
-
-                       }*/
         }
 
         group.add(sphere1);
-        // scene.add(sphere1);
         points.push(sphere1);
     }
 
@@ -225,7 +210,6 @@ function init() {
 
 
 
-
     //Mise en place des flèches
     geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
     var texture = new THREE.TextureLoader().load('img/flecheBas.png');
@@ -277,8 +261,8 @@ function init() {
     fleche_droite.rotation.x = 0.5 * Math.PI;
     fleche_droite.rotation.y = 0.5 * Math.PI;
     group_no_move.add(fleche_droite);
-    
-    
+
+
     var texture = new THREE.TextureLoader().load('img/flecheGauche.png');
 
     // immediately use the texture for material creation
@@ -373,6 +357,9 @@ function init() {
             controller.parent.remove(controller);
         });
     })
+
+
+
 }
 
 function onSelectStart(event) {
@@ -385,27 +372,54 @@ function onSelectStart(event) {
         tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
 
+        
+    
         if (object.type === "Mesh") {
 
-            if (object.name.charAt(0) != 'n') {
-                object.matrix.premultiply(tempMatrix);
-                object.matrix.decompose(object.position, object.quaternion, object.scale);
-                object.position.x = 0;
-                object.position.y = 0;
-                if (object.geometry.parameters.radius !== undefined)
-                    object.position.z = -intersection.distance - object.geometry.parameters.radius;
-                if (object.geometry.parameters.depth !== undefined)
-                    object.position.z = -intersection.distance - object.geometry.parameters.depth / 2;
-                // object.material.emissive.b = 1;
-                controller.add(object);
-                controller.userData.selected = object;
-                selected = 1;
-
-            } else {
+            //Si ce n'est le curseur
+            if (object.name.charAt(0) == 'n') {
                 is_selected = 0;
                 object.material.emissive.b = 1;
                 erase_other(object);
                 controller.userData.selected = object;
+                
+            //Si c'est les fleches de mouvements
+            } else if ((object.name.charAt(0) == 'f')) {
+                
+                //fleche du haut
+                if (object.name == "flecheH"){
+//                 onThumbstickMove(event);   
+                
+                //fleche du bas    
+                }else if (object.name == "flecheB"){
+                    
+                    
+                //fleche de droite    
+                }else if (object.name == "flecheD"){
+                    
+                    
+                //fleche de gauche
+                }else{
+                    
+                }
+                
+
+            } else {
+                
+                object.matrix.premultiply(tempMatrix);
+                object.matrix.decompose(object.position, object.quaternion, object.scale);
+                object.position.x = 0;
+                object.position.y = 0;
+
+                if (object.geometry.parameters.radius !== undefined)
+                    object.position.z = -intersection.distance - object.geometry.parameters.radius;
+
+                if (object.geometry.parameters.depth !== undefined)
+                    object.position.z = -intersection.distance - object.geometry.parameters.depth / 2;
+
+                controller.add(object);
+                controller.userData.selected = object;
+                selected = 1;
             }
         }
     }
@@ -573,31 +587,6 @@ function erase_other(object) {
     for (var j = 0; j < timestamps[timestamp].length; j++) {
         timestamps[timestamp][j].visible = true;
     }
-    /*if (object.name == 'numero0') {
-        timestamp1.visible = false;
-        timestamp2.visible = false;
-        timestamp3.visible = false;
-        timestamp0.visible = true;
-
-    } else if (object.name == 'numero1') {
-        timestamp0.visible = false;
-        timestamp2.visible = false;
-        timestamp3.visible = false;
-        timestamp1.visible = true;
-
-    } else if (object.name == 'numero2') {
-        timestamp0.visible = false;
-        timestamp1.visible = false;
-        timestamp3.visible = false;
-        timestamp2.visible = true;
-
-    } else if (object.name == 'numero3') {
-        timestamp0.visible = false;
-        timestamp1.visible = false;
-        timestamp2.visible = false;
-        timestamp3.visible = true;
-
-    }*/
 }
 
 function cleanIntersected() {
