@@ -90,29 +90,12 @@ function init() {
 
     group = new THREE.Group();
     group.type = 'yes';
-       scene.add(group);
+    scene.add(group);
 
     group_no_move = new THREE.Group();
     group_no_move.type = 'no';
-       scene.add(group_no_move);
+    scene.add(group_no_move);
 
-
-
-   /* timestamp0 = new THREE.Group();
-    timestamp0.type = 'timestamp0';
-    group.add(timestamp0);
-
-    timestamp1 = new THREE.Group();
-    timestamp1.type = 'timestamp1';
-    group.add(timestamp1);
-
-    timestamp2 = new THREE.Group();
-    timestamp2.type = 'timestamp2';
-    group.add(timestamp2);
-
-    timestamp3 = new THREE.Group();
-    timestamp3.type = 'timestamp3';
-    group.add(timestamp3);*/
 
 
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -121,7 +104,7 @@ function init() {
         color: Math.random() * 0xffffff,
     });
 
-    for (var i = 0; i < NBTIMESTAMPS; i++){
+    for (var i = 0; i < NBTIMESTAMPS; i++) {
         timestamps.push([]);
     }
 
@@ -143,19 +126,20 @@ function init() {
                 // timestamp0.add(sphere1);
                 sphere1.visible = true;
 
-            } /*else if (file.nodes[i].timestamp[j] == 1) {
-                timestamp1.add(sphere1);
-                //                                sphere1.visible = true;
+            }
+            /*else if (file.nodes[i].timestamp[j] == 1) {
+                           timestamp1.add(sphere1);
+                           //                                sphere1.visible = true;
 
-            } else if (file.nodes[i].timestamp[j] == 2) {
-                timestamp2.add(sphere1);
-                //                                sphere1.visible = true;
+                       } else if (file.nodes[i].timestamp[j] == 2) {
+                           timestamp2.add(sphere1);
+                           //                                sphere1.visible = true;
 
-            } else if (file.nodes[i].timestamp[j] == 3) {
-                timestamp3.add(sphere1);
-                //                                sphere1.visible = true;
+                       } else if (file.nodes[i].timestamp[j] == 3) {
+                           timestamp3.add(sphere1);
+                           //                                sphere1.visible = true;
 
-            }*/
+                       }*/
         }
 
         group.add(sphere1);
@@ -189,19 +173,7 @@ function init() {
                 // timestamp0.add(edges);
                 edges.visible = true;
 
-            } /*else if (file.edges[i].timestamp[j] == 1) {
-                timestamp1.add(edges);
-                //                edges.visible = true; 
-
-            } else if (file.edges[i].timestamp[j] == 2) {
-                timestamp2.add(edges);
-                //                edges.visible = true; 
-
-            } else if (file.edges[i].timestamp[j] == 3) {
-                timestamp3.add(edges);
-                //                edges.visible = true;
-
-            }*/
+            }
         }
 
         group.add(edges);
@@ -252,6 +224,76 @@ function init() {
     // scene.add(sphere4);
 
 
+
+
+    //Mise en place des flèches
+    geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
+    var texture = new THREE.TextureLoader().load('img/flecheBas.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    fleche_bas = new THREE.Mesh(geometry, material);
+    fleche_bas.position.x = 35;
+    fleche_bas.position.y = -14.5;
+    fleche_bas.position.z = -20;
+    fleche_bas.name = 'flecheB';
+    fleche_bas.rotation.x = 0.5 * Math.PI;
+    fleche_bas.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_bas);
+
+
+    var texture = new THREE.TextureLoader().load('img/flecheHaut.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    fleche_haut = new THREE.Mesh(geometry, material);
+    fleche_haut.position.x = 35;
+    fleche_haut.position.y = -10.5;
+    fleche_haut.position.z = -20;
+    fleche_haut.name = 'flecheH';
+    fleche_haut.rotation.x = 0.5 * Math.PI;
+    fleche_haut.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_haut);
+
+
+    var texture = new THREE.TextureLoader().load('img/flecheDroite.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    fleche_droite = new THREE.Mesh(geometry, material);
+    fleche_droite.position.x = 37;
+    fleche_droite.position.y = -12.5;
+    fleche_droite.position.z = -20;
+    fleche_droite.name = 'flecheD';
+    fleche_droite.rotation.x = 0.5 * Math.PI;
+    fleche_droite.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_droite);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheGauche.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    fleche_gauche = new THREE.Mesh(geometry, material);
+    fleche_gauche.position.x = 33;
+    fleche_gauche.position.y = -12.5;
+    fleche_gauche.position.z = -20;
+    fleche_gauche.name = 'flecheG';
+    fleche_gauche.rotation.x = 0.5 * Math.PI;
+    fleche_gauche.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_gauche);
 
 
 
@@ -401,18 +443,18 @@ function onSelectEnd(event) {
 }
 
 // Permet de se deplacer dans l'espace suivant la direction du regard
-function moveInSpace(xAxisValue, yAxisValue){
+function moveInSpace(xAxisValue, yAxisValue) {
     var xstep = CAMSTEP * xAxisValue;
     var ystep = CAMSTEP * yAxisValue;
 
     var direction = new THREE.Vector3();
-    camera.getWorldDirection( direction );
+    camera.getWorldDirection(direction);
     var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
-    var quad = new THREE.Quaternion().setFromAxisAngle( axisOfRotation, Math.PI / 2 );
+    var quad = new THREE.Quaternion().setFromAxisAngle(axisOfRotation, Math.PI / 2);
     var ymove = direction.clone().multiplyScalar(ystep);
     direction.applyQuaternion(quad);
     var xmove = direction.multiplyScalar(xstep);
-    group.position.add( xmove.add(ymove) );
+    group.position.add(xmove.add(ymove));
 }
 
 function onThumbstickMove(event) {
@@ -459,7 +501,7 @@ function intersectObjects(controller) {
         line.scale.z = intersection.distance;
 
     } else {
-            //    line.scale.z = 1000;
+        //    line.scale.z = 1000;
     }
 }
 
@@ -569,7 +611,7 @@ function cleanIntersected() {
     }
 }
 
-function moveCursor(){
+function moveCursor() {
     var direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
     group_no_move.position.copy(direction).multiplyScalar(20);
