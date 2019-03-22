@@ -98,6 +98,35 @@ function init() {
 
 
 
+//IL FAUDRAIT ESSAYER AVEC CE CODE LA POUR AFFICHER LES SOMMETS NORMALEMENT ON AURA PLUS DE BUGS 
+//_______________________________________________________________________________________________
+//    var geometry = new THREE.BufferGeometry();
+//    var vertices = [];
+//    var sprite = new THREE.TextureLoader().load('textures/sprites/disc.png');
+//    for (var i = 0; i < 10000; i++) {
+//        var x = 2000 * Math.random() - 1000;
+//        var y = 2000 * Math.random() - 1000;
+//        var z = 2000 * Math.random() - 1000;
+//        vertices.push(x, y, z);
+//    }
+//    geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+//    material = new THREE.PointsMaterial({
+//        size: 35,
+//        sizeAttenuation: false,
+//        map: sprite,
+//        alphaTest: 0.5,
+//        transparent: true
+//    });
+//    material.color.setHSL(1.0, 0.3, 0.7);
+//    var particles = new THREE.Points(geometry, material);
+//    scene.add(particles);
+//
+//_______________________________________________________________________________________________
+
+
+
+
+
     var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
     var material = new THREE.MeshStandardMaterial({
@@ -278,7 +307,7 @@ function init() {
     fleche_gauche.rotation.x = 0.5 * Math.PI;
     fleche_gauche.rotation.y = 0.5 * Math.PI;
     group_no_move.add(fleche_gauche);
-    
+
     var texture = new THREE.TextureLoader().load('img/cancel.png');
 
     // immediately use the texture for material creation
@@ -388,8 +417,8 @@ function onSelectStart(event) {
         tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
 
-        
-    
+
+
         if (object.type === "Mesh") {
 
             //Si ce n'est le curseur
@@ -398,34 +427,34 @@ function onSelectStart(event) {
                 object.material.emissive.b = 1;
                 erase_other(object);
                 controller.userData.selected = object;
-                
-            //Si c'est les fleches de mouvements
-            } else if ((object.name.charAt(0) == 'f')) {
-                
-                //fleche du haut
-                if (object.name == "flecheH"){
-                 moveInSpace(0, 1);
-                
-                //fleche du bas    
-                }else if (object.name == "flecheB"){
-                moveInSpace(0, -1);  
-                    
-                //fleche de droite    
-                }else if (object.name == "flecheD"){
-                moveInSpace(1, 0); 
-                     
-                //fleche de gauche
-                }else{
-                moveInSpace(-1, 0); 
-                }
-                
-            //Si c'est la croix 
-            }else if (object.name = "cancel"){
-                
 
-            //Si c'est les sommets
+                //Si c'est les fleches de mouvements
+            } else if ((object.name.charAt(0) == 'f')) {
+
+                //fleche du haut
+                if (object.name == "flecheH") {
+                    moveInSpace(0, 1);
+
+                    //fleche du bas    
+                } else if (object.name == "flecheB") {
+                    moveInSpace(0, -1);
+
+                    //fleche de droite    
+                } else if (object.name == "flecheD") {
+                    moveInSpace(1, 0);
+
+                    //fleche de gauche
+                } else {
+                    moveInSpace(-1, 0);
+                }
+
+                //Si c'est la croix 
+            } else if (object.name = "cancel") {
+
+
+                //Si c'est les sommets
             } else {
-                
+
                 object.matrix.premultiply(tempMatrix);
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
