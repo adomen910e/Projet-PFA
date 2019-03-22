@@ -278,6 +278,22 @@ function init() {
     fleche_gauche.rotation.x = 0.5 * Math.PI;
     fleche_gauche.rotation.y = 0.5 * Math.PI;
     group_no_move.add(fleche_gauche);
+    
+    var texture = new THREE.TextureLoader().load('img/cancel.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    cancel = new THREE.Mesh(geometry, material);
+    cancel.position.x = 40;
+    cancel.position.y = -10;
+    cancel.position.z = -20;
+    cancel.name = 'cancel';
+    cancel.rotation.x = 0.5 * Math.PI;
+    cancel.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(cancel);
 
 
 
@@ -394,19 +410,20 @@ function onSelectStart(event) {
                 }else if (object.name == "flecheB"){
                 moveInSpace(0, -1);  
                     
-                    
                 //fleche de droite    
                 }else if (object.name == "flecheD"){
                 moveInSpace(1, 0); 
-                    
-                    
+                     
                 //fleche de gauche
                 }else{
                 moveInSpace(-1, 0); 
-                    
                 }
                 
+            //Si c'est la croix 
+            }else if (object.name = "cancel"){
+                
 
+            //Si c'est les sommets
             } else {
                 
                 object.matrix.premultiply(tempMatrix);
@@ -439,7 +456,6 @@ function onSelectEnd(event) {
             object.getWorldPosition(newPos);
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
-            // object.material.emissive.b = 0;
 
             group.add(object);
 
