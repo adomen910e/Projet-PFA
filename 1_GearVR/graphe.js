@@ -66,7 +66,7 @@ function init() {
     info.style.top = '10px';
     info.style.width = '100%';
     info.style.textAlign = 'center';
-    info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webvr - dragging';
+    info.innerHTML = 'PROJET SUR LES CASQUES DE RÉALITÉ VIRTUELLE: AFFICHAGE DE GRANDS GRAPHES';
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
@@ -450,7 +450,7 @@ function onSelectStart(event) {
 
                 //Si c'est la croix 
             } else if (object.name = "cancel") {
-
+                //JE NE SAIS PLUS CE QUE DOIT FAIRE LA CROIX.....
 
                 //Si c'est les sommets
             } else {
