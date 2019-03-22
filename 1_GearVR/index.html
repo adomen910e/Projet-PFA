@@ -77,19 +77,10 @@
 
 </head>
 
-<body ng-app="app" ng-controller="ctrl" ng-class="{'split':editor.splitMode}">
-    <div class="editor">
-      <iframe src="https://rawgit.com/mrdoob/three.js/master/examples/webgl_lines_dashed.html"></iframe>
-      <div ng-style="{opacity:editor.opacity*.01}" ui-ace="{
-      useWrapMode : editor.useWrapMode,
-      showGutter: editor.gutter,
-      theme:editor.theme,
-      mode: editor.mode,
-      onLoad: aceLoaded,
-      onChange: aceChanged
-    }" ng-model='value'></div>
-    </div>
-  
+<body>
+
+
+
 </body>
 <script src="aide/three.js"></script>
 <script src="aide/webVR.js"></script>

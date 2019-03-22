@@ -388,18 +388,21 @@ function onSelectStart(event) {
                 
                 //fleche du haut
                 if (object.name == "flecheH"){
-//                 onThumbstickMove(event);   
+                 moveInSpace(0, 1);
                 
                 //fleche du bas    
                 }else if (object.name == "flecheB"){
+                moveInSpace(0, -1);  
                     
                     
                 //fleche de droite    
                 }else if (object.name == "flecheD"){
+                moveInSpace(1, 0); 
                     
                     
                 //fleche de gauche
                 }else{
+                moveInSpace(-1, 0); 
                     
                 }
                 
@@ -449,7 +452,6 @@ function onSelectEnd(event) {
             selected = 0;
         } else {
             object.material.emissive.b = 0;
-            // erase_other(object);
             controller.userData.selected = undefined;
         }
 
@@ -517,61 +519,6 @@ function intersectObjects(controller) {
     } else {
         //    line.scale.z = 1000;
     }
-}
-
-
-function move(object, dx, dy, dz) {
-
-    while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
-
-        if (object.position.x > dx) {
-            object.position.x = object.position.x - 1;
-        } else if (object.position.x < dx) {
-            object.position.x = object.position.x + 1;
-        }
-
-
-        if (object.position.y > dy) {
-            object.position.y = object.position.y - 1;
-        } else if (object.position.y < dy) {
-            object.position.y = object.position.y + 1;
-        }
-
-
-        if (object.position.z > dz) {
-            object.position.z = object.position.z - 1;
-        } else if (object.position.z < dz) {
-            object.position.z = object.position.z + 1;
-        }
-
-        renderer.render(scene, camera);
-    }
-}
-
-function move_to_cam(object) {
-
-    while ((object.position.x != 0) || (object.position.y != 2) || (object.position.z != -30)) {
-        if (object.position.x > 0) {
-            object.position.x = object.position.x - 1;
-        } else if (object.position.x < 0) {
-            object.position.x = object.position.x + 1;
-        }
-
-        if (object.position.y > 2) {
-            object.position.y = object.position.y - 1;
-        } else if (object.position.y < 2) {
-            object.position.y = object.position.y + 1;
-        }
-
-        if (object.position.z > -30) {
-            object.position.z = object.position.z - 1;
-        } else if (object.position.z < -30) {
-            object.position.z = object.position.z + 1;
-        }
-
-        renderer.render(scene, camera);
-    }
-
 }
 
 
