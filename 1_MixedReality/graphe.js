@@ -16,6 +16,7 @@ var edges = [];
 var oldCursorPos = new THREE.Vector3();
 
 const CAMSTEP = 1;
+const ROTSTEP = 0.4;
 
 var sphere4;
 var sphere3;
@@ -47,7 +48,7 @@ function loadJSON(callback) {
 
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'mygraph.json', true);
+    xobj.open('GET', 'vrgraph.json', true);
     xobj.onreadystatechange = function () {
         if (xobj.readyState == 4 && xobj.status == "200") {
             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -74,7 +75,7 @@ function init() {
     // scene.background = new THREE.Color(0xdccbce);
 
 
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1500);
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
 
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
@@ -114,7 +115,11 @@ function init() {
 
     var geoms = [];
     for (var i = 0; i < NBTIMESTAMPS; i++){
-        geoms.push(new THREE.Geometry());
+        geoms.push(new THREE.BufferGeometry());
+    }
+
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        vertices.push([]);
     }
 
     //Mise en place des noeuds dans les differrents timestamp
@@ -129,22 +134,41 @@ function init() {
 
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
             // vertices[file.nodes[i].timestamp[j]].push(sphere1);
-            geoms[file.nodes[i].timestamp[j]].mergeMesh(sphere1);
+            // geoms[file.nodes[i].timestamp[j]].mergeMesh(sphere1);
+            vertices[file.nodes[i].timestamp[j]].push(file.nodes[i].pos[0], file.nodes[i].pos[1],file.nodes[i].pos[2]);
         }
 
         // group.add(sphere1);
         // scene.add(sphere1);
         points.push(sphere1.position);
     }
+    var sprite = new THREE.TextureLoader().load('textures/circle3.png');
+    material = new THREE.PointsMaterial({
+        size: 1,
+        // sizeAttenuation: true,
+        map: sprite,
+        alphaTest: 0.5,
+        transparent: false
+    });
 
-    for (var i = 0; i < NBTIMESTAMPS; i++){
-        vertices[i] = new THREE.Mesh(geoms[i],material);
-        vertices[i].name= "timestamp" + i;
-        group.add(vertices[i]);
+    for (var i = 0; i < NBTIMESTAMPS; i++) {
+        // vertices[i] = new THREE.Mesh(geoms[i],material);
+        // vertices[i].name= "timestamp" + i;
+        // group.add(vertices[i]);
         // if (i != 0){
         //     vertices[i].visible = false;
         // }
+        geoms[i].addAttribute('position', new THREE.Float32BufferAttribute(vertices[i], 3));
+        
+        material.color.setHex(Math.random() * 0xffffff);
+        var particles = new THREE.Points(geoms[i], material);
+        particles.name="timestamp" + i;
+        group.add(particles);
+        if (i != 0){
+            particles.visible = false;
+        }
     }
+    
 
     var edgesGeometry = [];
     for (var i = 0; i < NBTIMESTAMPS; i++){
@@ -181,19 +205,7 @@ function init() {
             //     timestamp0.add(edges);
             //     edges.visible = true;
 
-            // } else if (file.edges[i].timestamp[j] == 1) {
-            //     timestamp1.add(edges);
-            //     edges.visible = true; 
-
-            // } else if (file.edges[i].timestamp[j] == 2) {
-            //     timestamp2.add(edges);
-            //     edges.visible = true; 
-
-            // } else if (file.edges[i].timestamp[j] == 3) {
-            //     timestamp3.add(edges);
-            //     edges.visible = true;
-
-            // }
+            // } 
         }
 
         // group.add(edges);
@@ -201,7 +213,7 @@ function init() {
     }
 
     var edgeMaterial = new THREE.LineBasicMaterial( {
-        color: 0xffffff,
+        color: Math.random() * 0xffffff,
         linewidth: 1,
     } );
 
@@ -209,9 +221,9 @@ function init() {
         edges[i] = new THREE.LineSegments(edgesGeometry[i],edgeMaterial);
         edges[i].name = "timestamp" + i;
         group.add(edges[i]);
-        // if (i != 0){
-        //     edges[i].visible = false;
-        // }
+        if (i != 0){
+            edges[i].visible = false;
+        }
     }
 
 
@@ -398,19 +410,49 @@ function onSelectEnd(event) {
     }
 }
 
+//https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
+function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
+	pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
+  
+	if(pointIsWorld){
+		obj.parent.localToWorld(obj.position); // compensate for world coordinate
+	}
+  
+	obj.position.sub(point); // remove the offset
+	obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+	obj.position.add(point); // re-add the offset
+  
+	if(pointIsWorld){
+		obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+	}
+  
+	obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+}
+
 // Permet de se deplacer dans l'espace suivant la direction du regard
-function moveInSpace(xAxisValue, yAxisValue) {
+function moveInSpace(xAxisValue, yAxisValue, useRotate = false) {
     var xstep = CAMSTEP * xAxisValue;
     var ystep = CAMSTEP * yAxisValue;
 
     var direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
-    var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
-    var quad = new THREE.Quaternion().setFromAxisAngle(axisOfRotation, Math.PI / 2);
     var ymove = direction.clone().multiplyScalar(ystep);
-    direction.applyQuaternion(quad);
-    var xmove = direction.multiplyScalar(xstep);
-    group.position.add(xmove.add(ymove));
+    group.position.add(ymove);
+
+    if (useRotate) {
+        // Le joystick sur le côté permet de tourner la caméra
+        if (xAxisValue > 0.6) {
+            var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+            rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+        }
+    } else {
+        // Le joystick sur le côté permet de se déplacer latéralement (straf)
+        var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
+        var quad = new THREE.Quaternion().setFromAxisAngle(axisOfRotation, Math.PI / 2);
+        direction.applyQuaternion(quad);
+        var xmove = direction.multiplyScalar(xstep);
+        group.position.add(xmove);
+    }
 }
 
 function onThumbstickMove(event) {
@@ -520,15 +562,24 @@ function move_to_cam(object) {
 //Affiche LE bon timestamp en fonction de la sphere selectionnee
 function erase_other(object) {
     var timestamp = parseInt(object.name.slice(-1));
-    for (var i = 0; i < NBTIMESTAMPS; i++) {
-        if (i == timestamp){
-            vertices[i].visible = true;
-            edges[i].visible = true;
-        } else {
-            vertices[i].visible = false;
-            edges[i].visible = false;
-        }
+    // for (var i = 0; i < NBTIMESTAMPS; i++) {
+    //     if (i == timestamp){
+    //         // vertices[i].visible = true;
+    //         edges[i].visible = true;
+    //     } else {
+    //         // vertices[i].visible = false;
+    //         edges[i].visible = false;
+    //     }
             
+    // }
+    for (var i = 0; i < group.children.length; i++) {
+        if ((group.children[i].name.includes("timestamp"))){
+            if (group.children[i].name.slice(-1)  == timestamp){
+                group.children[i].visible = true;
+            } else {
+                group.children[i].visible = false;
+            }
+        }
     }
 }
 
