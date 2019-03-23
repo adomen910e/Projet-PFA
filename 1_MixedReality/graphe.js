@@ -92,29 +92,11 @@ function init() {
 
     group = new THREE.Group();
     group.type = 'yes';
-       scene.add(group);
+    scene.add(group);
 
     group_no_move = new THREE.Group();
     group_no_move.type = 'no';
-       scene.add(group_no_move);
-
-
-
-   /* timestamp0 = new THREE.Group();
-    timestamp0.type = 'timestamp0';
-    group.add(timestamp0);
-
-    timestamp1 = new THREE.Group();
-    timestamp1.type = 'timestamp1';
-    group.add(timestamp1);
-
-    timestamp2 = new THREE.Group();
-    timestamp2.type = 'timestamp2';
-    group.add(timestamp2);
-
-    timestamp3 = new THREE.Group();
-    timestamp3.type = 'timestamp3';
-    group.add(timestamp3);*/
+    scene.add(group_no_move);
 
 
     var geometry = new THREE.IcosahedronGeometry(1, 3);
@@ -148,24 +130,6 @@ function init() {
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
             // vertices[file.nodes[i].timestamp[j]].push(sphere1);
             geoms[file.nodes[i].timestamp[j]].mergeMesh(sphere1);
-
-            // if (file.nodes[i].timestamp[j] == 0) {
-            //     timestamp0.add(sphere1);
-            //     sphere1.visible = true;
-
-            // } else if (file.nodes[i].timestamp[j] == 1) {
-            //     timestamp1.add(sphere1);
-            //     sphere1.visible = true;
-
-            // } else if (file.nodes[i].timestamp[j] == 2) {
-            //     timestamp2.add(sphere1);
-            //     sphere1.visible = true;
-
-            // } else if (file.nodes[i].timestamp[j] == 3) {
-            //     timestamp3.add(sphere1);
-            //     sphere1.visible = true;
-
-            // }
         }
 
         // group.add(sphere1);
@@ -267,34 +231,24 @@ function init() {
     sphere1.position.z = -30;
     sphere1.name = 'numero0';
     group_no_move.add(sphere1);
-    // group.add(sphere1);
-    // scene.add(sphere1);
 
     sphere2.position.x = -5;
     sphere2.position.y = -20;
     sphere2.position.z = -30;
     sphere2.name = 'numero1';
     group_no_move.add(sphere2);
-    // group.add(sphere2);
-    // scene.add(sphere2);
 
     sphere3.position.x = 5;
     sphere3.position.y = -20;
     sphere3.position.z = -30;
     sphere3.name = 'numero2';
     group_no_move.add(sphere3);
-    // group.add(sphere3);
-    // scene.add(sphere3);
 
     sphere4.position.x = 15;
     sphere4.position.y = -20;
     sphere4.position.z = -30;
     sphere4.name = 'numero3';
     group_no_move.add(sphere4);
-    // group.add(sphere4);
-    // scene.add(sphere4);
-
-
 
 
 
@@ -445,18 +399,18 @@ function onSelectEnd(event) {
 }
 
 // Permet de se deplacer dans l'espace suivant la direction du regard
-function moveInSpace(xAxisValue, yAxisValue){
+function moveInSpace(xAxisValue, yAxisValue) {
     var xstep = CAMSTEP * xAxisValue;
     var ystep = CAMSTEP * yAxisValue;
 
     var direction = new THREE.Vector3();
-    camera.getWorldDirection( direction );
+    camera.getWorldDirection(direction);
     var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
-    var quad = new THREE.Quaternion().setFromAxisAngle( axisOfRotation, Math.PI / 2 );
+    var quad = new THREE.Quaternion().setFromAxisAngle(axisOfRotation, Math.PI / 2);
     var ymove = direction.clone().multiplyScalar(ystep);
     direction.applyQuaternion(quad);
     var xmove = direction.multiplyScalar(xstep);
-    group.position.add( xmove.add(ymove) );
+    group.position.add(xmove.add(ymove));
 }
 
 function onThumbstickMove(event) {
@@ -503,7 +457,7 @@ function intersectObjects(controller) {
         line.scale.z = intersection.distance;
 
     } else {
-            //    line.scale.z = 1000;
+        //    line.scale.z = 1000;
     }
 }
 
@@ -576,31 +530,6 @@ function erase_other(object) {
         }
             
     }
-    /*if (object.name == 'numero0') {
-        timestamp1.visible = false;
-        timestamp2.visible = false;
-        timestamp3.visible = false;
-        timestamp0.visible = true;
-
-    } else if (object.name == 'numero1') {
-        timestamp0.visible = false;
-        timestamp2.visible = false;
-        timestamp3.visible = false;
-        timestamp1.visible = true;
-
-    } else if (object.name == 'numero2') {
-        timestamp0.visible = false;
-        timestamp1.visible = false;
-        timestamp3.visible = false;
-        timestamp2.visible = true;
-
-    } else if (object.name == 'numero3') {
-        timestamp0.visible = false;
-        timestamp1.visible = false;
-        timestamp2.visible = false;
-        timestamp3.visible = true;
-
-    }*/
 }
 
 function cleanIntersected() {
@@ -614,7 +543,7 @@ function cleanIntersected() {
     }
 }
 
-function moveCursor(){
+function moveCursor() {
     var direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
     group_no_move.position.copy(direction).multiplyScalar(20);
