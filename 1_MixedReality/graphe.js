@@ -13,7 +13,7 @@ const NBTIMESTAMPS = 4;
 var vertices = [];
 var edges = [];
 
-var oldCursorPos = new THREE.Vector3();
+var oldRotation = new THREE.Vector3();
 
 const CAMSTEP = 1;
 const ROTSTEP = 0.4;
@@ -377,6 +377,7 @@ function onSelectStart(event) {
             }
         }
     }
+    console.log(camera.rotation);
 }
 
 function onSelectEnd(event) {
@@ -597,11 +598,20 @@ function cleanIntersected() {
 function moveCursor() {
     var direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
-    group_no_move.position.copy(direction).multiplyScalar(20);
+    group_no_move.position.copy(direction).multiplyScalar(10);
     group_no_move.lookAt(camera.position);
+    /*var rotation = new THREE.Vector3();
+    rotation.copy(camera.rotation);
+    rotation.sub(oldRotation);
+    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(1,0,0).normalize(), rotation.x, false);
+    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(0,1,0).normalize(), rotation.y, false);
+    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(0,0,1).normalize(), rotation.z, false);
+    group_no_move.lookAt(camera.position);
+    oldRotation.copy(camera.rotation);*/
 }
 
 function animate() {
+    oldRotation.copy(camera.rotation);
     renderer.setAnimationLoop(render);
 }
 
