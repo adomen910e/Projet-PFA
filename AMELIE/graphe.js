@@ -8,9 +8,10 @@ var group;
 // var timestamp0, timestamp1, timestamp2, timestamp1;
 var line;
 var object;
-var points;
+// var points;
 const NBTIMESTAMPS = 4;
-var timestamps = [];
+var vertices = [];
+var edges = [];
 
 var oldCursorPos = new THREE.Vector3();
 
@@ -46,7 +47,7 @@ function loadJSON(callback) {
 
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'little.json', true);
+    xobj.open('GET', 'mygraph.json', true);
     xobj.onreadystatechange = function () {
         if (xobj.readyState == 4 && xobj.status == "200") {
             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -70,22 +71,23 @@ function init() {
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
+    // scene.background = new THREE.Color(0xdccbce);
 
 
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1500);
 
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
     //mise en place de la lumière
-    var light = new THREE.DirectionalLight(0xffffff);
+    /*var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
-    light.castShadow = true;
+    light.castShadow = false;
     light.shadow.camera.top = 2;
     light.shadow.camera.bottom = -2;
     light.shadow.camera.right = 2;
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
-    scene.add(light);
+    scene.add(light);*/
 
 
     group = new THREE.Group();
@@ -115,104 +117,145 @@ function init() {
     group.add(timestamp3);*/
 
 
-    var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    var geometry = new THREE.IcosahedronGeometry(1, 3);
 
-    var material = new THREE.MeshStandardMaterial({
+    var material = new THREE.MeshLambertMaterial({
         color: Math.random() * 0xffffff,
+        side: THREE.FrontSide
     });
 
-    for (var i = 0; i < NBTIMESTAMPS; i++){
-        timestamps.push([]);
-    }
+    /*for (var i = 0; i < NBTIMESTAMPS; i++){
+        vertices.push([]);
+    }*/
 
-    points = [];
+    var points = [];
+
+    var geoms = [];
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        geoms.push(new THREE.Geometry());
+    }
 
     //Mise en place des noeuds dans les differrents timestamp
     for (var i = 0; i < file.nodes.length; i++) {
-        sphere1 = new THREE.Mesh(geometry, material);
+        // sphere1 = new THREE.Mesh(geometry, material);
+        sphere1 = new THREE.Mesh(geometry);
         sphere1.position.x = file.nodes[i].pos[0];
         sphere1.position.y = file.nodes[i].pos[1];
         sphere1.position.z = file.nodes[i].pos[2];
-        sphere1.visible = false;
+        // sphere1.visible = false;
 
 
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
-            timestamps[file.nodes[i].timestamp[j]].push(sphere1);
+            // vertices[file.nodes[i].timestamp[j]].push(sphere1);
+            geoms[file.nodes[i].timestamp[j]].mergeMesh(sphere1);
 
-            if (file.nodes[i].timestamp[j] == 0) {
-                // timestamp0.add(sphere1);
-                sphere1.visible = true;
+            // if (file.nodes[i].timestamp[j] == 0) {
+            //     timestamp0.add(sphere1);
+            //     sphere1.visible = true;
 
-            } /*else if (file.nodes[i].timestamp[j] == 1) {
-                timestamp1.add(sphere1);
-                //                                sphere1.visible = true;
+            // } else if (file.nodes[i].timestamp[j] == 1) {
+            //     timestamp1.add(sphere1);
+            //     sphere1.visible = true;
 
-            } else if (file.nodes[i].timestamp[j] == 2) {
-                timestamp2.add(sphere1);
-                //                                sphere1.visible = true;
+            // } else if (file.nodes[i].timestamp[j] == 2) {
+            //     timestamp2.add(sphere1);
+            //     sphere1.visible = true;
 
-            } else if (file.nodes[i].timestamp[j] == 3) {
-                timestamp3.add(sphere1);
-                //                                sphere1.visible = true;
+            // } else if (file.nodes[i].timestamp[j] == 3) {
+            //     timestamp3.add(sphere1);
+            //     sphere1.visible = true;
 
-            }*/
+            // }
         }
 
-        group.add(sphere1);
+        // group.add(sphere1);
         // scene.add(sphere1);
-        points.push(sphere1);
+        points.push(sphere1.position);
     }
 
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        vertices[i] = new THREE.Mesh(geoms[i],material);
+        vertices[i].name= "timestamp" + i;
+        group.add(vertices[i]);
+        // if (i != 0){
+        //     vertices[i].visible = false;
+        // }
+    }
 
-    var two_node = [];
+    var edgesGeometry = [];
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        edgesGeometry.push(new THREE.Geometry());
+    }
+
 
     //Mise en place des aretes dans les differents timestamp
     for (var i = 0; i < file.edges.length; i++) {
 
+        var two_node = [];
+        two_node.push(points[file.edges[i].src]);
+        two_node.push(points[file.edges[i].tgt]);
 
-        two_node.push(points[file.edges[i].src].position);
-        two_node.push(points[file.edges[i].tgt].position);
 
+        // line.vertices.push(two_node);
 
-        line = new THREE.BufferGeometry().setFromPoints(two_node);
+        // edges = new THREE.Line(line, new THREE.LineBasicMaterial({
+        //     color: Math.random() * 0xffffff,
+        //     opacity: 0.01,
+        //     side: THREE.FrontSide
+        // }));
 
-        edges = new THREE.Line(line, new THREE.LineBasicMaterial({
-            color: Math.random() * 0xffffff,
-            opacity: 0.01
-        }));
-
-        edges.visible = false;
+        // edges.visible = false;
 
         for (var j = 0; j < file.edges[i].timestamp.length; j++) {
-            timestamps[file.edges[i].timestamp[j]].push(edges);
-            if (file.edges[i].timestamp[j] == 0) {
-                // timestamp0.add(edges);
-                edges.visible = true;
 
-            } /*else if (file.edges[i].timestamp[j] == 1) {
-                timestamp1.add(edges);
-                //                edges.visible = true; 
+            // vertices[file.edges[i].timestamp[j]].push(edges);
+            // geoms[file.edges[i].timestamp[j]].merge(edges.geometry, edges.matrix);
+            edgesGeometry[file.edges[i].timestamp[j]].vertices.push(two_node[0]);
+            edgesGeometry[file.edges[i].timestamp[j]].vertices.push(two_node[1]);
 
-            } else if (file.edges[i].timestamp[j] == 2) {
-                timestamp2.add(edges);
-                //                edges.visible = true; 
+            // if (file.edges[i].timestamp[j] == 0) {
+            //     timestamp0.add(edges);
+            //     edges.visible = true;
 
-            } else if (file.edges[i].timestamp[j] == 3) {
-                timestamp3.add(edges);
-                //                edges.visible = true;
+            // } else if (file.edges[i].timestamp[j] == 1) {
+            //     timestamp1.add(edges);
+            //     edges.visible = true; 
 
-            }*/
+            // } else if (file.edges[i].timestamp[j] == 2) {
+            //     timestamp2.add(edges);
+            //     edges.visible = true; 
+
+            // } else if (file.edges[i].timestamp[j] == 3) {
+            //     timestamp3.add(edges);
+            //     edges.visible = true;
+
+            // }
         }
 
-        group.add(edges);
+        // group.add(edges);
         // scene.add(edges);
-        two_node = [];
     }
+
+    var edgeMaterial = new THREE.LineBasicMaterial( {
+        color: 0xffffff,
+        linewidth: 1,
+    } );
+
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        edges[i] = new THREE.LineSegments(edgesGeometry[i],edgeMaterial);
+        edges[i].name = "timestamp" + i;
+        group.add(edges[i]);
+        // if (i != 0){
+        //     edges[i].visible = false;
+        // }
+    }
+
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
-    material = new THREE.MeshStandardMaterial({
+    material = new THREE.MeshLambertMaterial({
         color: 0xffffff,
+        side: THREE.FrontSide
     });
     sphere1 = new THREE.Mesh(geometry, material);
     sphere2 = new THREE.Mesh(geometry, material);
@@ -263,7 +306,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.gammaInput = true;
     renderer.gammaOutput = true;
-    renderer.shadowMap.enabled = true;
+    // renderer.shadowMap.enabled = true;
     renderer.vr.enabled = true;
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
@@ -282,6 +325,7 @@ function init() {
     scene.add(controller2);
 
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
+    var material = new THREE.MeshBasicMaterial({color: 0xff1a1a});
     var line = new THREE.Line(geometry);
     line.name = 'line';
     line.scale.z = 2000;
@@ -306,7 +350,7 @@ function init() {
         var
             meshColorOff = 0xDB3236, //  Red.
             meshColorOn = 0xF4C20D, //  Yellow.
-            controllerMaterial = new THREE.MeshStandardMaterial({
+            controllerMaterial = new THREE.MeshLambertMaterial({
                 color: meshColorOff
             }),
             controllerMesh = new THREE.Mesh(
@@ -433,8 +477,8 @@ function getIntersections(controller) {
 
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-    var toIntersect = group.children.slice();
-    toIntersect = toIntersect.concat(group_no_move.children);
+    var toIntersect = group_no_move.children.slice();
+    //toIntersect = toIntersect.concat(group.children);
     return raycaster.intersectObjects(toIntersect);
 }
 
@@ -519,17 +563,18 @@ function move_to_cam(object) {
 }
 
 
-//Affiche LE bon timestamps en fonction de la sphere selectionnee
+//Affiche LE bon timestamp en fonction de la sphere selectionnee
 function erase_other(object) {
     var timestamp = parseInt(object.name.slice(-1));
     for (var i = 0; i < NBTIMESTAMPS; i++) {
-        for (var j = 0; j < timestamps[i].length; j++) {
-            timestamps[i][j].visible = false;
+        if (i == timestamp){
+            vertices[i].visible = true;
+            edges[i].visible = true;
+        } else {
+            vertices[i].visible = false;
+            edges[i].visible = false;
         }
-
-    }
-    for (var j = 0; j < timestamps[timestamp].length; j++) {
-        timestamps[timestamp][j].visible = true;
+            
     }
     /*if (object.name == 'numero0') {
         timestamp1.visible = false;
