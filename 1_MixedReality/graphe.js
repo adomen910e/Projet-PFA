@@ -19,7 +19,8 @@ var oldRotation = new THREE.Vector3();
 const CAMSTEP = 1;
 const ROTSTEP = 0.4;
 const CURSORWIDTH = 20;
-const CURSORHEIGHT = 2;
+const CURSORHEIGHT = 1;
+const CURSORFAKEHEIGHT = CURSORHEIGHT*10;
 
 var cursorSelected = false;
 
@@ -230,12 +231,12 @@ function init() {
     sphere4.name = 'numero3';
     // group_no_move.add(sphere4);
 
-    geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORHEIGHT, 0.1);
+    geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORFAKEHEIGHT, 0.1);
     material = new THREE.MeshStandardMaterial({
-        color: 0x2194ce,
-        roughness: 0.7,
-        metalness : 0.7
+        transparent: true,
+        opacity: 0
     });
+
     var cursorBackground = new THREE.Mesh( geometry, material );
     cursorBackground.position.x = 0;
     cursorBackground.position.y = -15;
@@ -244,25 +245,38 @@ function init() {
     cursorBackground.name = "cursorBackground";
     group_no_move.add(cursorBackground);
 
+    geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORHEIGHT, 0.1);
+    material = new THREE.MeshStandardMaterial({
+        color: 0x696969,
+        roughness: 0.7,
+        metalness : 0.7,
+        transparent: true,
+        opacity:0.8
+    });
+
+    var cursorAppearantBackground = new THREE.Mesh( geometry, material );
+    cursorBackground.add(cursorAppearantBackground);
+    cursorAppearantBackground.position.z += 0.01;
+
 
     for (var i = 0; i < NBTIMESTAMPS; i++) {
-        var geometry = new THREE.CircleBufferGeometry(CURSORHEIGHT/2, 32);
+        var geometry = new THREE.PlaneBufferGeometry(0.1, CURSORHEIGHT);
         var material = new THREE.MeshStandardMaterial({
             color: 0xffffff,
             roughness: 0.7,
             metalness : 0.7
         });
-        var circle = new THREE.Mesh(geometry, material);
-        cursorBackground.add(circle);
-        circle.position.z += 0.11;
-        circle.position.x = i/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+        var graduation = new THREE.Mesh(geometry, material);
+        cursorBackground.add(graduation);
+        graduation.position.z += 0.1;
+        graduation.position.x = i/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
     }
 
     
 
-    geometry = new THREE.PlaneBufferGeometry( 0.5, 2);
+    geometry = new THREE.IcosahedronBufferGeometry( CURSORHEIGHT, 3);
     material = new THREE.MeshStandardMaterial({
-        color: 0xff0000,
+        color: 0xffffff,
         roughness: 0.7,
         metalness : 0.7
     });
@@ -270,7 +284,7 @@ function init() {
     // cursor.position.copy(cursorBackground.position);
     
     cursorBackground.add( cursor );
-    cursor.position.z += 0.12;
+    cursor.position.z += 0.05;
     cursor.position.x = 0;
     cursor.name = "cursor";
     moveCursorAtTimestamp(cursor, 0);
@@ -385,7 +399,7 @@ function onSelectStart(event) {
             } else {
                 // is_selected = 0;
                 cursorSelected = true;
-                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 1;
+                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
                 // controller.userData.selected = object;
             }
         }
