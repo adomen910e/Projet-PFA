@@ -21,6 +21,8 @@ const ROTSTEP = 0.4;
 const CURSORWIDTH = 20;
 const CURSORHEIGHT = 2;
 
+var cursorSelected = false;
+
 var sphere4;
 var sphere3;
 var sphere2;
@@ -375,19 +377,15 @@ function onSelectStart(event) {
                     object.position.z = -intersection.distance - object.geometry.parameters.radius;
                 if (object.geometry.parameters.depth !== undefined)
                     object.position.z = -intersection.distance - object.geometry.parameters.depth / 2;
-                // object.material.emissive.b = 1;
+                object.material.emissive.b = 1;
                 controller.add(object);
                 controller.userData.selected = object;
                 selected = 1;
 
             } else {
-                is_selected = 0;
-                // object.material.emissive.b = 1;
-                var timestampinfos = computeTimestamp(intersection);
-                var timestamp = timestampinfos.timestamp;
-                var cursor = intersection.object.getObjectByName("cursor");
-                moveCursorAtTimestamp(cursor, timestamp);
-                erase_other(timestamp);
+                // is_selected = 0;
+                cursorSelected = true;
+                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 1;
                 // controller.userData.selected = object;
             }
         }
@@ -396,11 +394,20 @@ function onSelectStart(event) {
 
 function onSelectEnd(event) {
     var controller = event.target;
+    if (cursorSelected) {
+        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
+        var timestampInfos = computeTimestampFromPos(cursor.position.x);
+        var timestamp = timestampInfos.timestamp;
+        moveCursorAtTimestamp(cursor, timestamp);
+        cursor.material.emissive.r = 0;
+        erase_other(timestamp);
+        cursorSelected = false;
+    }
 
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
 
-        if (object.name.charAt(0) != 'n') {
+        if (object.name.charAt(0) != 'c') {
             var newPos = new THREE.Vector3();
             object.getWorldPosition(newPos);
             object.matrix.premultiply(controller.matrixWorld);
@@ -417,9 +424,9 @@ function onSelectEnd(event) {
             controller.userData.selected = undefined;
             selected = 0;
         } else {
-            object.material.emissive.b = 0;
+            // object.material.emissive.b = 0;
             // erase_other(object);
-            controller.userData.selected = undefined;
+            // controller.userData.selected = undefined;
         }
 
     }
@@ -507,16 +514,27 @@ function intersectObjects(controller) {
 
         intersected.push(object);
         line.scale.z = intersection.distance;
+        return intersection;
     }
 }
 
-function computeTimestamp(intersection){
-    var timestamp = Math.floor((intersection.uv.x *100) / (100 / NBTIMESTAMPS));
-    var inf = Math.floor((intersection.uv.x *100) / (100 / (NBTIMESTAMPS-1)));
-    var sup = Math.floor((intersection.uv.x *100) / (100 / (NBTIMESTAMPS-1))) + 1;
+function computeTimestampFromUV(x){
+    var timestamp = Math.floor((x *100) / (100 / NBTIMESTAMPS));
+    var inf = Math.floor((x *100) / (100 / (NBTIMESTAMPS-1)));
+    var sup = Math.floor((x *100) / (100 / (NBTIMESTAMPS-1))) + 1;
     var returned = {
         timestamp: timestamp,
         other: (inf != timestamp) ? inf : sup
+    }
+    return returned;
+}
+
+function computeTimestampFromPos(x){
+    var xUV = (x + CURSORWIDTH/2) / CURSORWIDTH;
+    var timestampInfos = computeTimestampFromUV(xUV);
+    var returned = {
+        timestamp: timestampInfos.timestamp,
+        other: timestampInfos.other
     }
     return returned;
 }
@@ -577,8 +595,16 @@ function animate() {
 
 function render() {
     cleanIntersected();
-    intersectObjects(controller1);
-    intersectObjects(controller2);
+    var intersection1 = intersectObjects(controller1);
+    var intersection2 = intersectObjects(controller2);
+    if (cursorSelected) {
+        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
+        if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
+            moveCursorAtUVX(cursor,intersection1.uv.x);
+        } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
+            moveCursorAtUVX(cursor,intersection2.uv.x);
+        }
+    }
     moveCursor();
     THREE.VRController.update();
     renderer.render(scene, camera);
