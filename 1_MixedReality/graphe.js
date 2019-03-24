@@ -10,7 +10,7 @@ var line;
 var object;
 // var points;
 var NBTIMESTAMPS = 0;
-var currentTimestamp;
+var currentTimestamp = 0;
 var vertices = [];
 var edges = [];
 
@@ -271,6 +271,7 @@ function init() {
     cursor.position.z += 0.12;
     cursor.position.x = 0;
     cursor.name = "cursor";
+    moveCursorAtTimestamp(cursor, 0);
 
 
 
@@ -382,7 +383,11 @@ function onSelectStart(event) {
             } else {
                 is_selected = 0;
                 // object.material.emissive.b = 1;
-                computeTimestamp(intersection);
+                var timestampinfos = computeTimestamp(intersection);
+                var timestamp = timestampinfos.timestamp;
+                var cursor = intersection.object.getObjectByName("cursor");
+                moveCursorAtTimestamp(cursor, timestamp);
+                erase_other(timestamp);
                 // controller.userData.selected = object;
             }
         }
@@ -506,11 +511,22 @@ function intersectObjects(controller) {
 }
 
 function computeTimestamp(intersection){
-    var cursorBackground  = intersection.object;
-    var cursor = cursorBackground.getObjectByName("cursor");
     var timestamp = Math.floor((intersection.uv.x *100) / (100 / NBTIMESTAMPS));
-    cursor.position.x = timestamp/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;;
-    erase_other(timestamp);
+    var inf = Math.floor((intersection.uv.x *100) / (100 / (NBTIMESTAMPS-1)));
+    var sup = Math.floor((intersection.uv.x *100) / (100 / (NBTIMESTAMPS-1))) + 1;
+    var returned = {
+        timestamp: timestamp,
+        other: (inf != timestamp) ? inf : sup
+    }
+    return returned;
+}
+
+function moveCursorAtTimestamp(cursor, timestamp){
+    cursor.position.x = timestamp/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+}
+
+function moveCursorAtUVX(cursor, x){
+    cursor.position.x = x*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
 }
 
 
