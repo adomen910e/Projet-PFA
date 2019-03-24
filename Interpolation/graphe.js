@@ -17,6 +17,13 @@ var edges = [];
 var continuousXMove = 0;
 var continuousYMove = 0;
 
+//Control d'orbit
+var orbitControls;
+
+// Store the position of the VR HMD in a dummy camera.
+var fakeCamera ;
+var vrControls;
+
 
 const CAMSTEP = 1;
 
@@ -35,7 +42,7 @@ var intersectPoint = new THREE.Vector3(); //for reuse
 
 var file;
 
-//double buffering pour l'affichage des elements 
+//double buffering pour l'affichage des elements
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
 
 loadJSON(function (response) {
@@ -122,7 +129,7 @@ function init() {
         points.push(position);
     }
     var sprite = new THREE.TextureLoader().load('textures/circle3.png');
-    
+
 
     for (var i = 0; i < NBTIMESTAMPS; i++) {
 
@@ -142,7 +149,7 @@ function init() {
             particles.visible = false;
         }
     }
-    
+
 
     var edgesGeometry = [];
     for (var i = 0; i < NBTIMESTAMPS; i++){
@@ -166,7 +173,7 @@ function init() {
         }
     }
 
-    
+
 
     for (var i = 0; i < NBTIMESTAMPS; i++){
         var edgeMaterial = new THREE.LineBasicMaterial( {
@@ -183,7 +190,7 @@ function init() {
 
 
 
-//IL FAUDRAIT ESSAYER AVEC CE CODE LA POUR AFFICHER LES SOMMETS NORMALEMENT ON AURA PLUS DE BUGS 
+//IL FAUDRAIT ESSAYER AVEC CE CODE LA POUR AFFICHER LES SOMMETS NORMALEMENT ON AURA PLUS DE BUGS
 //_______________________________________________________________________________________________
 //    var geometry = new THREE.BufferGeometry();
 //    var vertices = [];
@@ -353,6 +360,33 @@ function init() {
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
 
+    orbitControls = new THREE.OrbitControls(camera);
+
+    fakeCamera = new THREE.Object3D();
+    vrControls = new THREE.VRControls(fakeCamera);
+
+    var render = function() {
+	     requestAnimationFrame(render);
+
+	     orbitControls.update();
+	     vrControls.update();
+
+	     // Temporarily save the orbited camera position
+	     var orbitPos = camera.position.clone();
+       // Apply the VR HMD camera position and rotation
+       // on top of the orbited camera.
+	     var rotatedPosition = fakeCamera.position.applyQuaternion(
+	         camera.quaternion);
+       camera.position.add(rotatedPosition);
+	     camera.quaternion.multiply(fakeCamera.quaternion);
+
+	     vrEffect.render(scene, camera);
+
+	     // Restore the orbit position, so that the OrbitControls can
+	     // pickup where it left off.
+	     camera.position.copy(orbitPos);
+    };
+
     // controllers gamepad
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
@@ -449,12 +483,12 @@ function onSelectStart(event) {
                     // moveInSpace(0, -100);
                     continuousYMove = -CAMSTEP;
 
-                    //fleche du bas    
+                    //fleche du bas
                 } else if (object.name == "flecheB") {
                     // moveInSpace(0, 100);
                     continuousYMove = CAMSTEP;
 
-                    //fleche de droite    
+                    //fleche de droite
                 } else if (object.name == "flecheD") {
                     // moveInSpace(100, 0);
                     continuousXMove = CAMSTEP;
@@ -465,7 +499,7 @@ function onSelectStart(event) {
                     continuousXMove = -CAMSTEP;
                 }
 
-                //Si c'est la croix 
+                //Si c'est la croix
             } else if (object.name = "cancel") {
                 //JE NE SAIS PLUS CE QUE DOIT FAIRE LA CROIX.....
 
@@ -525,19 +559,19 @@ function onSelectEnd(event) {
 //https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
 function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
 	pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
-  
+
 	if(pointIsWorld){
 		obj.parent.localToWorld(obj.position); // compensate for world coordinate
 	}
-  
+
 	obj.position.sub(point); // remove the offset
 	obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
 	obj.position.add(point); // re-add the offset
-  
+
 	if(pointIsWorld){
 		obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
 	}
-  
+
 	obj.rotateOnAxis(axis, theta); // rotate the OBJECT
 }
 
