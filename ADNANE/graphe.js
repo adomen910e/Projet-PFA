@@ -387,6 +387,12 @@ function init() {
 	     camera.position.copy(orbitPos);
     };
 
+    window.addEventListener('resize', function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      vrEffect.setSize( window.innerWidth, window.innerHeight );
+    }, false );
+
     // controllers gamepad
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
