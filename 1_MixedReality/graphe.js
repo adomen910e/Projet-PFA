@@ -9,7 +9,8 @@ var group;
 var line;
 var object;
 // var points;
-const NBTIMESTAMPS = 4;
+var NBTIMESTAMPS = 0;
+var currentTimestamp;
 var vertices = [];
 var edges = [];
 
@@ -17,6 +18,8 @@ var oldRotation = new THREE.Vector3();
 
 const CAMSTEP = 1;
 const ROTSTEP = 0.4;
+const CURSORWIDTH = 20;
+const CURSORHEIGHT = 2;
 
 var sphere4;
 var sphere3;
@@ -72,7 +75,6 @@ function init() {
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
-    // scene.background = new THREE.Color(0xdccbce);
 
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -80,7 +82,7 @@ function init() {
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
     //mise en place de la lumière
-    /*var light = new THREE.DirectionalLight(0xffffff);
+    var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
     light.castShadow = false;
     light.shadow.camera.top = 2;
@@ -88,7 +90,7 @@ function init() {
     light.shadow.camera.right = 2;
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
-    scene.add(light);*/
+    scene.add(light);
 
 
     group = new THREE.Group();
@@ -99,68 +101,49 @@ function init() {
     group_no_move.type = 'no';
     scene.add(group_no_move);
 
-
-    var geometry = new THREE.IcosahedronGeometry(1, 3);
-
-    var material = new THREE.MeshLambertMaterial({
-        color: Math.random() * 0xffffff,
-        side: THREE.FrontSide
-    });
-
-    /*for (var i = 0; i < NBTIMESTAMPS; i++){
-        vertices.push([]);
-    }*/
-
     var points = [];
 
     var geoms = [];
-    for (var i = 0; i < NBTIMESTAMPS; i++){
-        geoms.push(new THREE.BufferGeometry());
-    }
+    // for (var i = 0; i < NBTIMESTAMPS; i++){
+    //     geoms.push(new THREE.BufferGeometry());
+    // }
 
-    for (var i = 0; i < NBTIMESTAMPS; i++){
-        vertices.push([]);
-    }
+    // for (var i = 0; i < NBTIMESTAMPS; i++){
+    //     vertices.push([]);
+    // }
 
     //Mise en place des noeuds dans les differrents timestamp
     for (var i = 0; i < file.nodes.length; i++) {
-        // sphere1 = new THREE.Mesh(geometry, material);
-        sphere1 = new THREE.Mesh(geometry);
-        sphere1.position.x = file.nodes[i].pos[0];
-        sphere1.position.y = file.nodes[i].pos[1];
-        sphere1.position.z = file.nodes[i].pos[2];
-        // sphere1.visible = false;
-
+        var position = new THREE.Vector3(file.nodes[i].pos[0], file.nodes[i].pos[1], file.nodes[i].pos[2]);
 
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
-            // vertices[file.nodes[i].timestamp[j]].push(sphere1);
-            // geoms[file.nodes[i].timestamp[j]].mergeMesh(sphere1);
-            vertices[file.nodes[i].timestamp[j]].push(file.nodes[i].pos[0], file.nodes[i].pos[1],file.nodes[i].pos[2]);
+            var timestamp = file.nodes[i].timestamp[j];
+            if (timestamp + 1 > NBTIMESTAMPS){
+                for (var k = NBTIMESTAMPS; k < timestamp + 1; k++){
+                    geoms.push(new THREE.BufferGeometry());
+                    vertices.push([]);
+                }
+                NBTIMESTAMPS = timestamp + 1;
+            }
+            vertices[timestamp].push(file.nodes[i].pos[0], file.nodes[i].pos[1],file.nodes[i].pos[2]);
         }
 
-        // group.add(sphere1);
-        // scene.add(sphere1);
-        points.push(sphere1.position);
+        points.push(position);
     }
     var sprite = new THREE.TextureLoader().load('textures/circle3.png');
-    material = new THREE.PointsMaterial({
-        size: 1,
-        // sizeAttenuation: true,
-        map: sprite,
-        alphaTest: 0.5,
-        transparent: false
-    });
+    
 
     for (var i = 0; i < NBTIMESTAMPS; i++) {
-        // vertices[i] = new THREE.Mesh(geoms[i],material);
-        // vertices[i].name= "timestamp" + i;
-        // group.add(vertices[i]);
-        // if (i != 0){
-        //     vertices[i].visible = false;
-        // }
+
         geoms[i].addAttribute('position', new THREE.Float32BufferAttribute(vertices[i], 3));
-        
-        material.color.setHex(Math.random() * 0xffffff);
+        var material = new THREE.PointsMaterial({
+            size: 1,
+            // sizeAttenuation: true,
+            color: Math.random() * 0xffffff,
+            map: sprite,
+            alphaTest: 0.5,
+            transparent: false
+        });
         var particles = new THREE.Points(geoms[i], material);
         particles.name="timestamp" + i;
         group.add(particles);
@@ -184,40 +167,21 @@ function init() {
         two_node.push(points[file.edges[i].tgt]);
 
 
-        // line.vertices.push(two_node);
-
-        // edges = new THREE.Line(line, new THREE.LineBasicMaterial({
-        //     color: Math.random() * 0xffffff,
-        //     opacity: 0.01,
-        //     side: THREE.FrontSide
-        // }));
-
-        // edges.visible = false;
-
         for (var j = 0; j < file.edges[i].timestamp.length; j++) {
 
-            // vertices[file.edges[i].timestamp[j]].push(edges);
-            // geoms[file.edges[i].timestamp[j]].merge(edges.geometry, edges.matrix);
             edgesGeometry[file.edges[i].timestamp[j]].vertices.push(two_node[0]);
             edgesGeometry[file.edges[i].timestamp[j]].vertices.push(two_node[1]);
 
-            // if (file.edges[i].timestamp[j] == 0) {
-            //     timestamp0.add(edges);
-            //     edges.visible = true;
-
-            // } 
         }
-
-        // group.add(edges);
-        // scene.add(edges);
     }
 
-    var edgeMaterial = new THREE.LineBasicMaterial( {
-        color: Math.random() * 0xffffff,
-        linewidth: 1,
-    } );
+    
 
     for (var i = 0; i < NBTIMESTAMPS; i++){
+        var edgeMaterial = new THREE.LineBasicMaterial( {
+            color: Math.random() * 0xffffff,
+            linewidth: 1
+        } );
         edges[i] = new THREE.LineSegments(edgesGeometry[i],edgeMaterial);
         edges[i].name = "timestamp" + i;
         group.add(edges[i]);
@@ -225,6 +189,8 @@ function init() {
             edges[i].visible = false;
         }
     }
+
+    currentTimestamp = 0;
 
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
@@ -242,25 +208,69 @@ function init() {
     sphere1.position.y = -20;
     sphere1.position.z = -30;
     sphere1.name = 'numero0';
-    group_no_move.add(sphere1);
+    // group_no_move.add(sphere1);
 
     sphere2.position.x = -5;
     sphere2.position.y = -20;
     sphere2.position.z = -30;
     sphere2.name = 'numero1';
-    group_no_move.add(sphere2);
+    // group_no_move.add(sphere2);
 
     sphere3.position.x = 5;
     sphere3.position.y = -20;
     sphere3.position.z = -30;
     sphere3.name = 'numero2';
-    group_no_move.add(sphere3);
+    // group_no_move.add(sphere3);
 
     sphere4.position.x = 15;
     sphere4.position.y = -20;
     sphere4.position.z = -30;
     sphere4.name = 'numero3';
-    group_no_move.add(sphere4);
+    // group_no_move.add(sphere4);
+
+    geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORHEIGHT, 0.1);
+    material = new THREE.MeshStandardMaterial({
+        color: 0x2194ce,
+        roughness: 0.7,
+        metalness : 0.7
+    });
+    var cursorBackground = new THREE.Mesh( geometry, material );
+    cursorBackground.position.x = 0;
+    cursorBackground.position.y = -15;
+    cursorBackground.position.z = -25;
+    cursorBackground.lookAt(camera.position);
+    cursorBackground.name = "cursorBackground";
+    group_no_move.add(cursorBackground);
+
+
+    for (var i = 0; i < NBTIMESTAMPS; i++) {
+        var geometry = new THREE.CircleBufferGeometry(CURSORHEIGHT/2, 32);
+        var material = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.7,
+            metalness : 0.7
+        });
+        var circle = new THREE.Mesh(geometry, material);
+        cursorBackground.add(circle);
+        circle.position.z += 0.11;
+        circle.position.x = i/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+    }
+
+    
+
+    geometry = new THREE.PlaneBufferGeometry( 0.5, 2);
+    material = new THREE.MeshStandardMaterial({
+        color: 0xff0000,
+        roughness: 0.7,
+        metalness : 0.7
+    });
+    var cursor = new THREE.Mesh( geometry, material );
+    // cursor.position.copy(cursorBackground.position);
+    
+    cursorBackground.add( cursor );
+    cursor.position.z += 0.12;
+    cursor.position.x = 0;
+    cursor.name = "cursor";
 
 
 
@@ -272,7 +282,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.gammaInput = true;
     renderer.gammaOutput = true;
-    // renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = true;
     renderer.vr.enabled = true;
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
@@ -355,7 +365,7 @@ function onSelectStart(event) {
 
         if (object.type === "Mesh") {
 
-            if (object.name.charAt(0) != 'n') {
+            if (object.name.charAt(0) != 'c') {
                 object.matrix.premultiply(tempMatrix);
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
@@ -371,13 +381,12 @@ function onSelectStart(event) {
 
             } else {
                 is_selected = 0;
-                object.material.emissive.b = 1;
-                erase_other(object);
-                controller.userData.selected = object;
+                // object.material.emissive.b = 1;
+                computeTimestamp(intersection);
+                // controller.userData.selected = object;
             }
         }
     }
-    console.log(camera.rotation);
 }
 
 function onSelectEnd(event) {
@@ -460,11 +469,6 @@ function onThumbstickMove(event) {
     var x = parseFloat(event.axes[0].toFixed(2));
     var y = parseFloat(event.axes[1].toFixed(2));
     moveInSpace(x, y);
-
-    // Déplacement en absolu (sans prendre en compte la direction de la caméra)
-    /*group.translateX(xstep);
-    group.translateY(-ystep);*/
-
 }
 
 function getIntersections(controller) {
@@ -498,81 +502,20 @@ function intersectObjects(controller) {
 
         intersected.push(object);
         line.scale.z = intersection.distance;
-
-    } else {
-        //    line.scale.z = 1000;
     }
 }
 
-
-function move(object, dx, dy, dz) {
-
-    while ((object.position.x != dx) || (object.position.y != dy) || (object.position.z != dz)) {
-
-        if (object.position.x > dx) {
-            object.position.x = object.position.x - 1;
-        } else if (object.position.x < dx) {
-            object.position.x = object.position.x + 1;
-        }
-
-
-        if (object.position.y > dy) {
-            object.position.y = object.position.y - 1;
-        } else if (object.position.y < dy) {
-            object.position.y = object.position.y + 1;
-        }
-
-
-        if (object.position.z > dz) {
-            object.position.z = object.position.z - 1;
-        } else if (object.position.z < dz) {
-            object.position.z = object.position.z + 1;
-        }
-
-        renderer.render(scene, camera);
-    }
-}
-
-function move_to_cam(object) {
-
-    while ((object.position.x != 0) || (object.position.y != 2) || (object.position.z != -30)) {
-        if (object.position.x > 0) {
-            object.position.x = object.position.x - 1;
-        } else if (object.position.x < 0) {
-            object.position.x = object.position.x + 1;
-        }
-
-        if (object.position.y > 2) {
-            object.position.y = object.position.y - 1;
-        } else if (object.position.y < 2) {
-            object.position.y = object.position.y + 1;
-        }
-
-        if (object.position.z > -30) {
-            object.position.z = object.position.z - 1;
-        } else if (object.position.z < -30) {
-            object.position.z = object.position.z + 1;
-        }
-
-        renderer.render(scene, camera);
-    }
-
+function computeTimestamp(intersection){
+    var cursorBackground  = intersection.object;
+    var cursor = cursorBackground.getObjectByName("cursor");
+    var timestamp = Math.floor((intersection.uv.x *100) / (100 / NBTIMESTAMPS));
+    cursor.position.x = timestamp/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;;
+    erase_other(timestamp);
 }
 
 
 //Affiche LE bon timestamp en fonction de la sphere selectionnee
-function erase_other(object) {
-    var timestamp = parseInt(object.name.slice(-1));
-    // for (var i = 0; i < NBTIMESTAMPS; i++) {
-    //     if (i == timestamp){
-    //         // vertices[i].visible = true;
-    //         edges[i].visible = true;
-    //     } else {
-    //         // vertices[i].visible = false;
-    //         edges[i].visible = false;
-    //     }
-            
-    // }
+function erase_other(timestamp) {
     for (var i = 0; i < group.children.length; i++) {
         if ((group.children[i].name.includes("timestamp"))){
             if (group.children[i].name.slice(-1)  == timestamp){
@@ -582,6 +525,7 @@ function erase_other(object) {
             }
         }
     }
+    currentTimestamp = timestamp;
 }
 
 function cleanIntersected() {
@@ -611,7 +555,7 @@ function moveCursor() {
 }
 
 function animate() {
-    oldRotation.copy(camera.rotation);
+    // oldRotation.copy(camera.rotation);
     renderer.setAnimationLoop(render);
 }
 

@@ -8,11 +8,15 @@ var group;
 // var timestamp0, timestamp1, timestamp2, timestamp1;
 var line;
 var object;
-var points;
+// var points;
 const NBTIMESTAMPS = 4;
-var timestamps = [];
+var vertices = [];
+var edges = [];
 
-var oldCursorPos = new THREE.Vector3();
+//Variables pour le déplacement avec la croix
+var continuousXMove = 0;
+var continuousYMove = 0;
+
 
 const CAMSTEP = 1;
 
@@ -46,7 +50,7 @@ function loadJSON(callback) {
 
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'little.json', true);
+    xobj.open('GET', 'vrgraph.json', true);
     xobj.onreadystatechange = function () {
         if (xobj.readyState == 4 && xobj.status == "200") {
             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -96,6 +100,87 @@ function init() {
     group_no_move.type = 'no';
     scene.add(group_no_move);
 
+    var points = [];
+
+    var geoms = [];
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        geoms.push(new THREE.BufferGeometry());
+    }
+
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        vertices.push([]);
+    }
+
+    //Mise en place des noeuds dans les differrents timestamp
+    for (var i = 0; i < file.nodes.length; i++) {
+        var position = new THREE.Vector3(file.nodes[i].pos[0], file.nodes[i].pos[1], file.nodes[i].pos[2]);
+
+        for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
+            vertices[file.nodes[i].timestamp[j]].push(file.nodes[i].pos[0], file.nodes[i].pos[1],file.nodes[i].pos[2]);
+        }
+
+        points.push(position);
+    }
+    var sprite = new THREE.TextureLoader().load('textures/circle3.png');
+    
+
+    for (var i = 0; i < NBTIMESTAMPS; i++) {
+
+        geoms[i].addAttribute('position', new THREE.Float32BufferAttribute(vertices[i], 3));
+        var material = new THREE.PointsMaterial({
+            size: 1,
+            // sizeAttenuation: true,
+            color: Math.random() * 0xffffff,
+            map: sprite,
+            alphaTest: 0.5,
+            transparent: false
+        });
+        var particles = new THREE.Points(geoms[i], material);
+        particles.name="timestamp" + i;
+        group.add(particles);
+        if (i != 0){
+            particles.visible = false;
+        }
+    }
+    
+
+    var edgesGeometry = [];
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        edgesGeometry.push(new THREE.Geometry());
+    }
+
+
+    //Mise en place des aretes dans les differents timestamp
+    for (var i = 0; i < file.edges.length; i++) {
+
+        var two_node = [];
+        two_node.push(points[file.edges[i].src]);
+        two_node.push(points[file.edges[i].tgt]);
+
+
+        for (var j = 0; j < file.edges[i].timestamp.length; j++) {
+
+            edgesGeometry[file.edges[i].timestamp[j]].vertices.push(two_node[0]);
+            edgesGeometry[file.edges[i].timestamp[j]].vertices.push(two_node[1]);
+
+        }
+    }
+
+    
+
+    for (var i = 0; i < NBTIMESTAMPS; i++){
+        var edgeMaterial = new THREE.LineBasicMaterial( {
+            color: Math.random() * 0xffffff,
+            linewidth: 1
+        } );
+        edges[i] = new THREE.LineSegments(edgesGeometry[i],edgeMaterial);
+        edges[i].name = "timestamp" + i;
+        group.add(edges[i]);
+        if (i != 0){
+            edges[i].visible = false;
+        }
+    }
+
 
 
 //IL FAUDRAIT ESSAYER AVEC CE CODE LA POUR AFFICHER LES SOMMETS NORMALEMENT ON AURA PLUS DE BUGS 
@@ -123,77 +208,6 @@ function init() {
 //
 //_______________________________________________________________________________________________
 
-
-
-
-
-    var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-
-    var material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-
-    for (var i = 0; i < NBTIMESTAMPS; i++) {
-        timestamps.push([]);
-    }
-
-    points = [];
-
-    //Mise en place des noeuds dans les differrents timestamp
-    for (var i = 0; i < file.nodes.length; i++) {
-        sphere1 = new THREE.Mesh(geometry, material);
-        sphere1.position.x = file.nodes[i].pos[0];
-        sphere1.position.y = file.nodes[i].pos[1];
-        sphere1.position.z = file.nodes[i].pos[2];
-        sphere1.visible = false;
-
-
-        for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
-            timestamps[file.nodes[i].timestamp[j]].push(sphere1);
-
-            if (file.nodes[i].timestamp[j] == 0) {
-                sphere1.visible = true;
-
-            }
-        }
-
-        group.add(sphere1);
-        points.push(sphere1);
-    }
-
-
-    var two_node = [];
-
-    //Mise en place des aretes dans les differents timestamp
-    for (var i = 0; i < file.edges.length; i++) {
-
-
-        two_node.push(points[file.edges[i].src].position);
-        two_node.push(points[file.edges[i].tgt].position);
-
-
-        line = new THREE.BufferGeometry().setFromPoints(two_node);
-
-        edges = new THREE.Line(line, new THREE.LineBasicMaterial({
-            color: Math.random() * 0xffffff,
-            opacity: 0.01
-        }));
-
-        edges.visible = false;
-
-        for (var j = 0; j < file.edges[i].timestamp.length; j++) {
-            timestamps[file.edges[i].timestamp[j]].push(edges);
-            if (file.edges[i].timestamp[j] == 0) {
-                // timestamp0.add(edges);
-                edges.visible = true;
-
-            }
-        }
-
-        group.add(edges);
-        // scene.add(edges);
-        two_node = [];
-    }
 
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
 
@@ -249,7 +263,7 @@ function init() {
     });
 
     fleche_bas = new THREE.Mesh(geometry, material);
-    fleche_bas.position.x = 35;
+    fleche_bas.position.x = 20;
     fleche_bas.position.y = -14.5;
     fleche_bas.position.z = -20;
     fleche_bas.name = 'flecheB';
@@ -266,7 +280,7 @@ function init() {
     });
 
     fleche_haut = new THREE.Mesh(geometry, material);
-    fleche_haut.position.x = 35;
+    fleche_haut.position.x = 20;
     fleche_haut.position.y = -10.5;
     fleche_haut.position.z = -20;
     fleche_haut.name = 'flecheH';
@@ -283,7 +297,7 @@ function init() {
     });
 
     fleche_droite = new THREE.Mesh(geometry, material);
-    fleche_droite.position.x = 37;
+    fleche_droite.position.x = 22;
     fleche_droite.position.y = -12.5;
     fleche_droite.position.z = -20;
     fleche_droite.name = 'flecheD';
@@ -300,7 +314,7 @@ function init() {
     });
 
     fleche_gauche = new THREE.Mesh(geometry, material);
-    fleche_gauche.position.x = 33;
+    fleche_gauche.position.x = 18;
     fleche_gauche.position.y = -12.5;
     fleche_gauche.position.z = -20;
     fleche_gauche.name = 'flecheG';
@@ -316,7 +330,7 @@ function init() {
     });
 
     cancel = new THREE.Mesh(geometry, material);
-    cancel.position.x = 40;
+    cancel.position.x = 25;
     cancel.position.y = -10;
     cancel.position.z = -20;
     cancel.name = 'cancel';
@@ -430,22 +444,25 @@ function onSelectStart(event) {
 
                 //Si c'est les fleches de mouvements
             } else if ((object.name.charAt(0) == 'f')) {
-
                 //fleche du haut
                 if (object.name == "flecheH") {
-                    moveInSpace(0, 1);
+                    // moveInSpace(0, -100);
+                    continuousYMove = -CAMSTEP;
 
                     //fleche du bas    
                 } else if (object.name == "flecheB") {
-                    moveInSpace(0, -1);
+                    // moveInSpace(0, 100);
+                    continuousYMove = CAMSTEP;
 
                     //fleche de droite    
                 } else if (object.name == "flecheD") {
-                    moveInSpace(1, 0);
+                    // moveInSpace(100, 0);
+                    continuousXMove = CAMSTEP;
 
                     //fleche de gauche
                 } else {
-                    moveInSpace(-1, 0);
+                    // moveInSpace(-100, 0);
+                    continuousXMove = -CAMSTEP;
                 }
 
                 //Si c'est la croix 
@@ -476,6 +493,8 @@ function onSelectStart(event) {
 
 function onSelectEnd(event) {
     var controller = event.target;
+    continuousXMove = 0;
+    continuousYMove = 0;
 
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
@@ -503,30 +522,56 @@ function onSelectEnd(event) {
     }
 }
 
+//https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
+function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
+	pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
+  
+	if(pointIsWorld){
+		obj.parent.localToWorld(obj.position); // compensate for world coordinate
+	}
+  
+	obj.position.sub(point); // remove the offset
+	obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+	obj.position.add(point); // re-add the offset
+  
+	if(pointIsWorld){
+		obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+	}
+  
+	obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+}
+
 // Permet de se deplacer dans l'espace suivant la direction du regard
-function moveInSpace(xAxisValue, yAxisValue) {
+function moveInSpace(xAxisValue, yAxisValue, useRotate = false) {
     var xstep = CAMSTEP * xAxisValue;
     var ystep = CAMSTEP * yAxisValue;
 
     var direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
-    var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
-    var quad = new THREE.Quaternion().setFromAxisAngle(axisOfRotation, Math.PI / 2);
     var ymove = direction.clone().multiplyScalar(ystep);
-    direction.applyQuaternion(quad);
-    var xmove = direction.multiplyScalar(xstep);
-    group.position.add(xmove.add(ymove));
+    group.position.add(ymove);
+
+    if (useRotate) {
+        // Le joystick sur le côté permet de tourner la caméra
+        if (xAxisValue > 0.6) {
+            var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+            rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+        }
+    } else {
+        // Le joystick sur le côté permet de se déplacer latéralement (straf)
+        var axisOfRotation = camera.position.clone().normalize(); // Axe de la rotation a verifier
+        var quad = new THREE.Quaternion().setFromAxisAngle(axisOfRotation, Math.PI / 2);
+        direction.applyQuaternion(quad);
+        var xmove = direction.multiplyScalar(xstep);
+        group.position.add(xmove);
+    }
+
 }
 
 function onThumbstickMove(event) {
     var x = parseFloat(event.axes[0].toFixed(2));
     var y = parseFloat(event.axes[1].toFixed(2));
     moveInSpace(x, y);
-
-    // Déplacement en absolu (sans prendre en compte la direction de la caméra)
-    /*group.translateX(xstep);
-    group.translateY(-ystep);*/
-
 }
 
 function getIntersections(controller) {
@@ -536,8 +581,8 @@ function getIntersections(controller) {
 
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-    var toIntersect = group.children.slice();
-    toIntersect = toIntersect.concat(group_no_move.children);
+    var toIntersect = group_no_move.children.slice();
+    //toIntersect = toIntersect.concat(group.children);
     return raycaster.intersectObjects(toIntersect);
 }
 
@@ -570,14 +615,14 @@ function intersectObjects(controller) {
 //Affiche LE bon timestamps en fonction de la sphere selectionnee
 function erase_other(object) {
     var timestamp = parseInt(object.name.slice(-1));
-    for (var i = 0; i < NBTIMESTAMPS; i++) {
-        for (var j = 0; j < timestamps[i].length; j++) {
-            timestamps[i][j].visible = false;
+    for (var i = 0; i < group.children.length; i++) {
+        if ((group.children[i].name.includes("timestamp"))){
+            if (group.children[i].name.slice(-1)  == timestamp){
+                group.children[i].visible = true;
+            } else {
+                group.children[i].visible = false;
+            }
         }
-
-    }
-    for (var j = 0; j < timestamps[timestamp].length; j++) {
-        timestamps[timestamp][j].visible = true;
     }
 }
 
@@ -608,6 +653,9 @@ function render() {
     intersectObjects(controller1);
     intersectObjects(controller2);
     moveCursor();
+    if ((continuousXMove != 0) || (continuousYMove != 0)){
+        moveInSpace(continuousXMove, continuousYMove);
+    }
     THREE.VRController.update();
     renderer.render(scene, camera);
 }
