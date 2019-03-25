@@ -20,6 +20,8 @@ var continuousYMove = 0;
 //Control d'orbit
 var orbitControls;
 
+var vrEffect;
+
 // Store the position of the VR HMD in a dummy camera.
 var fakeCamera ;
 var vrControls;
@@ -97,6 +99,7 @@ function init() {
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
     scene.add(light);
+
 
 
     group = new THREE.Group();
@@ -360,38 +363,18 @@ function init() {
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
 
+    vrEffect = new THREE.VREffect(renderer, function () {});
+
     orbitControls = new THREE.OrbitControls(camera);
 
     fakeCamera = new THREE.Object3D();
     vrControls = new THREE.VRControls(fakeCamera);
 
-    var render = function() {
-	     requestAnimationFrame(render);
-
-	     orbitControls.update();
-	     vrControls.update();
-
-	     // Temporarily save the orbited camera position
-	     var orbitPos = camera.position.clone();
-       // Apply the VR HMD camera position and rotation
-       // on top of the orbited camera.
-	     var rotatedPosition = fakeCamera.position.applyQuaternion(
-	         camera.quaternion);
-       camera.position.add(rotatedPosition);
-	     camera.quaternion.multiply(fakeCamera.quaternion);
-
-	     vrEffect.render(scene, camera);
-
-	     // Restore the orbit position, so that the OrbitControls can
-	     // pickup where it left off.
-	     camera.position.copy(orbitPos);
-    };
-
-    window.addEventListener('resize', function onWindowResize() {
+    /*window.addEventListener('resize', function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       vrEffect.setSize( window.innerWidth, window.innerHeight );
-    }, false );
+    }, false );*/
 
     // controllers gamepad
     controller1 = renderer.vr.getController(0);
@@ -689,6 +672,9 @@ function animate() {
 }
 
 function render() {
+    requestAnimationFrame(render);
+
+    orbitControls.update();
     cleanIntersected();
     intersectObjects(controller1);
     intersectObjects(controller2);
@@ -696,6 +682,20 @@ function render() {
     if ((continuousXMove != 0) || (continuousYMove != 0)){
         moveInSpace(continuousXMove, continuousYMove);
     }
-    THREE.VRController.update();
-    renderer.render(scene, camera);
+    vrControls.update();
+    var orbitPos = camera.position.clone();
+
+    // Apply the VR HMD camera position and rotation
+    // on top of the orbited camera.
+    var rotatedPosition = fakeCamera.position.applyQuaternion(
+      camera.quaternion);
+    camera.position.add(rotatedPosition);
+    camera.quaternion.multiply(fakeCamera.quaternion);
+
+    vrEffect.render(scene, camera);
+
+    // Restore the orbit position, so that the OrbitControls can
+    // pickup where it left off.
+    camera.position.copy(orbitPos);
+    //renderer.render(scene, camera);
 }
