@@ -722,14 +722,14 @@ function moveCursor() {
     camera.getWorldDirection(direction);
     group_no_move.position.copy(direction).multiplyScalar(10);
     group_no_move.lookAt(camera.position);
-    /*var rotation = new THREE.Vector3();
+    var rotation = new THREE.Vector3();
     rotation.copy(camera.rotation);
     rotation.sub(oldRotation);
     rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(1,0,0).normalize(), rotation.x, false);
     rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(0,1,0).normalize(), rotation.y, false);
     rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(0,0,1).normalize(), rotation.z, false);
     group_no_move.lookAt(camera.position);
-    oldRotation.copy(camera.rotation);*/
+    oldRotation.copy(camera.rotation);
 }
 
 function animate() {
