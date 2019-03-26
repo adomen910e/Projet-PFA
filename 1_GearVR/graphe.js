@@ -239,7 +239,7 @@ function init() {
 
     var cursorBackground = new THREE.Mesh( geometry, material );
     cursorBackground.position.x = 0;
-    cursorBackground.position.y = 10;
+    cursorBackground.position.y = -10;
     cursorBackground.position.z = -25;
     cursorBackground.lookAt(camera.position);
     cursorBackground.name = "cursorBackground";
