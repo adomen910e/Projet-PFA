@@ -14,6 +14,10 @@ var currentTimestamp = 0;
 var vertices = [];
 var edges = [];
 
+//Variables pour le déplacement avec la croix
+var continuousXMove = 0;
+var continuousYMove = 0;
+
 var oldRotation = new THREE.Vector3();
 
 const CAMSTEP = 1;
@@ -484,22 +488,22 @@ function onSelectStart(event) {
             } else if ((object.name.charAt(0) == 'f')) {
                 //fleche du haut
                 if (object.name == "flecheH") {
-                    moveInSpace(0, -10);
+                    moveInSpace(0, -1);
                     continuousYMove = -CAMSTEP;
 
                     //fleche du bas    
                 } else if (object.name == "flecheB") {
-                    moveInSpace(0, 10);
+                    moveInSpace(0, 1);
                     continuousYMove = CAMSTEP;
 
                     //fleche de droite    
                 } else if (object.name == "flecheD") {
-                    moveInSpace(10, 0);
+                    moveInSpace(1, 0);
                     continuousXMove = CAMSTEP;
 
                     //fleche de gauche
                 } else {
-                    moveInSpace(-10, 0);
+                    moveInSpace(-1, 0);
                     continuousXMove = -CAMSTEP;
                 }
 
@@ -530,6 +534,10 @@ function onSelectStart(event) {
 
 function onSelectEnd(event) {
     var controller = event.target;
+    continuousXMove = 0;
+    continuousYMove = 0;
+
+
     if (cursorSelected) {
         var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         var timestampInfos = computeTimestampFromPos(cursor.position.x);
@@ -745,7 +753,3 @@ function render() {
     THREE.VRController.update();
     renderer.render(scene, camera);
 }
-
-
-
-
