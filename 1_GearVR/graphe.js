@@ -741,6 +741,12 @@ function render() {
     cleanIntersected();
     var intersection1 = intersectObjects(controller1);
     var intersection2 = intersectObjects(controller2);
+    
+    if ((continuousXMove != 0) || (continuousYMove != 0)){
+	        moveInSpace(continuousXMove, continuousYMove);
+	    }
+    
+    
     if (cursorSelected) {
         var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
