@@ -538,15 +538,15 @@ function onSelectEnd(event) {
     continuousYMove = 0;
 
 
-    if (cursorSelected) {
-        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
-        var timestampInfos = computeTimestampFromPos(cursor.position.x);
-        var timestamp = timestampInfos.timestamp;
-        moveCursorAtTimestamp(cursor, timestamp);
-        cursor.material.emissive.r = 0;
-        erase_other(timestamp);
-        cursorSelected = false;
-    }
+//    if (cursorSelected) {
+//        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
+//        var timestampInfos = computeTimestampFromPos(cursor.position.x);
+//        var timestamp = timestampInfos.timestamp;
+//        moveCursorAtTimestamp(cursor, timestamp);
+//        cursor.material.emissive.r = 0;
+//        erase_other(timestamp);
+//        cursorSelected = false;
+//    }
 
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
@@ -746,15 +746,26 @@ function render() {
 	        moveInSpace(continuousXMove, continuousYMove);
 	    }
     
-    
     if (cursorSelected) {
         var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
-        if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
-            moveCursorAtUVX(cursor, intersection1.uv.x);
-        } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
-            moveCursorAtUVX(cursor, intersection2.uv.x);
-        }
+        var timestampInfos = computeTimestampFromPos(cursor.position.x);
+        var timestamp = timestampInfos.timestamp;
+        moveCursorAtTimestamp(cursor, timestamp);
+        cursor.material.emissive.r = 0;
+        erase_other(timestamp);
+        cursorSelected = false;
     }
+    
+    
+    
+//    if (cursorSelected) {
+//        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
+//        if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
+//            moveCursorAtUVX(cursor, intersection1.uv.x);
+//        } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
+//            moveCursorAtUVX(cursor, intersection2.uv.x);
+//        }
+//    }
     moveCursor();
     THREE.VRController.update();
     renderer.render(scene, camera);
