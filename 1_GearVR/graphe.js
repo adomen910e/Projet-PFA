@@ -503,8 +503,11 @@ function onSelectStart(event) {
 
                     //fleche de gauche
                 } else {
-                    moveInSpace(-1, 0);
-                    continuousXMove = -CAMSTEP;
+                    var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+                    rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+//                    
+//                    moveInSpace(-1, 0);
+//                    continuousXMove = -CAMSTEP;
                 }
 
 
@@ -621,15 +624,15 @@ function moveInSpace(xAxisValue, yAxisValue, useRotate = false) {
     }
 }
 
+//Joystick
 function onThumbstickMove(event) {
     var x = parseFloat(event.axes[0].toFixed(2));
     var y = parseFloat(event.axes[1].toFixed(2));
     moveInSpace(x, y);
 }
 
+
 function getIntersections(controller) {
-
-
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
@@ -639,9 +642,9 @@ function getIntersections(controller) {
     return raycaster.intersectObjects(toIntersect);
 }
 
+
+//Gere l'intersection entre le controller et un objet
 function intersectObjects(controller) {
-
-
     // Do not highlight when already selected
     if (controller.userData.selected !== undefined) return;
 
@@ -683,6 +686,7 @@ function computeTimestampFromPos(x) {
     return returned;
 }
 
+//Replace le curseur sur le bon timestamp
 function moveCursorAtTimestamp(cursor, timestamp) {
     cursor.position.x = timestamp / (NBTIMESTAMPS - 1) * (CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH / 2 + CURSORHEIGHT / 2;
 }
@@ -722,14 +726,14 @@ function moveCursor() {
     camera.getWorldDirection(direction);
     group_no_move.position.copy(direction).multiplyScalar(10);
     group_no_move.lookAt(camera.position);
-    var rotation = new THREE.Vector3();
-    rotation.copy(camera.rotation);
-    rotation.sub(oldRotation);
-    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(1,0,0).normalize(), rotation.x, false);
-    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(0,1,0).normalize(), rotation.y, false);
-    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(0,0,1).normalize(), rotation.z, false);
-    group_no_move.lookAt(camera.position);
-    oldRotation.copy(camera.rotation);
+    //    var rotation = new THREE.Vector3();
+    //    rotation.copy(camera.rotation);
+    //    rotation.sub(oldRotation);
+    //    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(1,0,0).normalize(), rotation.x, false);
+    //    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(0,1,0).normalize(), rotation.y, false);
+    //    rotateAboutPoint(group_no_move, camera.position, new THREE.Vector3(0,0,1).normalize(), rotation.z, false);
+    //    group_no_move.lookAt(camera.position);
+    //    oldRotation.copy(camera.rotation);
 }
 
 function animate() {
@@ -742,20 +746,31 @@ function render() {
     var intersection1 = intersectObjects(controller1);
     var intersection2 = intersectObjects(controller2);
 
+    //    Permet de se deplacer en continue avec les fleches
     if ((continuousXMove != 0) || (continuousYMove != 0)) {
         moveInSpace(continuousXMove, continuousYMove);
     }
 
 
+    //    Si on est entrain de bouger le curseur 
     if (cursorSelected) {
         var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
-        if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
+
+        if ((intersection1 !== undefined) &&
+            (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
+
             moveCursorAtUVX(cursor, intersection1.uv.x);
-        } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
+
+        } else if ((intersection2 !== undefined) &&
+            (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
+
             moveCursorAtUVX(cursor, intersection2.uv.x);
         }
     }
+
+    //    Affichage du mouvement du curseur
     moveCursor();
+
     THREE.VRController.update();
     renderer.render(scene, camera);
 }
