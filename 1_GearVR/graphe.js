@@ -503,11 +503,11 @@ function onSelectStart(event) {
 
                     //fleche de gauche
                 } else {
-                    var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
-                    rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
-//                    
-//                    moveInSpace(-1, 0);
-//                    continuousXMove = -CAMSTEP;
+//                    var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+//                    rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+                    
+                    moveInSpace(-1, 0);
+                    continuousXMove = -CAMSTEP;
                 }
 
 
