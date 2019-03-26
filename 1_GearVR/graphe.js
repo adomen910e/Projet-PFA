@@ -484,22 +484,22 @@ function onSelectStart(event) {
             } else if ((object.name.charAt(0) == 'f')) {
                 //fleche du haut
                 if (object.name == "flecheH") {
-                    moveInSpace(0, -100);
+                    moveInSpace(0, -10);
                     continuousYMove = -CAMSTEP;
 
                     //fleche du bas    
                 } else if (object.name == "flecheB") {
-                    moveInSpace(0, 100);
+                    moveInSpace(0, 10);
                     continuousYMove = CAMSTEP;
 
                     //fleche de droite    
                 } else if (object.name == "flecheD") {
-                    moveInSpace(100, 0);
+                    moveInSpace(10, 0);
                     continuousXMove = CAMSTEP;
 
                     //fleche de gauche
                 } else {
-                    moveInSpace(-100, 0);
+                    moveInSpace(-10, 0);
                     continuousXMove = -CAMSTEP;
                 }
 
