@@ -244,7 +244,7 @@ function init() {
     });
 
     fleche_bas = new THREE.Mesh(geometry, material);
-    fleche_bas.position.x = 15;
+    fleche_bas.position.x = 5;
     fleche_bas.position.y = -9.5;
     fleche_bas.position.z = -20;
     fleche_bas.name = 'flecheB';
@@ -261,7 +261,7 @@ function init() {
     });
 
     fleche_haut = new THREE.Mesh(geometry, material);
-    fleche_haut.position.x = 15;
+    fleche_haut.position.x = 5;
     fleche_haut.position.y = -5.5;
     fleche_haut.position.z = -20;
     fleche_haut.name = 'flecheH';
@@ -278,7 +278,7 @@ function init() {
     });
 
     fleche_droite = new THREE.Mesh(geometry, material);
-    fleche_droite.position.x = 17;
+    fleche_droite.position.x = 7;
     fleche_droite.position.y = -7.5;
     fleche_droite.position.z = -20;
     fleche_droite.name = 'flecheD';
@@ -295,7 +295,7 @@ function init() {
     });
 
     fleche_gauche = new THREE.Mesh(geometry, material);
-    fleche_gauche.position.x = 13;
+    fleche_gauche.position.x = 3;
     fleche_gauche.position.y = -7.5;
     fleche_gauche.position.z = -20;
     fleche_gauche.name = 'flecheG';
@@ -311,7 +311,7 @@ function init() {
     });
 
     cancel = new THREE.Mesh(geometry, material);
-    cancel.position.x = 19;
+    cancel.position.x = 9;
     cancel.position.y = -5;
     cancel.position.z = -20;
     cancel.name = 'cancel';
@@ -328,7 +328,7 @@ function init() {
     });
 
     var cursorBackground = new THREE.Mesh(geometry, material);
-    cursorBackground.position.x = 0;
+    cursorBackground.position.x = -10;
     cursorBackground.position.y = -10;
     cursorBackground.position.z = -25;
     cursorBackground.lookAt(camera.position);
