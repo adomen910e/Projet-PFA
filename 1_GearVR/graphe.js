@@ -539,12 +539,12 @@ function onSelectEnd(event) {
 
 
     if (cursorSelected) {
-//        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
-//        var timestampInfos = computeTimestampFromPos(cursor.position.x);
-//        var timestamp = timestampInfos.timestamp;
-//        moveCursorAtTimestamp(cursor, timestamp);
-//        cursor.material.emissive.r = 0;
-//        erase_other(timestamp);
+        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
+        var timestampInfos = computeTimestampFromPos(cursor.position.x);
+        var timestamp = timestampInfos.timestamp;
+        moveCursorAtTimestamp(cursor, timestamp);
+        cursor.material.emissive.r = 0;
+        erase_other(timestamp);
         cursorSelected = false;
     }
 
@@ -741,31 +741,20 @@ function render() {
     cleanIntersected();
     var intersection1 = intersectObjects(controller1);
     var intersection2 = intersectObjects(controller2);
-    
-    if ((continuousXMove != 0) || (continuousYMove != 0)){
-	        moveInSpace(continuousXMove, continuousYMove);
-	    }
-    
+
+    if ((continuousXMove != 0) || (continuousYMove != 0)) {
+        moveInSpace(continuousXMove, continuousYMove);
+    }
+
+
     if (cursorSelected) {
         var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
-        var timestampInfos = computeTimestampFromPos(cursor.position.x);
-        var timestamp = timestampInfos.timestamp;
-        moveCursorAtTimestamp(cursor, timestamp);
-        cursor.material.emissive.r = 0;
-        erase_other(timestamp);
-//        cursorSelected = false;
+        if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
+            moveCursorAtUVX(cursor, intersection1.uv.x);
+        } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
+            moveCursorAtUVX(cursor, intersection2.uv.x);
+        }
     }
-    
-    
-    
-//    if (cursorSelected) {
-//        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
-//        if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
-//            moveCursorAtUVX(cursor, intersection1.uv.x);
-//        } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
-//            moveCursorAtUVX(cursor, intersection2.uv.x);
-//        }
-//    }
     moveCursor();
     THREE.VRController.update();
     renderer.render(scene, camera);
