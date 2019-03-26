@@ -538,15 +538,15 @@ function onSelectEnd(event) {
     continuousYMove = 0;
 
 
-//    if (cursorSelected) {
+    if (cursorSelected) {
 //        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
 //        var timestampInfos = computeTimestampFromPos(cursor.position.x);
 //        var timestamp = timestampInfos.timestamp;
 //        moveCursorAtTimestamp(cursor, timestamp);
 //        cursor.material.emissive.r = 0;
 //        erase_other(timestamp);
-//        cursorSelected = false;
-//    }
+        cursorSelected = false;
+    }
 
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
@@ -753,7 +753,7 @@ function render() {
         moveCursorAtTimestamp(cursor, timestamp);
         cursor.material.emissive.r = 0;
         erase_other(timestamp);
-        cursorSelected = false;
+//        cursorSelected = false;
     }
     
     
