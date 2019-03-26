@@ -20,7 +20,7 @@ const CAMSTEP = 1;
 const ROTSTEP = 0.4;
 const CURSORWIDTH = 20;
 const CURSORHEIGHT = 1;
-const CURSORFAKEHEIGHT = CURSORHEIGHT*10;
+const CURSORFAKEHEIGHT = CURSORHEIGHT * 10;
 
 var cursorSelected = false;
 
@@ -121,20 +121,20 @@ function init() {
 
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
             var timestamp = file.nodes[i].timestamp[j];
-            if (timestamp + 1 > NBTIMESTAMPS){
-                for (var k = NBTIMESTAMPS; k < timestamp + 1; k++){
+            if (timestamp + 1 > NBTIMESTAMPS) {
+                for (var k = NBTIMESTAMPS; k < timestamp + 1; k++) {
                     geoms.push(new THREE.BufferGeometry());
                     vertices.push([]);
                 }
                 NBTIMESTAMPS = timestamp + 1;
             }
-            vertices[timestamp].push(file.nodes[i].pos[0], file.nodes[i].pos[1],file.nodes[i].pos[2]);
+            vertices[timestamp].push(file.nodes[i].pos[0], file.nodes[i].pos[1], file.nodes[i].pos[2]);
         }
 
         points.push(position);
     }
     var sprite = new THREE.TextureLoader().load('textures/circle3.png');
-    
+
 
     for (var i = 0; i < NBTIMESTAMPS; i++) {
 
@@ -148,16 +148,16 @@ function init() {
             transparent: false
         });
         var particles = new THREE.Points(geoms[i], material);
-        particles.name="timestamp" + i;
+        particles.name = "timestamp" + i;
         group.add(particles);
-        if (i != 0){
+        if (i != 0) {
             particles.visible = false;
         }
     }
-    
+
 
     var edgesGeometry = [];
-    for (var i = 0; i < NBTIMESTAMPS; i++){
+    for (var i = 0; i < NBTIMESTAMPS; i++) {
         edgesGeometry.push(new THREE.Geometry());
     }
 
@@ -178,17 +178,17 @@ function init() {
         }
     }
 
-    
 
-    for (var i = 0; i < NBTIMESTAMPS; i++){
-        var edgeMaterial = new THREE.LineBasicMaterial( {
+
+    for (var i = 0; i < NBTIMESTAMPS; i++) {
+        var edgeMaterial = new THREE.LineBasicMaterial({
             color: Math.random() * 0xffffff,
             linewidth: 1
-        } );
-        edges[i] = new THREE.LineSegments(edgesGeometry[i],edgeMaterial);
+        });
+        edges[i] = new THREE.LineSegments(edgesGeometry[i], edgeMaterial);
         edges[i].name = "timestamp" + i;
         group.add(edges[i]);
-        if (i != 0){
+        if (i != 0) {
             edges[i].visible = false;
         }
     }
@@ -230,11 +230,11 @@ function init() {
     sphere4.position.z = -30;
     sphere4.name = 'numero3';
     // group_no_move.add(sphere4);
-    
-    
-    
-    
-        //Mise en place des flèches
+
+
+
+
+    //Mise en place des flèches
     geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
     var texture = new THREE.TextureLoader().load('img/flecheBas.png');
 
@@ -244,7 +244,7 @@ function init() {
     });
 
     fleche_bas = new THREE.Mesh(geometry, material);
-    fleche_bas.position.x = 20;
+    fleche_bas.position.x = 15;
     fleche_bas.position.y = -9.5;
     fleche_bas.position.z = -20;
     fleche_bas.name = 'flecheB';
@@ -261,7 +261,7 @@ function init() {
     });
 
     fleche_haut = new THREE.Mesh(geometry, material);
-    fleche_haut.position.x = 20;
+    fleche_haut.position.x = 15;
     fleche_haut.position.y = -5.5;
     fleche_haut.position.z = -20;
     fleche_haut.name = 'flecheH';
@@ -278,7 +278,7 @@ function init() {
     });
 
     fleche_droite = new THREE.Mesh(geometry, material);
-    fleche_droite.position.x = 22;
+    fleche_droite.position.x = 17;
     fleche_droite.position.y = -7.5;
     fleche_droite.position.z = -20;
     fleche_droite.name = 'flecheD';
@@ -295,7 +295,7 @@ function init() {
     });
 
     fleche_gauche = new THREE.Mesh(geometry, material);
-    fleche_gauche.position.x = 18;
+    fleche_gauche.position.x = 13;
     fleche_gauche.position.y = -7.5;
     fleche_gauche.position.z = -20;
     fleche_gauche.name = 'flecheG';
@@ -311,23 +311,23 @@ function init() {
     });
 
     cancel = new THREE.Mesh(geometry, material);
-    cancel.position.x = 25;
+    cancel.position.x = 19;
     cancel.position.y = -5;
     cancel.position.z = -20;
     cancel.name = 'cancel';
     cancel.rotation.x = 0.5 * Math.PI;
     cancel.rotation.y = 0.5 * Math.PI;
     group_no_move.add(cancel);
-    
-    
 
-    geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORFAKEHEIGHT, 0.1);
+
+
+    geometry = new THREE.BoxBufferGeometry(CURSORWIDTH, CURSORFAKEHEIGHT, 0.1);
     material = new THREE.MeshStandardMaterial({
         transparent: true,
         opacity: 0
     });
 
-    var cursorBackground = new THREE.Mesh( geometry, material );
+    var cursorBackground = new THREE.Mesh(geometry, material);
     cursorBackground.position.x = 0;
     cursorBackground.position.y = -10;
     cursorBackground.position.z = -25;
@@ -335,16 +335,16 @@ function init() {
     cursorBackground.name = "cursorBackground";
     group_no_move.add(cursorBackground);
 
-    geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORHEIGHT, 0.1);
+    geometry = new THREE.BoxBufferGeometry(CURSORWIDTH, CURSORHEIGHT, 0.1);
     material = new THREE.MeshStandardMaterial({
         color: 0x696969,
         roughness: 0.7,
-        metalness : 0.7,
+        metalness: 0.7,
         transparent: true,
-        opacity:0.8
+        opacity: 0.8
     });
 
-    var cursorAppearantBackground = new THREE.Mesh( geometry, material );
+    var cursorAppearantBackground = new THREE.Mesh(geometry, material);
     cursorBackground.add(cursorAppearantBackground);
     cursorAppearantBackground.position.z += 0.01;
 
@@ -354,26 +354,26 @@ function init() {
         var material = new THREE.MeshStandardMaterial({
             color: 0xffffff,
             roughness: 0.7,
-            metalness : 0.7
+            metalness: 0.7
         });
         var graduation = new THREE.Mesh(geometry, material);
         cursorBackground.add(graduation);
         graduation.position.z += 0.1;
-        graduation.position.x = i/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+        graduation.position.x = i / (NBTIMESTAMPS - 1) * (CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH / 2 + CURSORHEIGHT / 2;
     }
 
-    
 
-    geometry = new THREE.IcosahedronBufferGeometry( CURSORHEIGHT, 3);
+
+    geometry = new THREE.IcosahedronBufferGeometry(CURSORHEIGHT, 3);
     material = new THREE.MeshStandardMaterial({
         color: 0xffffff,
         roughness: 0.7,
-        metalness : 0.7
+        metalness: 0.7
     });
-    var cursor = new THREE.Mesh( geometry, material );
+    var cursor = new THREE.Mesh(geometry, material);
     // cursor.position.copy(cursorBackground.position);
-    
-    cursorBackground.add( cursor );
+
+    cursorBackground.add(cursor);
     cursor.position.z += 0.05;
     cursor.position.x = 0;
     cursor.name = "cursor";
@@ -408,7 +408,9 @@ function init() {
     scene.add(controller2);
 
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
-    var material = new THREE.MeshBasicMaterial({color: 0xff1a1a});
+    var material = new THREE.MeshBasicMaterial({
+        color: 0xff1a1a
+    });
     var line = new THREE.Line(geometry);
     line.name = 'line';
     line.scale.z = 2000;
@@ -471,8 +473,8 @@ function onSelectStart(event) {
         var object = intersection.object;
 
         if (object.type === "Mesh") {
-            
-             if (object.name.charAt(0) == 'n') {
+
+            if (object.name.charAt(0) == 'n') {
                 is_selected = 0;
                 object.material.emissive.b = 1;
                 erase_other(object);
@@ -482,27 +484,27 @@ function onSelectStart(event) {
             } else if ((object.name.charAt(0) == 'f')) {
                 //fleche du haut
                 if (object.name == "flecheH") {
-                    // moveInSpace(0, -100);
+                    moveInSpace(0, -100);
                     continuousYMove = -CAMSTEP;
 
                     //fleche du bas    
                 } else if (object.name == "flecheB") {
-                    // moveInSpace(0, 100);
+                    moveInSpace(0, 100);
                     continuousYMove = CAMSTEP;
 
                     //fleche de droite    
                 } else if (object.name == "flecheD") {
-                    // moveInSpace(100, 0);
+                    moveInSpace(100, 0);
                     continuousXMove = CAMSTEP;
 
                     //fleche de gauche
                 } else {
-                    // moveInSpace(-100, 0);
+                    moveInSpace(-100, 0);
                     continuousXMove = -CAMSTEP;
                 }
-                 
 
-             } else if (object.name.charAt(0) != 'c') {
+
+            } else if (object.name.charAt(0) != 'c') {
                 object.matrix.premultiply(tempMatrix);
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
@@ -567,22 +569,22 @@ function onSelectEnd(event) {
 }
 
 //https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
-function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
-	pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
-  
-	if(pointIsWorld){
-		obj.parent.localToWorld(obj.position); // compensate for world coordinate
-	}
-  
-	obj.position.sub(point); // remove the offset
-	obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
-	obj.position.add(point); // re-add the offset
-  
-	if(pointIsWorld){
-		obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
-	}
-  
-	obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+function rotateAboutPoint(obj, point, axis, theta, pointIsWorld) {
+    pointIsWorld = (pointIsWorld === undefined) ? false : pointIsWorld;
+
+    if (pointIsWorld) {
+        obj.parent.localToWorld(obj.position); // compensate for world coordinate
+    }
+
+    obj.position.sub(point); // remove the offset
+    obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+    obj.position.add(point); // re-add the offset
+
+    if (pointIsWorld) {
+        obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+    }
+
+    obj.rotateOnAxis(axis, theta); // rotate the OBJECT
 }
 
 // Permet de se deplacer dans l'espace suivant la direction du regard
@@ -652,10 +654,10 @@ function intersectObjects(controller) {
     }
 }
 
-function computeTimestampFromUV(x){
-    var timestamp = Math.floor((x *100) / (100 / NBTIMESTAMPS));
-    var inf = Math.floor((x *100) / (100 / (NBTIMESTAMPS-1)));
-    var sup = Math.floor((x *100) / (100 / (NBTIMESTAMPS-1))) + 1;
+function computeTimestampFromUV(x) {
+    var timestamp = Math.floor((x * 100) / (100 / NBTIMESTAMPS));
+    var inf = Math.floor((x * 100) / (100 / (NBTIMESTAMPS - 1)));
+    var sup = Math.floor((x * 100) / (100 / (NBTIMESTAMPS - 1))) + 1;
     var returned = {
         timestamp: timestamp,
         other: (inf != timestamp) ? inf : sup
@@ -663,8 +665,8 @@ function computeTimestampFromUV(x){
     return returned;
 }
 
-function computeTimestampFromPos(x){
-    var xUV = (x + CURSORWIDTH/2) / CURSORWIDTH;
+function computeTimestampFromPos(x) {
+    var xUV = (x + CURSORWIDTH / 2) / CURSORWIDTH;
     var timestampInfos = computeTimestampFromUV(xUV);
     var returned = {
         timestamp: timestampInfos.timestamp,
@@ -673,20 +675,20 @@ function computeTimestampFromPos(x){
     return returned;
 }
 
-function moveCursorAtTimestamp(cursor, timestamp){
-    cursor.position.x = timestamp/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+function moveCursorAtTimestamp(cursor, timestamp) {
+    cursor.position.x = timestamp / (NBTIMESTAMPS - 1) * (CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH / 2 + CURSORHEIGHT / 2;
 }
 
-function moveCursorAtUVX(cursor, x){
-    cursor.position.x = x*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+function moveCursorAtUVX(cursor, x) {
+    cursor.position.x = x * (CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH / 2 + CURSORHEIGHT / 2;
 }
 
 
 //Affiche LE bon timestamp en fonction de la sphere selectionnee
 function erase_other(timestamp) {
     for (var i = 0; i < group.children.length; i++) {
-        if ((group.children[i].name.includes("timestamp"))){
-            if (group.children[i].name.slice(-1)  == timestamp){
+        if ((group.children[i].name.includes("timestamp"))) {
+            if (group.children[i].name.slice(-1) == timestamp) {
                 group.children[i].visible = true;
             } else {
                 group.children[i].visible = false;
@@ -734,9 +736,9 @@ function render() {
     if (cursorSelected) {
         var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
-            moveCursorAtUVX(cursor,intersection1.uv.x);
+            moveCursorAtUVX(cursor, intersection1.uv.x);
         } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
-            moveCursorAtUVX(cursor,intersection2.uv.x);
+            moveCursorAtUVX(cursor, intersection2.uv.x);
         }
     }
     moveCursor();
