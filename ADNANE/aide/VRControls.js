@@ -116,3 +116,4 @@ THREE.VRControls = function ( object, onError ) {
 		vrInputs = [];
 
 	};
+    };

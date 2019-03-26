@@ -20,6 +20,12 @@ var continuousYMove = 0;
 //Control d'orbit
 var orbitControls;
 
+var vrEffect;
+
+var period = 5; // rotation time in seconds
+var clock = new THREE.Clock();
+var matrix = new THREE.Matrix4();
+
 // Store the position of the VR HMD in a dummy camera.
 var fakeCamera ;
 var vrControls;
@@ -46,15 +52,16 @@ var file;
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
 
 loadJSON(function (response) {
-    // Parse JSON string into object
-    file = JSON.parse(response);
-    init();
-    animate();
-});
+         // Parse JSON string into object
+         file = JSON.parse(response);
+         init();
+         animate();
+         render();
+         });
 
 
 function loadJSON(callback) {
-
+    
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
     xobj.open('GET', 'vrgraph.json', true);
@@ -68,8 +75,8 @@ function loadJSON(callback) {
 }
 
 function init() {
-
-
+    
+    
     container = document.createElement('div');
     document.body.appendChild(container);
     var info = document.createElement('div');
@@ -81,12 +88,13 @@ function init() {
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
-
-
+    
+    
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
-
+    camera.position.z = 200;
+    
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
-
+    
     //mise en place de la lumière
     var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
@@ -97,51 +105,52 @@ function init() {
     light.shadow.camera.left = -2;
     light.shadow.mapSize.set(4096, 4096);
     scene.add(light);
-
-
+    
+    
+    
     group = new THREE.Group();
     group.type = 'yes';
     scene.add(group);
-
+    
     group_no_move = new THREE.Group();
     group_no_move.type = 'no';
     scene.add(group_no_move);
-
+    
     var points = [];
-
+    
     var geoms = [];
     for (var i = 0; i < NBTIMESTAMPS; i++){
         geoms.push(new THREE.BufferGeometry());
     }
-
+    
     for (var i = 0; i < NBTIMESTAMPS; i++){
         vertices.push([]);
     }
-
+    
     //Mise en place des noeuds dans les differrents timestamp
     for (var i = 0; i < file.nodes.length; i++) {
         var position = new THREE.Vector3(file.nodes[i].pos[0], file.nodes[i].pos[1], file.nodes[i].pos[2]);
-
+        
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
             vertices[file.nodes[i].timestamp[j]].push(file.nodes[i].pos[0], file.nodes[i].pos[1],file.nodes[i].pos[2]);
         }
-
+        
         points.push(position);
     }
     var sprite = new THREE.TextureLoader().load('textures/circle3.png');
-
-
+    
+    
     for (var i = 0; i < NBTIMESTAMPS; i++) {
-
+        
         geoms[i].addAttribute('position', new THREE.Float32BufferAttribute(vertices[i], 3));
         var material = new THREE.PointsMaterial({
-            size: 1,
-            // sizeAttenuation: true,
-            color: Math.random() * 0xffffff,
-            map: sprite,
-            alphaTest: 0.5,
-            transparent: false
-        });
+                                                size: 1,
+                                                // sizeAttenuation: true,
+                                                color: Math.random() * 0xffffff,
+                                                map: sprite,
+                                                alphaTest: 0.5,
+                                                transparent: false
+                                                });
         var particles = new THREE.Points(geoms[i], material);
         particles.name="timestamp" + i;
         group.add(particles);
@@ -149,37 +158,37 @@ function init() {
             particles.visible = false;
         }
     }
-
-
+    
+    
     var edgesGeometry = [];
     for (var i = 0; i < NBTIMESTAMPS; i++){
         edgesGeometry.push(new THREE.Geometry());
     }
-
-
+    
+    
     //Mise en place des aretes dans les differents timestamp
     for (var i = 0; i < file.edges.length; i++) {
-
+        
         var two_node = [];
         two_node.push(points[file.edges[i].src]);
         two_node.push(points[file.edges[i].tgt]);
-
-
+        
+        
         for (var j = 0; j < file.edges[i].timestamp.length; j++) {
-
+            
             edgesGeometry[file.edges[i].timestamp[j]].vertices.push(two_node[0]);
             edgesGeometry[file.edges[i].timestamp[j]].vertices.push(two_node[1]);
-
+            
         }
     }
-
-
-
+    
+    
+    
     for (var i = 0; i < NBTIMESTAMPS; i++){
         var edgeMaterial = new THREE.LineBasicMaterial( {
-            color: Math.random() * 0xffffff,
-            linewidth: 1
-        } );
+                                                       color: Math.random() * 0xffffff,
+                                                       linewidth: 1
+                                                       } );
         edges[i] = new THREE.LineSegments(edgesGeometry[i],edgeMaterial);
         edges[i].name = "timestamp" + i;
         group.add(edges[i]);
@@ -187,45 +196,45 @@ function init() {
             edges[i].visible = false;
         }
     }
-
-
-
-//IL FAUDRAIT ESSAYER AVEC CE CODE LA POUR AFFICHER LES SOMMETS NORMALEMENT ON AURA PLUS DE BUGS
-//_______________________________________________________________________________________________
-//    var geometry = new THREE.BufferGeometry();
-//    var vertices = [];
-//    var sprite = new THREE.TextureLoader().load('textures/sprites/disc.png');
-//    for (var i = 0; i < 10000; i++) {
-//        var x = 2000 * Math.random() - 1000;
-//        var y = 2000 * Math.random() - 1000;
-//        var z = 2000 * Math.random() - 1000;
-//        vertices.push(x, y, z);
-//    }
-//    geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-//    material = new THREE.PointsMaterial({
-//        size: 35,
-//        sizeAttenuation: false,
-//        map: sprite,
-//        alphaTest: 0.5,
-//        transparent: true
-//    });
-//    material.color.setHSL(1.0, 0.3, 0.7);
-//    var particles = new THREE.Points(geometry, material);
-//    scene.add(particles);
-//
-//_______________________________________________________________________________________________
-
-
+    
+    
+    
+    //IL FAUDRAIT ESSAYER AVEC CE CODE LA POUR AFFICHER LES SOMMETS NORMALEMENT ON AURA PLUS DE BUGS
+    //_______________________________________________________________________________________________
+    //    var geometry = new THREE.BufferGeometry();
+    //    var vertices = [];
+    //    var sprite = new THREE.TextureLoader().load('textures/sprites/disc.png');
+    //    for (var i = 0; i < 10000; i++) {
+    //        var x = 2000 * Math.random() - 1000;
+    //        var y = 2000 * Math.random() - 1000;
+    //        var z = 2000 * Math.random() - 1000;
+    //        vertices.push(x, y, z);
+    //    }
+    //    geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    //    material = new THREE.PointsMaterial({
+    //        size: 35,
+    //        sizeAttenuation: false,
+    //        map: sprite,
+    //        alphaTest: 0.5,
+    //        transparent: true
+    //    });
+    //    material.color.setHSL(1.0, 0.3, 0.7);
+    //    var particles = new THREE.Points(geometry, material);
+    //    scene.add(particles);
+    //
+    //_______________________________________________________________________________________________
+    
+    
     geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-
+    
     material = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-    });
+                                              color: 0xffffff,
+                                              });
     sphere1 = new THREE.Mesh(geometry, material);
     sphere2 = new THREE.Mesh(geometry, material);
     sphere3 = new THREE.Mesh(geometry, material);
     sphere4 = new THREE.Mesh(geometry, material);
-
+    
     sphere1.position.x = -15;
     sphere1.position.y = -20;
     sphere1.position.z = -30;
@@ -233,7 +242,7 @@ function init() {
     group_no_move.add(sphere1);
     // group.add(sphere1);
     // scene.add(sphere1);
-
+    
     sphere2.position.x = -5;
     sphere2.position.y = -20;
     sphere2.position.z = -30;
@@ -241,7 +250,7 @@ function init() {
     group_no_move.add(sphere2);
     // group.add(sphere2);
     // scene.add(sphere2);
-
+    
     sphere3.position.x = 5;
     sphere3.position.y = -20;
     sphere3.position.z = -30;
@@ -249,7 +258,7 @@ function init() {
     group_no_move.add(sphere3);
     // group.add(sphere3);
     // scene.add(sphere3);
-
+    
     sphere4.position.x = 15;
     sphere4.position.y = -20;
     sphere4.position.z = -30;
@@ -257,18 +266,18 @@ function init() {
     group_no_move.add(sphere4);
     // group.add(sphere4);
     // scene.add(sphere4);
-
-
-
+    
+    
+    
     //Mise en place des flèches
     geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
     var texture = new THREE.TextureLoader().load('img/flecheBas.png');
-
+    
     // immediately use the texture for material creation
     material = new THREE.MeshBasicMaterial({
-        map: texture
-    });
-
+                                           map: texture
+                                           });
+    
     fleche_bas = new THREE.Mesh(geometry, material);
     fleche_bas.position.x = 20;
     fleche_bas.position.y = -14.5;
@@ -277,15 +286,15 @@ function init() {
     fleche_bas.rotation.x = 0.5 * Math.PI;
     fleche_bas.rotation.y = 0.5 * Math.PI;
     group_no_move.add(fleche_bas);
-
-
+    
+    
     var texture = new THREE.TextureLoader().load('img/flecheHaut.png');
-
+    
     // immediately use the texture for material creation
     material = new THREE.MeshBasicMaterial({
-        map: texture
-    });
-
+                                           map: texture
+                                           });
+    
     fleche_haut = new THREE.Mesh(geometry, material);
     fleche_haut.position.x = 20;
     fleche_haut.position.y = -10.5;
@@ -294,15 +303,15 @@ function init() {
     fleche_haut.rotation.x = 0.5 * Math.PI;
     fleche_haut.rotation.y = 0.5 * Math.PI;
     group_no_move.add(fleche_haut);
-
-
+    
+    
     var texture = new THREE.TextureLoader().load('img/flecheDroite.png');
-
+    
     // immediately use the texture for material creation
     material = new THREE.MeshBasicMaterial({
-        map: texture
-    });
-
+                                           map: texture
+                                           });
+    
     fleche_droite = new THREE.Mesh(geometry, material);
     fleche_droite.position.x = 22;
     fleche_droite.position.y = -12.5;
@@ -311,15 +320,15 @@ function init() {
     fleche_droite.rotation.x = 0.5 * Math.PI;
     fleche_droite.rotation.y = 0.5 * Math.PI;
     group_no_move.add(fleche_droite);
-
-
+    
+    
     var texture = new THREE.TextureLoader().load('img/flecheGauche.png');
-
+    
     // immediately use the texture for material creation
     material = new THREE.MeshBasicMaterial({
-        map: texture
-    });
-
+                                           map: texture
+                                           });
+    
     fleche_gauche = new THREE.Mesh(geometry, material);
     fleche_gauche.position.x = 18;
     fleche_gauche.position.y = -12.5;
@@ -328,14 +337,14 @@ function init() {
     fleche_gauche.rotation.x = 0.5 * Math.PI;
     fleche_gauche.rotation.y = 0.5 * Math.PI;
     group_no_move.add(fleche_gauche);
-
+    
     var texture = new THREE.TextureLoader().load('img/cancel.png');
-
+    
     // immediately use the texture for material creation
     material = new THREE.MeshBasicMaterial({
-        map: texture
-    });
-
+                                           map: texture
+                                           });
+    
     cancel = new THREE.Mesh(geometry, material);
     cancel.position.x = 25;
     cancel.position.y = -10;
@@ -344,13 +353,13 @@ function init() {
     cancel.rotation.x = 0.5 * Math.PI;
     cancel.rotation.y = 0.5 * Math.PI;
     group_no_move.add(cancel);
-
-
-
+    
+    
+    
     renderer = new THREE.WebGLRenderer({
-        antialias: true
-    });
-
+                                       antialias: true
+                                       });
+    
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.gammaInput = true;
@@ -359,164 +368,151 @@ function init() {
     renderer.vr.enabled = true;
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
-
+    
+    vrEffect = new THREE.VREffect(renderer, function () {});
+    
     orbitControls = new THREE.OrbitControls(camera);
-
+    
     fakeCamera = new THREE.Object3D();
     vrControls = new THREE.VRControls(fakeCamera);
-
-    var render = function() {
-	     requestAnimationFrame(render);
-
-	     orbitControls.update();
-	     vrControls.update();
-
-	     // Temporarily save the orbited camera position
-	     var orbitPos = camera.position.clone();
-       // Apply the VR HMD camera position and rotation
-       // on top of the orbited camera.
-	     var rotatedPosition = fakeCamera.position.applyQuaternion(
-	         camera.quaternion);
-       camera.position.add(rotatedPosition);
-	     camera.quaternion.multiply(fakeCamera.quaternion);
-
-	     vrEffect.render(scene, camera);
-
-	     // Restore the orbit position, so that the OrbitControls can
-	     // pickup where it left off.
-	     camera.position.copy(orbitPos);
-    };
-
+    
+    
+    /*window.addEventListener('resize', function onWindowResize() {
+     camera.aspect = window.innerWidth / window.innerHeight;
+     camera.updateProjectionMatrix();
+     vrEffect.setSize( window.innerWidth, window.innerHeight );
+     }, false );*/
+    
     // controllers gamepad
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
     scene.add(controller1);
-
-
-
+    
+    
+    
     controller2 = renderer.vr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
     scene.add(controller2);
-
+    
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
     var line = new THREE.Line(geometry);
     line.name = 'line';
     line.scale.z = 2000;
     controller1.add(line.clone());
     controller2.add(line.clone());
-
+    
     window.addEventListener('vr controller connected', function (event) {
-        //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
-        var controller = event.detail;
-        scene.add(controller);
-        //  For standing experiences (not seated) we need to set the standingMatrix
-        //  otherwise you’ll wonder why your controller appears on the floor
-        //  instead of in your hands! And for seated experiences this will have no
-        //  effect, so safe to do either way:
-        controller.standingMatrix = renderer.vr.getStandingMatrix();
-        //  And for 3DOF (seated) controllers you need to set the controller.head
-        //  to reference your camera. That way we can make an educated guess where
-        //  your hand ought to appear based on the camera’s rotation.
-        controller.head = window.camera;
-        //  Right now your controller has no visual.
-        //  It’s just an empty THREE.Object3D.
-        var
-            meshColorOff = 0xDB3236, //  Red.
-            meshColorOn = 0xF4C20D, //  Yellow.
-            controllerMaterial = new THREE.MeshStandardMaterial({
-                color: meshColorOff
-            }),
-            controllerMesh = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.005, 0.05, 0.1, 6),
-                controllerMaterial
-            ),
-            handleMesh = new THREE.Mesh(
-                new THREE.BoxGeometry(0.03, 0.1, 0.03),
-                controllerMaterial
-            );
-        controllerMaterial.flatShading = true;
-        controllerMesh.rotation.x = -Math.PI / 2;
-        handleMesh.position.y = -0.05;
-        controllerMesh.add(handleMesh);
-        controller.userData.mesh = controllerMesh; //  So we can change the color later.
-        controller.add(controllerMesh);
-        controller.addEventListener('primary press began', onSelectStart);
-        controller.addEventListener('primary press ended', onSelectEnd);
-        controller.addEventListener('thumbstick axes moved', onThumbstickMove);
-        // controller.addEventListener('thumbpad pressed', onThumbpadPress);
-        controller.addEventListener('disconnected', function (event) {
-            controller.parent.remove(controller);
-        });
-    })
-
-
-
+                            //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
+                            var controller = event.detail;
+                            scene.add(controller);
+                            //  For standing experiences (not seated) we need to set the standingMatrix
+                            //  otherwise you’ll wonder why your controller appears on the floor
+                            //  instead of in your hands! And for seated experiences this will have no
+                            //  effect, so safe to do either way:
+                            controller.standingMatrix = renderer.vr.getStandingMatrix();
+                            //  And for 3DOF (seated) controllers you need to set the controller.head
+                            //  to reference your camera. That way we can make an educated guess where
+                            //  your hand ought to appear based on the camera’s rotation.
+                            controller.head = window.camera;
+                            //  Right now your controller has no visual.
+                            //  It’s just an empty THREE.Object3D.
+                            var
+                            meshColorOff = 0xDB3236, //  Red.
+                            meshColorOn = 0xF4C20D, //  Yellow.
+                            controllerMaterial = new THREE.MeshStandardMaterial({
+                                                                                color: meshColorOff
+                                                                                }),
+                            controllerMesh = new THREE.Mesh(
+                                                            new THREE.CylinderGeometry(0.005, 0.05, 0.1, 6),
+                                                            controllerMaterial
+                                                            ),
+                            handleMesh = new THREE.Mesh(
+                                                        new THREE.BoxGeometry(0.03, 0.1, 0.03),
+                                                        controllerMaterial
+                                                        );
+                            controllerMaterial.flatShading = true;
+                            controllerMesh.rotation.x = -Math.PI / 2;
+                            handleMesh.position.y = -0.05;
+                            controllerMesh.add(handleMesh);
+                            controller.userData.mesh = controllerMesh; //  So we can change the color later.
+                            controller.add(controllerMesh);
+                            controller.addEventListener('primary press began', onSelectStart);
+                            controller.addEventListener('primary press ended', onSelectEnd);
+                            controller.addEventListener('thumbstick axes moved', onThumbstickMove);
+                            // controller.addEventListener('thumbpad pressed', onThumbpadPress);
+                            controller.addEventListener('disconnected', function (event) {
+                                                        controller.parent.remove(controller);
+                                                        });
+                            })
+    
+    
+    
 }
 
 function onSelectStart(event) {
     var controller = event.target;
     var intersections = getIntersections(controller);
-
+    
     if (intersections.length > 0) {
         var intersection = intersections[0];
-
+        
         tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
-
-
-
+        
+        
+        
         if (object.type === "Mesh") {
-
+            
             //Si ce n'est le curseur
             if (object.name.charAt(0) == 'n') {
                 is_selected = 0;
                 object.material.emissive.b = 1;
                 erase_other(object);
                 controller.userData.selected = object;
-
+                
                 //Si c'est les fleches de mouvements
             } else if ((object.name.charAt(0) == 'f')) {
                 //fleche du haut
                 if (object.name == "flecheH") {
                     // moveInSpace(0, -100);
                     continuousYMove = -CAMSTEP;
-
+                    
                     //fleche du bas
                 } else if (object.name == "flecheB") {
                     // moveInSpace(0, 100);
                     continuousYMove = CAMSTEP;
-
+                    
                     //fleche de droite
                 } else if (object.name == "flecheD") {
                     // moveInSpace(100, 0);
                     continuousXMove = CAMSTEP;
-
+                    
                     //fleche de gauche
                 } else {
                     // moveInSpace(-100, 0);
                     continuousXMove = -CAMSTEP;
                 }
-
+                
                 //Si c'est la croix
             } else if (object.name = "cancel") {
                 //JE NE SAIS PLUS CE QUE DOIT FAIRE LA CROIX.....
-
+                
                 //Si c'est les sommets
             } else {
-
+                
                 object.matrix.premultiply(tempMatrix);
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
                 object.position.y = 0;
-
+                
                 if (object.geometry.parameters.radius !== undefined)
                     object.position.z = -intersection.distance - object.geometry.parameters.radius;
-
+                
                 if (object.geometry.parameters.depth !== undefined)
                     object.position.z = -intersection.distance - object.geometry.parameters.depth / 2;
-
+                
                 controller.add(object);
                 controller.userData.selected = object;
                 selected = 1;
@@ -529,62 +525,62 @@ function onSelectEnd(event) {
     var controller = event.target;
     continuousXMove = 0;
     continuousYMove = 0;
-
+    
     if (controller.userData.selected !== undefined) {
         var object = controller.userData.selected;
-
+        
         if (object.name.charAt(0) != 'n') {
             var newPos = new THREE.Vector3();
             object.getWorldPosition(newPos);
             object.matrix.premultiply(controller.matrixWorld);
             object.matrix.decompose(object.position, object.quaternion, object.scale);
-
+            
             group.add(object);
-
+            
             object.position = newPos;
             object.position.x -= group.position.x;
             object.position.y -= group.position.y;
             object.position.z -= group.position.z;
-
+            
             controller.userData.selected = undefined;
             selected = 0;
         } else {
             object.material.emissive.b = 0;
             controller.userData.selected = undefined;
         }
-
+        
     }
 }
 
 //https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
 function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
-	pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
-
-	if(pointIsWorld){
-		obj.parent.localToWorld(obj.position); // compensate for world coordinate
-	}
-
-	obj.position.sub(point); // remove the offset
-	obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
-	obj.position.add(point); // re-add the offset
-
-	if(pointIsWorld){
-		obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
-	}
-
-	obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+    pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
+    
+    if(pointIsWorld){
+        obj.parent.localToWorld(obj.position); // compensate for world coordinate
+    }
+    
+    obj.position.sub(point); // remove the offset
+    obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+    obj.position.add(point); // re-add the offset
+    
+    if(pointIsWorld){
+        obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+    }
+    
+    obj.rotateOnAxis(axis, theta); // rotate the OBJECT
 }
 
 // Permet de se deplacer dans l'espace suivant la direction du regard
 function moveInSpace(xAxisValue, yAxisValue, useRotate = false) {
     var xstep = CAMSTEP * xAxisValue;
     var ystep = CAMSTEP * yAxisValue;
-
+    
     var direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
     var ymove = direction.clone().multiplyScalar(ystep);
     group.position.add(ymove);
-
+    
     if (useRotate) {
         // Le joystick sur le côté permet de tourner la caméra
         if (xAxisValue > 0.6) {
@@ -599,7 +595,7 @@ function moveInSpace(xAxisValue, yAxisValue, useRotate = false) {
         var xmove = direction.multiplyScalar(xstep);
         group.position.add(xmove);
     }
-
+    
 }
 
 function onThumbstickMove(event) {
@@ -609,10 +605,10 @@ function onThumbstickMove(event) {
 }
 
 function getIntersections(controller) {
-
-
+    
+    
     tempMatrix.identity().extractRotation(controller.matrixWorld);
-
+    
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
     var toIntersect = group_no_move.children.slice();
@@ -621,25 +617,25 @@ function getIntersections(controller) {
 }
 
 function intersectObjects(controller) {
-
-
+    
+    
     // Do not highlight when already selected
     if (controller.userData.selected !== undefined) return;
-
+    
     var line = controller.getObjectByName('line');
     var intersections = getIntersections(controller);
-
+    
     if (intersections.length > 0) {
         var intersection = intersections[0];
         var object = intersection.object;
-
+        
         if (object.name.charAt(0) == 'n') {
             object.material.emissive.b = 1;
         }
-
+        
         intersected.push(object);
         line.scale.z = intersection.distance;
-
+        
     } else {
         //    line.scale.z = 1000;
     }
@@ -663,11 +659,11 @@ function erase_other(object) {
 function cleanIntersected() {
     while (intersected.length) {
         var object = intersected.pop();
-
+        
         if (object.name.charAt(0) == 'n') {
             object.material.emissive.b = 0;
         }
-
+        
     }
 }
 
@@ -679,10 +675,16 @@ function moveCursor() {
 }
 
 function animate() {
+    //orbitControls.update();
     renderer.setAnimationLoop(render);
 }
 
 function render() {
+    //orbitControls.update();
+    //var timer = Date.now()*0.0005;
+    //camera.position.x = Math.cos(timer)*10;
+    //camera.position.z = Math.sin(timer)*10;
+    //camera.lookAt(group_no_move.position);
     cleanIntersected();
     intersectObjects(controller1);
     intersectObjects(controller2);
@@ -690,6 +692,14 @@ function render() {
     if ((continuousXMove != 0) || (continuousYMove != 0)){
         moveInSpace(continuousXMove, continuousYMove);
     }
+    //matrix.makeRotationY(clock.getDelta() * 2 * Math.PI / period);
+    
+    // Apply matrix like this to rotate the camera.
+    //camera.position.applyMatrix4(matrix);
+    
+    // Make camera look at the box.
+    //camera.lookAt(group_no_move.position);
     THREE.VRController.update();
     renderer.render(scene, camera);
 }
+

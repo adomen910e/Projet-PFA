@@ -231,3 +231,4 @@ THREE.VREffect = function ( renderer, onError ) {
 		return fovPortToProjection( fovPort, rightHanded, zNear, zFar );
 
 	}
+};
