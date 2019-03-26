@@ -208,25 +208,25 @@ function init() {
     sphere4 = new THREE.Mesh(geometry, material);
 
     sphere1.position.x = -15;
-    sphere1.position.y = -20;
+    sphere1.position.y = -10;
     sphere1.position.z = -30;
     sphere1.name = 'numero0';
     // group_no_move.add(sphere1);
 
     sphere2.position.x = -5;
-    sphere2.position.y = -20;
+    sphere2.position.y = -10;
     sphere2.position.z = -30;
     sphere2.name = 'numero1';
     // group_no_move.add(sphere2);
 
     sphere3.position.x = 5;
-    sphere3.position.y = -20;
+    sphere3.position.y = -10;
     sphere3.position.z = -30;
     sphere3.name = 'numero2';
     // group_no_move.add(sphere3);
 
     sphere4.position.x = 15;
-    sphere4.position.y = -20;
+    sphere4.position.y = -10;
     sphere4.position.z = -30;
     sphere4.name = 'numero3';
     // group_no_move.add(sphere4);
@@ -239,7 +239,7 @@ function init() {
 
     var cursorBackground = new THREE.Mesh( geometry, material );
     cursorBackground.position.x = 0;
-    cursorBackground.position.y = -15;
+    cursorBackground.position.y = 10;
     cursorBackground.position.z = -25;
     cursorBackground.lookAt(camera.position);
     cursorBackground.name = "cursorBackground";
