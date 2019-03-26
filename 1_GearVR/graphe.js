@@ -230,6 +230,96 @@ function init() {
     sphere4.position.z = -30;
     sphere4.name = 'numero3';
     // group_no_move.add(sphere4);
+    
+    
+    
+    
+        //Mise en place des flèches
+    geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
+    var texture = new THREE.TextureLoader().load('img/flecheBas.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    fleche_bas = new THREE.Mesh(geometry, material);
+    fleche_bas.position.x = 20;
+    fleche_bas.position.y = -9.5;
+    fleche_bas.position.z = -20;
+    fleche_bas.name = 'flecheB';
+    fleche_bas.rotation.x = 0.5 * Math.PI;
+    fleche_bas.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_bas);
+
+
+    var texture = new THREE.TextureLoader().load('img/flecheHaut.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    fleche_haut = new THREE.Mesh(geometry, material);
+    fleche_haut.position.x = 20;
+    fleche_haut.position.y = -5.5;
+    fleche_haut.position.z = -20;
+    fleche_haut.name = 'flecheH';
+    fleche_haut.rotation.x = 0.5 * Math.PI;
+    fleche_haut.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_haut);
+
+
+    var texture = new THREE.TextureLoader().load('img/flecheDroite.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    fleche_droite = new THREE.Mesh(geometry, material);
+    fleche_droite.position.x = 22;
+    fleche_droite.position.y = -7.5;
+    fleche_droite.position.z = -20;
+    fleche_droite.name = 'flecheD';
+    fleche_droite.rotation.x = 0.5 * Math.PI;
+    fleche_droite.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_droite);
+
+
+    var texture = new THREE.TextureLoader().load('img/flecheGauche.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    fleche_gauche = new THREE.Mesh(geometry, material);
+    fleche_gauche.position.x = 18;
+    fleche_gauche.position.y = -7.5;
+    fleche_gauche.position.z = -20;
+    fleche_gauche.name = 'flecheG';
+    fleche_gauche.rotation.x = 0.5 * Math.PI;
+    fleche_gauche.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_gauche);
+
+    var texture = new THREE.TextureLoader().load('img/cancel.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    cancel = new THREE.Mesh(geometry, material);
+    cancel.position.x = 25;
+    cancel.position.y = -5;
+    cancel.position.z = -20;
+    cancel.name = 'cancel';
+    cancel.rotation.x = 0.5 * Math.PI;
+    cancel.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(cancel);
+    
+    
 
     geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORFAKEHEIGHT, 0.1);
     material = new THREE.MeshStandardMaterial({
@@ -381,8 +471,38 @@ function onSelectStart(event) {
         var object = intersection.object;
 
         if (object.type === "Mesh") {
+            
+             if (object.name.charAt(0) == 'n') {
+                is_selected = 0;
+                object.material.emissive.b = 1;
+                erase_other(object);
+                controller.userData.selected = object;
 
-            if (object.name.charAt(0) != 'c') {
+                //Si c'est les fleches de mouvements
+            } else if ((object.name.charAt(0) == 'f')) {
+                //fleche du haut
+                if (object.name == "flecheH") {
+                    // moveInSpace(0, -100);
+                    continuousYMove = -CAMSTEP;
+
+                    //fleche du bas    
+                } else if (object.name == "flecheB") {
+                    // moveInSpace(0, 100);
+                    continuousYMove = CAMSTEP;
+
+                    //fleche de droite    
+                } else if (object.name == "flecheD") {
+                    // moveInSpace(100, 0);
+                    continuousXMove = CAMSTEP;
+
+                    //fleche de gauche
+                } else {
+                    // moveInSpace(-100, 0);
+                    continuousXMove = -CAMSTEP;
+                }
+                 
+
+             } else if (object.name.charAt(0) != 'c') {
                 object.matrix.premultiply(tempMatrix);
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
