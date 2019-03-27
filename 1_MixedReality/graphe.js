@@ -74,7 +74,7 @@ function init() {
     info.style.top = '10px';
     info.style.width = '100%';
     info.style.textAlign = 'center';
-    info.innerHTML = '<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webvr - dragging';
+    info.innerHTML = 'PROJET SUR LES CASQUES DE RÉALITÉ VIRTUELLE: AFFICHAGE DE GRANDS GRAPHES';
     container.appendChild(info);
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
@@ -107,13 +107,6 @@ function init() {
     var points = [];
 
     var geoms = [];
-    // for (var i = 0; i < NBTIMESTAMPS; i++){
-    //     geoms.push(new THREE.BufferGeometry());
-    // }
-
-    // for (var i = 0; i < NBTIMESTAMPS; i++){
-    //     vertices.push([]);
-    // }
 
     //Mise en place des noeuds dans les differrents timestamp
     for (var i = 0; i < file.nodes.length; i++) {
@@ -133,7 +126,7 @@ function init() {
 
         points.push(position);
     }
-    var sprite = new THREE.TextureLoader().load('textures/circle3.png');
+    var sprite = new THREE.TextureLoader().load('textures/circle.png');
     
 
     for (var i = 0; i < NBTIMESTAMPS; i++) {
@@ -154,15 +147,15 @@ function init() {
             particles.visible = false;
         }
     }
+
+    //Mise en place des aretes dans les differents timestamp
     
 
     var edgesGeometry = [];
     for (var i = 0; i < NBTIMESTAMPS; i++){
         edgesGeometry.push(new THREE.Geometry());
     }
-
-
-    //Mise en place des aretes dans les differents timestamp
+    
     for (var i = 0; i < file.edges.length; i++) {
 
         var two_node = [];
@@ -194,42 +187,6 @@ function init() {
     }
 
     currentTimestamp = 0;
-
-
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-
-    material = new THREE.MeshLambertMaterial({
-        color: 0xffffff,
-        side: THREE.FrontSide
-    });
-    sphere1 = new THREE.Mesh(geometry, material);
-    sphere2 = new THREE.Mesh(geometry, material);
-    sphere3 = new THREE.Mesh(geometry, material);
-    sphere4 = new THREE.Mesh(geometry, material);
-
-    sphere1.position.x = -15;
-    sphere1.position.y = -20;
-    sphere1.position.z = -30;
-    sphere1.name = 'numero0';
-    // group_no_move.add(sphere1);
-
-    sphere2.position.x = -5;
-    sphere2.position.y = -20;
-    sphere2.position.z = -30;
-    sphere2.name = 'numero1';
-    // group_no_move.add(sphere2);
-
-    sphere3.position.x = 5;
-    sphere3.position.y = -20;
-    sphere3.position.z = -30;
-    sphere3.name = 'numero2';
-    // group_no_move.add(sphere3);
-
-    sphere4.position.x = 15;
-    sphere4.position.y = -20;
-    sphere4.position.z = -30;
-    sphere4.name = 'numero3';
-    // group_no_move.add(sphere4);
 
     geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORFAKEHEIGHT, 0.1);
     material = new THREE.MeshStandardMaterial({
@@ -281,7 +238,6 @@ function init() {
         metalness : 0.7
     });
     var cursor = new THREE.Mesh( geometry, material );
-    // cursor.position.copy(cursorBackground.position);
     
     cursorBackground.add( cursor );
     cursor.position.z += 0.05;
@@ -382,7 +338,14 @@ function onSelectStart(event) {
 
         if (object.type === "Mesh") {
 
-            if (object.name.charAt(0) != 'c') {
+            if (object.name === "cursorBackground") {
+                // is_selected = 0;
+                cursorSelected = true;
+                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
+                // controller.userData.selected = object;
+                
+
+            }/* else {
                 object.matrix.premultiply(tempMatrix);
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
@@ -395,13 +358,7 @@ function onSelectStart(event) {
                 controller.add(object);
                 controller.userData.selected = object;
                 selected = 1;
-
-            } else {
-                // is_selected = 0;
-                cursorSelected = true;
-                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
-                // controller.userData.selected = object;
-            }
+            }*/
         }
     }
 }

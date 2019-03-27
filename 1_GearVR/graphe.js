@@ -111,13 +111,6 @@ function init() {
     var points = [];
 
     var geoms = [];
-    // for (var i = 0; i < NBTIMESTAMPS; i++){
-    //     geoms.push(new THREE.BufferGeometry());
-    // }
-
-    // for (var i = 0; i < NBTIMESTAMPS; i++){
-    //     vertices.push([]);
-    // }
 
     //Mise en place des noeuds dans les differrents timestamp
     for (var i = 0; i < file.nodes.length; i++) {
@@ -137,7 +130,7 @@ function init() {
 
         points.push(position);
     }
-    var sprite = new THREE.TextureLoader().load('textures/circle3.png');
+    var sprite = new THREE.TextureLoader().load('img/circle.png');
 
 
     for (var i = 0; i < NBTIMESTAMPS; i++) {
@@ -145,7 +138,6 @@ function init() {
         geoms[i].addAttribute('position', new THREE.Float32BufferAttribute(vertices[i], 3));
         var material = new THREE.PointsMaterial({
             size: 1,
-            // sizeAttenuation: true,
             color: Math.random() * 0xffffff,
             map: sprite,
             alphaTest: 0.5,
@@ -159,14 +151,13 @@ function init() {
         }
     }
 
+    //Mise en place des aretes dans les differents timestamp
 
     var edgesGeometry = [];
     for (var i = 0; i < NBTIMESTAMPS; i++) {
         edgesGeometry.push(new THREE.Geometry());
     }
 
-
-    //Mise en place des aretes dans les differents timestamp
     for (var i = 0; i < file.edges.length; i++) {
 
         var two_node = [];
@@ -198,44 +189,6 @@ function init() {
     }
 
     currentTimestamp = 0;
-
-
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-
-    material = new THREE.MeshLambertMaterial({
-        color: 0xffffff,
-        side: THREE.FrontSide
-    });
-    sphere1 = new THREE.Mesh(geometry, material);
-    sphere2 = new THREE.Mesh(geometry, material);
-    sphere3 = new THREE.Mesh(geometry, material);
-    sphere4 = new THREE.Mesh(geometry, material);
-
-    sphere1.position.x = -15;
-    sphere1.position.y = -10;
-    sphere1.position.z = -30;
-    sphere1.name = 'numero0';
-    // group_no_move.add(sphere1);
-
-    sphere2.position.x = -5;
-    sphere2.position.y = -10;
-    sphere2.position.z = -30;
-    sphere2.name = 'numero1';
-    // group_no_move.add(sphere2);
-
-    sphere3.position.x = 5;
-    sphere3.position.y = -10;
-    sphere3.position.z = -30;
-    sphere3.name = 'numero2';
-    // group_no_move.add(sphere3);
-
-    sphere4.position.x = 15;
-    sphere4.position.y = -10;
-    sphere4.position.z = -30;
-    sphere4.name = 'numero3';
-    // group_no_move.add(sphere4);
-
-
 
 
     //Mise en place des flèches
@@ -465,7 +418,6 @@ function init() {
         });
     })
 }
-
 function onSelectStart(event) {
     var controller = event.target;
     var intersections = getIntersections(controller);
@@ -478,40 +430,38 @@ function onSelectStart(event) {
 
         if (object.type === "Mesh") {
 
-            if (object.name.charAt(0) == 'n') {
-                is_selected = 0;
-                object.material.emissive.b = 1;
-                erase_other(object);
-                controller.userData.selected = object;
+            //fleche du haut
+            if (object.name == "flecheH") {
+                moveInSpace(0, -1);
+                continuousYMove = -CAMSTEP;
 
-                //Si c'est les fleches de mouvements
-            } else if ((object.name.charAt(0) == 'f')) {
-                //fleche du haut
-                if (object.name == "flecheH") {
-                    moveInSpace(0, -1);
-                    continuousYMove = -CAMSTEP;
+                //fleche du bas    
+            } else if (object.name == "flecheB") {
+                moveInSpace(0, 1);
+                continuousYMove = CAMSTEP;
 
-                    //fleche du bas    
-                } else if (object.name == "flecheB") {
-                    moveInSpace(0, 1);
-                    continuousYMove = CAMSTEP;
+                //fleche de droite    
+            } else if (object.name == "flecheD") {
+                moveInSpace(1, 0);
+                continuousXMove = CAMSTEP;
 
-                    //fleche de droite    
-                } else if (object.name == "flecheD") {
-                    moveInSpace(1, 0);
-                    continuousXMove = CAMSTEP;
+                //fleche de gauche
+            } else if (object.name == "flecheG") {
+                // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+                // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
 
-                    //fleche de gauche
-                } else {
-//                    var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
-//                    rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
-                    
-                    moveInSpace(-1, 0);
-                    continuousXMove = -CAMSTEP;
-                }
+                moveInSpace(-1, 0);
+                continuousXMove = -CAMSTEP;
 
+            } else if (object.name === "cursorBackground") {
+                // is_selected = 0;
+                cursorSelected = true;
+                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
+                // controller.userData.selected = object;
+             
+            } else if (object.name === "cancel"){
 
-            } else if (object.name.charAt(0) != 'c') {
+            } else {
                 object.matrix.premultiply(tempMatrix);
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
@@ -520,16 +470,10 @@ function onSelectStart(event) {
                     object.position.z = -intersection.distance - object.geometry.parameters.radius;
                 if (object.geometry.parameters.depth !== undefined)
                     object.position.z = -intersection.distance - object.geometry.parameters.depth / 2;
-                object.material.emissive.b = 1;
+                // object.material.emissive.b = 1;
                 controller.add(object);
                 controller.userData.selected = object;
                 selected = 1;
-
-            } else {
-                // is_selected = 0;
-                cursorSelected = true;
-                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
-                // controller.userData.selected = object;
             }
         }
     }
