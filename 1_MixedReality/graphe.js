@@ -377,7 +377,8 @@ function onSelectEnd(event) {
         var timestamp = timestampInfos.timestamp;
         moveCursorAtTimestamp(cursor, timestamp);
         cursor.material.emissive.r = 0;
-        erase_other(timestamp);
+        // erase_other(timestamp);
+        fadingTransition(cursor.position.x);
         cursorSelected = false;
     }
 
