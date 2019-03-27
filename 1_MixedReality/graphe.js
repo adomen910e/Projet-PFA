@@ -30,6 +30,10 @@ var sphere3;
 var sphere2;
 var sphere1;
 
+var transitionOn = false;
+
+var currentPosition = new THREE.Vector3();
+
 var selected;
 var is_selected;
 
@@ -100,6 +104,7 @@ function init() {
     group = new THREE.Group();
     group.type = 'yes';
     scene.add(group);
+    currentPosition.copy(group.position);
 
     group_no_move = new THREE.Group();
     group_no_move.type = 'no';
@@ -325,7 +330,8 @@ function init() {
         controller.addEventListener('primary press began', onSelectStart);
         controller.addEventListener('primary press ended', onSelectEnd);
         controller.addEventListener('thumbstick axes moved', onThumbstickMove);
-        // controller.addEventListener('thumbpad pressed', onThumbpadPress);
+        controller.addEventListener('thumbpad press began', onThumbpadPressStart);
+        controller.addEventListener('thumbpad press ended', onThumbpadPressEnd);
         controller.addEventListener('disconnected', function (event) {
             controller.parent.remove(controller);
         });
@@ -408,6 +414,14 @@ function onSelectEnd(event) {
         }
 
     }
+}
+
+function onThumbpadPressStart(event){
+    transitionOn = true;
+}
+
+function onThumbpadPressEnd(event){
+    transitionOn = false;
 }
 
 //https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
@@ -606,8 +620,22 @@ function moveCursorGroup() {
     oldRotation.copy(camera.rotation);*/
 }
 
+function quatFrom2Vectors(a, b) {
+    var u = a.clone();
+    var v = b.clone();
+    var cos_theta = u.normalize().dot(v.normalize());
+    var half_cos = Math.sqrt(0.5 * (1.0 + cos_theta));
+    var half_sin = Math.sqrt(0.5 * (1.0 - cos_theta));
+    var w = new THREE.Vector3();
+    w.crossVectors(a, b).normalize();
+    return new THREE.Quaternion(half_sin * w.x,
+        half_sin * w.y,
+        half_sin * w.z,
+        half_cos);
+}
+
 function animate() {
-    // oldRotation.copy(camera.rotation);
+    // oldRotation.copy(camera.rotation)
     renderer.setAnimationLoop(render);
 }
 
@@ -626,6 +654,21 @@ function render() {
         }
     }
     moveCursorGroup();
+    if (transitionOn){
+        var pos = group.position.clone();
+        var targetPos = new THREE.Vector3(-103, 95, 798);
+        pos.lerp(targetPos, 0.01);
+    
+        // var quat = group.quaternion.clone();
+        // var targetQuat = quatFrom2Vectors(group.position.clone().multiplyScalar(-1), targetPos.clone().multiplyScalar(-1));
+        // quat.slerp(targetQuat, 0.01);
+        
+        group.position.copy(pos);
+        // group.quaternion.copy(quat);
+    }
+    currentPosition.copy(group.position).multiplyScalar(-1);
+    // console.log(currentPosition);
     THREE.VRController.update();
+    // console.log(group);
     renderer.render(scene, camera);
 }
