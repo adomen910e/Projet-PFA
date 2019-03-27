@@ -23,6 +23,7 @@ const CURSORHEIGHT = 1;
 const CURSORFAKEHEIGHT = CURSORHEIGHT*10;
 
 var cursorSelected = false;
+var cursorThresholds = [];
 
 var sphere4;
 var sphere3;
@@ -138,14 +139,16 @@ function init() {
             color: Math.random() * 0xffffff,
             map: sprite,
             alphaTest: 0.5,
-            transparent: false
+            transparent: true,
+            opacity: 0
         });
+        if (i == 0){
+            // particles.visible = false;
+            material.opacity = 1;
+        }
         var particles = new THREE.Points(geoms[i], material);
         particles.name="timestamp" + i;
         group.add(particles);
-        if (i != 0){
-            particles.visible = false;
-        }
     }
 
     //Mise en place des aretes dans les differents timestamp
@@ -176,25 +179,27 @@ function init() {
     for (var i = 0; i < NBTIMESTAMPS; i++){
         var edgeMaterial = new THREE.LineBasicMaterial( {
             color: Math.random() * 0xffffff,
-            linewidth: 1
+            linewidth: 1,
+            transparent: true,
+            opacity: 0
         } );
+        if ( i == 0){
+            edgeMaterial.opacity = 1;
+        }
         edges[i] = new THREE.LineSegments(edgesGeometry[i],edgeMaterial);
         edges[i].name = "timestamp" + i;
         group.add(edges[i]);
-        if (i != 0){
-            edges[i].visible = false;
-        }
     }
 
     currentTimestamp = 0;
 
     geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORFAKEHEIGHT, 0.1);
-    material = new THREE.MeshStandardMaterial({
+    var material1 = new THREE.MeshStandardMaterial({
         transparent: true,
-        opacity: 0
+        visible: false
     });
 
-    var cursorBackground = new THREE.Mesh( geometry, material );
+    var cursorBackground = new THREE.Mesh( geometry, material1 );
     cursorBackground.position.x = 0;
     cursorBackground.position.y = -15;
     cursorBackground.position.z = -25;
@@ -227,6 +232,7 @@ function init() {
         cursorBackground.add(graduation);
         graduation.position.z += 0.1;
         graduation.position.x = i/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+        cursorThresholds.push(graduation.position.x);
     }
 
     
@@ -495,7 +501,8 @@ function computeTimestampFromUV(x){
     var sup = Math.floor((x *100) / (100 / (NBTIMESTAMPS-1))) + 1;
     var returned = {
         timestamp: timestamp,
-        other: (inf != timestamp) ? inf : sup
+        previous: inf,
+        next: sup
     }
     return returned;
 }
@@ -505,7 +512,8 @@ function computeTimestampFromPos(x){
     var timestampInfos = computeTimestampFromUV(xUV);
     var returned = {
         timestamp: timestampInfos.timestamp,
-        other: timestampInfos.other
+        previous: timestampInfos.previous,
+        next: timestampInfos.next
     }
     return returned;
 }
@@ -516,6 +524,44 @@ function moveCursorAtTimestamp(cursor, timestamp){
 
 function moveCursorAtUVX(cursor, x){
     cursor.position.x = x*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+    if (cursor.position.x < -CURSORWIDTH/2) {
+        cursor.position.x = -CURSORWIDTH/2;
+    }
+    if (cursor.position.x > CURSORWIDTH/2){
+        cursor.position.x = CURSORWIDTH/2;
+    }
+}
+
+function fadingTransition(x){
+    var infos = computeTimestampFromPos(x);
+    var transitionPercentage = (x - cursorThresholds[infos.previous])/(cursorThresholds[infos.next] - cursorThresholds[infos.previous]);
+    for (var i = 0; i < group.children.length; i++) {
+        if ((group.children[i].name.includes("timestamp"))){
+            if (group.children[i].name.slice(-1)  == infos.previous){
+                group.children[i].material.opacity = 1-transitionPercentage;
+                if ((group.children[i].material.opacity <= 0.1) || ((infos.timestamp == NBTIMESTAMPS-1) && (transitionPercentage >= 0.9))){
+                    group.children[i].material.opacity = 0;
+                    group.children[i].material.visible = false;
+                } else if (group.children[i].material.opacity >= 0.1){
+                    group.children[i].material.visible = true;
+                }
+                group.children[i].material.needsUpdate = true;
+            } else if (group.children[i].name.slice(-1)  == infos.next) {
+                group.children[i].material.opacity = transitionPercentage;
+                if (group.children[i].material.opacity <= 0.1){
+                    group.children[i].material.opacity = 0;
+                    group.children[i].material.visible = false;
+                } else if (group.children[i].material.opacity >= 0.1){
+                    group.children[i].material.visible = true;
+                }
+                group.children[i].material.needsUpdate = true;
+            } else {
+                group.children[i].material.visible = false;
+                group.children[i].material.opacity = 0;
+                group.children[i].material.needsUpdate = true;
+            }
+        }
+    }
 }
 
 
@@ -544,7 +590,7 @@ function cleanIntersected() {
     }
 }
 
-function moveCursor() {
+function moveCursorGroup() {
     var direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
     group_no_move.position.copy(direction).multiplyScalar(10);
@@ -572,11 +618,13 @@ function render() {
         var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
             moveCursorAtUVX(cursor,intersection1.uv.x);
+            fadingTransition(cursor.position.x);
         } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
             moveCursorAtUVX(cursor,intersection2.uv.x);
+            fadingTransition(cursor.position.x);
         }
     }
-    moveCursor();
+    moveCursorGroup();
     THREE.VRController.update();
     renderer.render(scene, camera);
 }
