@@ -268,6 +268,11 @@ function init() {
     // reset_arrow.rotation.x = 0.5 * Math.PI;
     // reset_arrow.rotation.y = 0.5 * Math.PI;
     group_no_move.add(reset_arrow);
+    if (currentPosition.equals(bestPositions[currentTimestamp])){
+        reset_arrow.material.emissive.g = 1;
+    } else {
+        reset_arrow.material.emissive.r = 1;
+    }
 
 
 
@@ -411,6 +416,8 @@ function onSelectEnd(event) {
         if (transitionOn) { // Return smoothly to the best position
             smoothTransitionOn = true;
             cursor.material.emissive.r = 0.5;
+            var reset = group_no_move.getObjectByName("reset_arrow");
+            // reset.material.emissive.r = 1;
         }
         transitionOn = false;
     }
@@ -500,6 +507,11 @@ function onThumbstickMove(event) {
         var x = parseFloat(event.axes[0].toFixed(2));
         var y = parseFloat(event.axes[1].toFixed(2));
         moveInSpace(x, y);
+    }
+    var reset = group_no_move.getObjectByName("reset_arrow");
+    if (reset.material.emissive.b == 0){
+        reset.material.emissive.g = 0;
+        reset.material.emissive.b = 1;
     }
 }
 
@@ -717,6 +729,9 @@ function render() {
             smoothTransitionOn = false;
             currentPosition.copy(group.position).multiplyScalar(-1);
             cursor.material.emissive.r = 0;
+            var reset = group_no_move.getObjectByName("reset_arrow");
+            reset.material.emissive.g = 1;
+            reset.material.emissive.b = 0;
         }
     }
     THREE.VRController.update();
