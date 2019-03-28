@@ -28,6 +28,7 @@ var cursorThresholds = [];
 var bestPositions = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1500), new THREE.Vector3(600,0,-1500), new THREE.Vector3(600,400,-1500)];
 
 var transitionOn = false;
+var smoothTransitionOn = false;
 
 var currentPosition = new THREE.Vector3();
 
@@ -336,7 +337,10 @@ function init() {
 
 function onSelectStart(event) {
     var controller = event.target;
-    var intersections = getIntersections(controller);
+    var intersections = [];
+    if (!smoothTransitionOn){
+        intersections = getIntersections(controller);
+    }
 
     if (intersections.length > 0) {
         var intersection = intersections[0];
@@ -349,8 +353,10 @@ function onSelectStart(event) {
             if (object.name === "cursorBackground") {
                 // is_selected = 0;
                 cursorSelected = true;
-                transitionOn = true;
-                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
+                if (currentPosition.distanceTo(bestPositions[currentTimestamp]) < 5){
+                    transitionOn = true;
+                }
+                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.b = 0.5;
                 // controller.userData.selected = object;
                 
 
@@ -379,11 +385,16 @@ function onSelectEnd(event) {
         var timestampInfos = computeTimestampFromPos(cursor.position.x);
         var timestamp = timestampInfos.timestamp;
         moveCursorAtTimestamp(cursor, timestamp);
-        cursor.material.emissive.r = 0;
+        cursor.material.emissive.b = 0;
+        cursorSelected = false;
         // erase_other(timestamp);
         fadingTransition(cursor.position.x);
+        if (transitionOn) { // Return smoothly to the best position
+            smoothTransitionOn = true;
+            cursor.material.emissive.r = 0.5;
+            console.log("test");
+        }
         transitionOn = false;
-        cursorSelected = false;
     }
 
     if (controller.userData.selected !== undefined) {
@@ -466,15 +477,15 @@ function moveInSpace(xAxisValue, yAxisValue, useRotate = false) {
         group.position.add(xmove);
     }
 }
-
 function onThumbstickMove(event) {
-    var x = parseFloat(event.axes[0].toFixed(2));
-    var y = parseFloat(event.axes[1].toFixed(2));
-    moveInSpace(x, y);
+    if (!smoothTransitionOn && !transitionOn) {
+        var x = parseFloat(event.axes[0].toFixed(2));
+        var y = parseFloat(event.axes[1].toFixed(2));
+        moveInSpace(x, y);
+    }
 }
 
 function getIntersections(controller) {
-
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
@@ -533,6 +544,7 @@ function computeTimestampFromPos(x){
 
 function moveCursorAtTimestamp(cursor, timestamp){
     cursor.position.x = timestamp/(NBTIMESTAMPS-1)*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+    currentTimestamp = timestamp;
 }
 
 function moveCursorAtUVX(cursor, x){
@@ -648,6 +660,20 @@ function transitionMovement(x){
     // group.quaternion.copy(quat);
 }
 
+function smoothMovement(){
+    var pos = group.position.clone();
+    var targetPos = bestPositions[currentTimestamp].clone().multiplyScalar(-1);
+    pos.lerp(targetPos, 0.02);
+
+    group.position.copy(pos);
+
+    // Tentative de rotation du graphe pendant le deplacement pour continuer a observer le meme point
+    // var quat = group.quaternion.clone();
+    // var targetQuat = quatFrom2Vectors(group.position.clone().multiplyScalar(-1), targetPos.clone().multiplyScalar(-1));
+    // quat.slerp(targetQuat, 0.01);
+    // group.quaternion.copy(quat);
+}
+
 function animate() {
     // oldRotation.copy(camera.rotation)
     renderer.setAnimationLoop(render);
@@ -657,8 +683,8 @@ function render() {
     cleanIntersected();
     var intersection1 = intersectObjects(controller1);
     var intersection2 = intersectObjects(controller2);
+    var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
     if (cursorSelected) {
-        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
             moveCursorAtUVX(cursor,intersection1.uv.x);
             fadingTransition(cursor.position.x);
@@ -669,10 +695,18 @@ function render() {
     }
     moveCursorGroup();
     if (transitionOn){
-        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         transitionMovement(cursor.position.x);
     }
-    // currentPosition.copy(group.position).multiplyScalar(-1);
+    currentPosition.copy(group.position).multiplyScalar(-1);
+    if (smoothTransitionOn){
+        smoothMovement();
+        if (currentPosition.distanceTo(bestPositions[currentTimestamp]) < 1){
+            group.position.copy(bestPositions[currentTimestamp]);
+            smoothTransitionOn = false;
+            currentPosition.copy(group.position).multiplyScalar(-1);
+            cursor.material.emissive.r = 0;
+        }
+    }
     THREE.VRController.update();
     renderer.render(scene, camera);
 }
