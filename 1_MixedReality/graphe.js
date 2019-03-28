@@ -25,10 +25,7 @@ const CURSORFAKEHEIGHT = CURSORHEIGHT*10;
 var cursorSelected = false;
 var cursorThresholds = [];
 
-var sphere4;
-var sphere3;
-var sphere2;
-var sphere1;
+var bestPositions = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1500), new THREE.Vector3(600,0,-1500), new THREE.Vector3(600,400,-1500)];
 
 var transitionOn = false;
 
@@ -179,7 +176,6 @@ function init() {
         }
     }
 
-    
 
     for (var i = 0; i < NBTIMESTAMPS; i++){
         var edgeMaterial = new THREE.LineBasicMaterial( {
@@ -353,6 +349,7 @@ function onSelectStart(event) {
             if (object.name === "cursorBackground") {
                 // is_selected = 0;
                 cursorSelected = true;
+                transitionOn = true;
                 group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
                 // controller.userData.selected = object;
                 
@@ -385,6 +382,7 @@ function onSelectEnd(event) {
         cursor.material.emissive.r = 0;
         // erase_other(timestamp);
         fadingTransition(cursor.position.x);
+        transitionOn = false;
         cursorSelected = false;
     }
 
@@ -634,6 +632,22 @@ function quatFrom2Vectors(a, b) {
         half_cos);
 }
 
+function transitionMovement(x){
+    var infos = computeTimestampFromPos(x);
+    var transitionPercentage = (x - cursorThresholds[infos.previous]) / (cursorThresholds[infos.next] - cursorThresholds[infos.previous]);
+    var pos = bestPositions[infos.previous].clone().multiplyScalar(-1);
+    var targetPos = bestPositions[infos.next].clone().multiplyScalar(-1);
+    pos.lerp(targetPos, transitionPercentage);
+
+    group.position.copy(pos);
+
+    // Tentative de rotation du graphe pendant le deplacement pour continuer a observer le meme point
+    // var quat = group.quaternion.clone();
+    // var targetQuat = quatFrom2Vectors(group.position.clone().multiplyScalar(-1), targetPos.clone().multiplyScalar(-1));
+    // quat.slerp(targetQuat, 0.01);
+    // group.quaternion.copy(quat);
+}
+
 function animate() {
     // oldRotation.copy(camera.rotation)
     renderer.setAnimationLoop(render);
@@ -655,20 +669,10 @@ function render() {
     }
     moveCursorGroup();
     if (transitionOn){
-        var pos = group.position.clone();
-        var targetPos = new THREE.Vector3(-103, 95, 798);
-        pos.lerp(targetPos, 0.01);
-    
-        // var quat = group.quaternion.clone();
-        // var targetQuat = quatFrom2Vectors(group.position.clone().multiplyScalar(-1), targetPos.clone().multiplyScalar(-1));
-        // quat.slerp(targetQuat, 0.01);
-        
-        group.position.copy(pos);
-        // group.quaternion.copy(quat);
+        var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
+        transitionMovement(cursor.position.x);
     }
-    currentPosition.copy(group.position).multiplyScalar(-1);
-    // console.log(currentPosition);
+    // currentPosition.copy(group.position).multiplyScalar(-1);
     THREE.VRController.update();
-    // console.log(group);
     renderer.render(scene, camera);
 }
