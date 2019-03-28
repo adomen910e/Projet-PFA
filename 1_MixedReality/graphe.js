@@ -718,20 +718,27 @@ function render() {
         }
     }
     moveCursorGroup();
+    var reset = group_no_move.getObjectByName("reset_arrow");
     if (transitionOn){
+        reset.material.emissive.g = 0;
+        reset.material.emissive.b = 0;
+        reset.material.emissive.r = 1;
         transitionMovement(cursor.position.x);
     }
     currentPosition.copy(group.position).multiplyScalar(-1);
     if (smoothTransitionOn){
+        reset.material.emissive.g = 0;
+        reset.material.emissive.b = 0;
+        reset.material.emissive.r = 1;
         smoothMovement();
         if (currentPosition.distanceTo(bestPositions[currentTimestamp]) < 1){
             group.position.copy(bestPositions[currentTimestamp].clone().multiplyScalar(-1));
             smoothTransitionOn = false;
             currentPosition.copy(group.position).multiplyScalar(-1);
             cursor.material.emissive.r = 0;
-            var reset = group_no_move.getObjectByName("reset_arrow");
             reset.material.emissive.g = 1;
             reset.material.emissive.b = 0;
+            reset.material.emissive.r = 0;
         }
     }
     THREE.VRController.update();
