@@ -25,7 +25,7 @@ const CURSORFAKEHEIGHT = CURSORHEIGHT*10;
 var cursorSelected = false;
 var cursorThresholds = [];
 
-var bestPositions = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1500), new THREE.Vector3(600,0,-1500), new THREE.Vector3(600,400,-1500)];
+var bestPositions = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-600), new THREE.Vector3(600,0,-600), new THREE.Vector3(600,400,-600)];
 
 var transitionOn = false;
 var smoothTransitionOn = false;
