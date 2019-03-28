@@ -253,6 +253,22 @@ function init() {
     cursor.name = "cursor";
     moveCursorAtTimestamp(cursor, 0);
 
+    geometry = new THREE.IcosahedronBufferGeometry( CURSORHEIGHT+0.5, 3);
+    // var texture = new THREE.TextureLoader().load('textures/rotArrow.png');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshStandardMaterial({
+        // map: texture
+    });
+
+    reset_arrow = new THREE.Mesh(geometry, material);
+    reset_arrow.position.copy(cursorBackground.position.clone());
+    reset_arrow.position.x -= 15;
+    reset_arrow.name = 'reset_arrow';
+    // reset_arrow.rotation.x = 0.5 * Math.PI;
+    // reset_arrow.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(reset_arrow);
+
 
 
     renderer = new THREE.WebGLRenderer({
@@ -337,8 +353,8 @@ function init() {
 
 function onSelectStart(event) {
     var controller = event.target;
-    var intersections = [];
-    if (!smoothTransitionOn){
+    var intersections = []
+    if (!smoothTransitionOn && !transitionOn){
         intersections = getIntersections(controller);
     }
 
@@ -360,7 +376,10 @@ function onSelectStart(event) {
                 // controller.userData.selected = object;
                 
 
-            }/* else {
+            } else if ((object.name === "reset_arrow") && !transitionOn){
+                smoothTransitionOn = true;
+                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
+            } /* else {
                 object.matrix.premultiply(tempMatrix);
                 object.matrix.decompose(object.position, object.quaternion, object.scale);
                 object.position.x = 0;
@@ -392,7 +411,6 @@ function onSelectEnd(event) {
         if (transitionOn) { // Return smoothly to the best position
             smoothTransitionOn = true;
             cursor.material.emissive.r = 0.5;
-            console.log("test");
         }
         transitionOn = false;
     }
@@ -486,6 +504,7 @@ function onThumbstickMove(event) {
 }
 
 function getIntersections(controller) {
+    // if ()
 
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
@@ -666,16 +685,9 @@ function smoothMovement(){
     pos.lerp(targetPos, 0.02);
 
     group.position.copy(pos);
-
-    // Tentative de rotation du graphe pendant le deplacement pour continuer a observer le meme point
-    // var quat = group.quaternion.clone();
-    // var targetQuat = quatFrom2Vectors(group.position.clone().multiplyScalar(-1), targetPos.clone().multiplyScalar(-1));
-    // quat.slerp(targetQuat, 0.01);
-    // group.quaternion.copy(quat);
 }
 
 function animate() {
-    // oldRotation.copy(camera.rotation)
     renderer.setAnimationLoop(render);
 }
 
@@ -701,7 +713,7 @@ function render() {
     if (smoothTransitionOn){
         smoothMovement();
         if (currentPosition.distanceTo(bestPositions[currentTimestamp]) < 1){
-            group.position.copy(bestPositions[currentTimestamp]);
+            group.position.copy(bestPositions[currentTimestamp].clone().multiplyScalar(-1));
             smoothTransitionOn = false;
             currentPosition.copy(group.position).multiplyScalar(-1);
             cursor.material.emissive.r = 0;
