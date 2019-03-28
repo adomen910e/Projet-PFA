@@ -254,19 +254,14 @@ function init() {
     moveCursorAtTimestamp(cursor, 0);
 
     geometry = new THREE.IcosahedronBufferGeometry( CURSORHEIGHT+0.5, 3);
-    // var texture = new THREE.TextureLoader().load('textures/rotArrow.png');
 
     // immediately use the texture for material creation
-    material = new THREE.MeshStandardMaterial({
-        // map: texture
-    });
+    material = new THREE.MeshStandardMaterial({});
 
     reset_arrow = new THREE.Mesh(geometry, material);
     reset_arrow.position.copy(cursorBackground.position.clone());
     reset_arrow.position.x -= 15;
     reset_arrow.name = 'reset_arrow';
-    // reset_arrow.rotation.x = 0.5 * Math.PI;
-    // reset_arrow.rotation.y = 0.5 * Math.PI;
     group_no_move.add(reset_arrow);
     if (currentPosition.equals(bestPositions[currentTimestamp])){
         reset_arrow.material.emissive.g = 1;
@@ -348,8 +343,6 @@ function init() {
         controller.addEventListener('primary press began', onSelectStart);
         controller.addEventListener('primary press ended', onSelectEnd);
         controller.addEventListener('thumbstick axes moved', onThumbstickMove);
-        controller.addEventListener('thumbpad press began', onThumbpadPressStart);
-        controller.addEventListener('thumbpad press ended', onThumbpadPressEnd);
         controller.addEventListener('disconnected', function (event) {
             controller.parent.remove(controller);
         });
@@ -450,13 +443,6 @@ function onSelectEnd(event) {
     }
 }
 
-function onThumbpadPressStart(event){
-    transitionOn = true;
-}
-
-function onThumbpadPressEnd(event){
-    transitionOn = false;
-}
 
 //https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
 function rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
@@ -510,25 +496,20 @@ function onThumbstickMove(event) {
     }
     var reset = group_no_move.getObjectByName("reset_arrow");
     if (reset.material.emissive.b == 0){
-        reset.material.emissive.g = 0;
-        reset.material.emissive.b = 1;
+        resetButtonToBlue();
     }
 }
 
 function getIntersections(controller) {
-    // if ()
-
     tempMatrix.identity().extractRotation(controller.matrixWorld);
 
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
     var toIntersect = group_no_move.children.slice();
-    //toIntersect = toIntersect.concat(group.children);
     return raycaster.intersectObjects(toIntersect);
 }
 
 function intersectObjects(controller) {
-
 
     // Do not highlight when already selected
     if (controller.userData.selected !== undefined) return;
@@ -547,6 +528,17 @@ function intersectObjects(controller) {
         intersected.push(object);
         line.scale.z = intersection.distance;
         return intersection;
+    }
+}
+
+function cleanIntersected() {
+    while (intersected.length) {
+        var object = intersected.pop();
+
+        if (object.name.charAt(0) == 'n') {
+            object.material.emissive.b = 0;
+        }
+
     }
 }
 
@@ -635,16 +627,6 @@ function erase_other(timestamp) {
     currentTimestamp = timestamp;
 }
 
-function cleanIntersected() {
-    while (intersected.length) {
-        var object = intersected.pop();
-
-        if (object.name.charAt(0) == 'n') {
-            object.material.emissive.b = 0;
-        }
-
-    }
-}
 
 function moveCursorGroup() {
     var direction = new THREE.Vector3();
@@ -699,6 +681,27 @@ function smoothMovement(){
     group.position.copy(pos);
 }
 
+function resetButtonToRed() {
+    var reset = group_no_move.getObjectByName("reset_arrow");
+    reset.material.emissive.g = 0;
+    reset.material.emissive.b = 0;
+    reset.material.emissive.r = 1;
+}
+
+function resetButtonToGreen() {
+    var reset = group_no_move.getObjectByName("reset_arrow");
+    reset.material.emissive.g = 1;
+    reset.material.emissive.b = 0;
+    reset.material.emissive.r = 0;
+}
+
+function resetButtonToBlue() {
+    var reset = group_no_move.getObjectByName("reset_arrow");
+    reset.material.emissive.g = 0;
+    reset.material.emissive.b = 1;
+    reset.material.emissive.r = 0;
+}
+
 function animate() {
     renderer.setAnimationLoop(render);
 }
@@ -718,27 +721,21 @@ function render() {
         }
     }
     moveCursorGroup();
-    var reset = group_no_move.getObjectByName("reset_arrow");
+    
     if (transitionOn){
-        reset.material.emissive.g = 0;
-        reset.material.emissive.b = 0;
-        reset.material.emissive.r = 1;
+        resetButtonToRed();
         transitionMovement(cursor.position.x);
     }
     currentPosition.copy(group.position).multiplyScalar(-1);
     if (smoothTransitionOn){
-        reset.material.emissive.g = 0;
-        reset.material.emissive.b = 0;
-        reset.material.emissive.r = 1;
+        resetButtonToRed();
         smoothMovement();
         if (currentPosition.distanceTo(bestPositions[currentTimestamp]) < 1){
             group.position.copy(bestPositions[currentTimestamp].clone().multiplyScalar(-1));
             smoothTransitionOn = false;
             currentPosition.copy(group.position).multiplyScalar(-1);
             cursor.material.emissive.r = 0;
-            reset.material.emissive.g = 1;
-            reset.material.emissive.b = 0;
-            reset.material.emissive.r = 0;
+            resetButtonToGreen();
         }
     }
     THREE.VRController.update();
