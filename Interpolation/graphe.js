@@ -14,10 +14,12 @@ var cylindre1;
 var sphere3;
 var sphere2;
 var sphere1;
+var fleche_bas, fleche_haut, fleche_droite, fleche_gauche;
 var clock = new THREE.Clock();
 var camera2Active = false;
 var keyboard = new THREEx.KeyboardState();
-
+var mousedownID = -1;
+var counter;
 var selected;
 var MovingCube;
 //double buffering pour l'affichage des elements 
@@ -68,14 +70,16 @@ function init() {
     scene.add(group);
 
     group_no_move = new THREE.Group();
-    group_no_move.type = 'no';
+    group_no_move.type = 'yes';
     scene.add(group_no_move);
 
     
     test = new THREE.Group();
     scene.add(test);
 
-
+    
+    
+    
     /*var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     var material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
@@ -156,6 +160,100 @@ function init() {
         antialias: true
     });
 
+    geometry = new THREE.CylinderBufferGeometry(40, 40, 0.1, 50);
+    var texture = new THREE.TextureLoader().load('img/flecheBas.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_bas = new THREE.Mesh(geometry, material);
+    fleche_bas.position.x = 200;
+    fleche_bas.position.y = -500.5;
+    fleche_bas.position.z = 0;
+    fleche_bas.name = 'flecheB';
+    fleche_bas.rotation.x = 0.5 * Math.PI;
+    fleche_bas.rotation.y = 0.5 * Math.PI;
+    scene.add(fleche_bas);
+    test.add(fleche_bas);
+    intersected.push(fleche_bas);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheHaut.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_haut = new THREE.Mesh(geometry, material);
+    fleche_haut.position.x = 200;
+    fleche_haut.position.y = -400.5;
+    fleche_haut.position.z = 0;
+    fleche_haut.name = 'flecheH';
+    fleche_haut.rotation.x = 0.5 * Math.PI;
+    fleche_haut.rotation.y = 0.5 * Math.PI;
+    scene.add(fleche_haut);
+    test.add(fleche_haut);
+    intersected.push(fleche_haut);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheDroite.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_droite = new THREE.Mesh(geometry, material);
+    fleche_droite.position.x = 300;
+    fleche_droite.position.y = -450.5;
+    fleche_droite.position.z = 0;
+    fleche_droite.name = 'flecheD';
+    fleche_droite.rotation.x = 0.5 * Math.PI;
+    fleche_droite.rotation.y = 0.5 * Math.PI;
+    test.add(fleche_droite);
+    intersected.push(fleche_droite);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheGauche.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_gauche = new THREE.Mesh(geometry, material);
+    fleche_gauche.position.x = 100;
+    fleche_gauche.position.y = -450.5;
+    fleche_gauche.position.z = 0;
+    fleche_gauche.name = 'flecheG';
+    fleche_gauche.rotation.x = 0.5 * Math.PI;
+    fleche_gauche.rotation.y = 0.5 * Math.PI;
+    test.add(fleche_gauche);
+    intersected.push(fleche_gauche);
+    
+    var texture = new THREE.TextureLoader().load('img/cancel.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    cancel = new THREE.Mesh(geometry, material);
+    cancel.position.x = 300;
+    cancel.position.y = -300;
+    cancel.position.z = 0;
+    cancel.name = 'cancel';
+    cancel.rotation.x = 0.5 * Math.PI;
+    cancel.rotation.y = 0.5 * Math.PI;
+    test.add(cancel);
+    intersected.push(cancel);
+
+    
+    
+    
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     //renderer.gammaInput = true;
@@ -179,9 +277,10 @@ function init() {
     scene.add(controller2);*/
 
     group.visible = true;
-    //test.visible = true;
+    test.visible = true;
+    group_no_move.visible = true;
 
-
+    
 
 
     //
@@ -196,6 +295,9 @@ function init() {
 
 
     window.addEventListener('resize', onWindowResize, false);
+    document.addEventListener("mousedown", mousedown);
+    document.addEventListener("mouseup", mouseup);
+    //document.addEventListener( 'mousedown', whileMouseDown, true );
     onWindowResize();
 
 }
@@ -210,28 +312,58 @@ function onWindowResize() {
 /*function onSelectStart(event) {
     var controller = event.target;
     var intersections = getIntersections(controller);
-
+    
     if (intersections.length > 0) {
         var intersection = intersections[0];
-
+        
         tempMatrix.getInverse(controller.matrixWorld);
-
         var object = intersection.object;
-
-        if (object.name == 'numero3') {
-            object.matrix.premultiply(tempMatrix);
-            object.matrix.decompose(object.position, object.quaternion, object.scale);
-
-            controller.add(object);
-            controller.userData.selected = object;
-            selected = 1;
-        } else {
-            object.material.emissive.b = 1;
-            erase_other(object);
-            controller.userData.selected = object;
+        
+        if (object.type === "Mesh") {
+            
+            //fleche du haut
+            if (object.name == "flecheH") {
+                MovingCube.translateY( moveDistance );
+                
+                //fleche du bas
+            } else if (object.name == "flecheB") {
+                MovingCube.translateY( -moveDistance );
+                
+                //fleche de droite
+            } else if (object.name == "flecheD") {
+                MovingCube.translateX( moveDistance );
+                
+                //fleche de gauche
+            } else if (object.name == "flecheG") {
+                // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+                // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+                
+                MovingCube.translateX( -moveDistance );
+                
+            } /*else if (object.name === "cursorBackground") {
+                // is_selected = 0;
+                cursorSelected = true;
+                group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
+                // controller.userData.selected = object;
+                
+        } else if (object.name === "cancel"){
+                
+            } else {
+                object.matrix.premultiply(tempMatrix);
+                object.matrix.decompose(object.position, object.quaternion, object.scale);
+                object.position.x = 0;
+                object.position.y = 0;
+                if (object.geometry.parameters.radius !== undefined)
+                    object.position.z = -intersection.distance - object.geometry.parameters.radius;
+                if (object.geometry.parameters.depth !== undefined)
+                    object.position.z = -intersection.distance - object.geometry.parameters.depth / 2;
+                // object.material.emissive.b = 1;
+                controller.add(object);
+                controller.userData.selected = object;
+                selected = 1;
+            }
         }
-    }
-
+    
 }
 
 function onSelectEnd(event) {
@@ -256,9 +388,9 @@ function onSelectEnd(event) {
         }
 
     }
-}
+}*/
 
-function getIntersections(controller) {
+/*function getIntersections(controller) {
 
     if (selected == 1) {
         change_color();
@@ -365,12 +497,61 @@ function cleanIntersected() {
     }
 }
 
+var timeout;
+
+function mousedown(event) {
+    timeout = setInterval(function(){
+    var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
+    vector = vector.unproject(camera);
+    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    var intersects = raycaster.intersectObjects(intersected);
+    if (intersects.length > 0) {
+        var delta = clock.getDelta(); // seconds.
+        var moveDistance = 200 * delta; // 200 pixels per second
+        //fleche du haut
+        if (intersects[0].object.name=="flecheH") {
+            MovingCube.position.set(MovingCube.position.x, MovingCube.position.y, MovingCube.position.z - moveDistance);
+            
+            //fleche du bas
+        } else if (intersects[0].object.name == "flecheB") {
+            MovingCube.position.set(MovingCube.position.x, MovingCube.position.y, MovingCube.position.z + moveDistance);
+            
+            //fleche de droite
+        } else if (intersects[0].object.name== "flecheD") {
+            MovingCube.position.set(MovingCube.position.x + moveDistance, MovingCube.position.y, MovingCube.position.z);
+            
+            //fleche de gauche
+        } else if (intersects[0].object.name== "flecheG") {
+            // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+            // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+            
+            MovingCube.position.set(MovingCube.position.x - moveDistance, MovingCube.position.y, MovingCube.position.z);
+            
+                               }
+                           }
+                          },100);
+    return false;
+}
+
+
+
+
+
+
+
+function mouseup(){
+    
+    clearInterval(timeout);
+    return false;
+}
+
 //
 function animate() {
     requestAnimationFrame( animate );
     render();
     update();
 }
+
 
 function update()
 {
