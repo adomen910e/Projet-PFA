@@ -15,6 +15,7 @@ var sphere3;
 var sphere2;
 var sphere1;
 var fleche_bas, fleche_haut, fleche_droite, fleche_gauche;
+var fleche_bas_r, fleche_haut_r, fleche_droite_r, fleche_gauche_r;
 var clock = new THREE.Clock();
 var camera2Active = false;
 var keyboard = new THREEx.KeyboardState();
@@ -80,21 +81,19 @@ function init() {
     
     
     
-    /*var geometry = new THREE.IcosahedronBufferGeometry(1, 3);
-    var material = new THREE.MeshStandardMaterial({
-        color: Math.random() * 0xffffff,
-    });
-    sphere1 = new THREE.Mesh(geometry, material);
-    sphere1.position.x = -20;
-    sphere1.position.y = 2;
-    sphere1.position.z = -30;
+    var geometry = new THREE.SphereGeometry( 35, 150, 100 );
+    var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    var sphere1 = new THREE.Mesh( geometry, material );
+    sphere1.position.x = 200;
+    sphere1.position.y = -400;
+    sphere1.position.z = 0;
     scene.add(sphere1);
     sphere1.name = 'numero';
     group.add(sphere1);
 
 
 
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    /*geometry = new THREE.IcosahedronBufferGeometry(1, 3);
     material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
     });
@@ -108,14 +107,14 @@ function init() {
     test.add(sphere2);
 
 
-    geometry = new THREE.IcosahedronBufferGeometry(1, 3);
+    geometry = new THREE.IcosahedronBufferGeometry(20, 20);
     material = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
     });
     sphere3 = new THREE.Mesh(geometry, material);
-    sphere3.position.x = 20;
-    sphere3.position.y = 2;
-    sphere3.position.z = -30;
+    sphere3.position.x = 200;
+    sphere3.position.y = -400;
+    sphere3.position.z = 0;
     scene.add(sphere3);
     sphere3.name = 'numero2';
     group.add(sphere3);
@@ -128,24 +127,26 @@ function init() {
     // immediately use the texture for material creation
     material = new THREE.MeshBasicMaterial({
         map: texture
+    });*/
+    /*geometry = new THREE.CylinderBufferGeometry(40, 40, 0.1, 64);
+    //var texture = new THREE.TextureLoader().load('tourbi.png');
+    
+    material = new THREE.MeshStandardMaterial({
+        color: Math.random() * 0xffffff,
     });
 
-    //    material = new THREE.MeshStandardMaterial({
-    //        color: Math.random() * 0xffffff,
-    //    });
-
     cylindre1 = new THREE.Mesh(geometry, material);
-    cylindre1.position.x = 0;
-    cylindre1.position.y = -5;
-    cylindre1.position.z = -20;
+    cylindre1.position.x = 200;
+    cylindre1.position.y = -400;
+    cylindre1.position.z = 0;
     cylindre1.name = 'numero3';
 
     selected = 0;
 
     scene.add(cylindre1);
-    //group.add(cylindre1);*/
+    group.add(cylindre1);*/
     
-    var geometry = new THREE.BoxGeometry( 400, 400, 1 );
+    var geometry = new THREE.BoxGeometry( 200, 200, 1 );
     var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
     MovingCube= new THREE.Mesh( geometry, material );
     //scene.add( cube );
@@ -170,7 +171,7 @@ function init() {
     
     fleche_bas = new THREE.Mesh(geometry, material);
     fleche_bas.position.x = 200;
-    fleche_bas.position.y = -500.5;
+    fleche_bas.position.y = -520.5;
     fleche_bas.position.z = 0;
     fleche_bas.name = 'flecheB';
     fleche_bas.rotation.x = 0.5 * Math.PI;
@@ -189,7 +190,7 @@ function init() {
     
     fleche_haut = new THREE.Mesh(geometry, material);
     fleche_haut.position.x = 200;
-    fleche_haut.position.y = -400.5;
+    fleche_haut.position.y = -300.5;
     fleche_haut.position.z = 0;
     fleche_haut.name = 'flecheH';
     fleche_haut.rotation.x = 0.5 * Math.PI;
@@ -208,7 +209,7 @@ function init() {
     
     fleche_droite = new THREE.Mesh(geometry, material);
     fleche_droite.position.x = 300;
-    fleche_droite.position.y = -450.5;
+    fleche_droite.position.y = -400.5;
     fleche_droite.position.z = 0;
     fleche_droite.name = 'flecheD';
     fleche_droite.rotation.x = 0.5 * Math.PI;
@@ -226,13 +227,91 @@ function init() {
     
     fleche_gauche = new THREE.Mesh(geometry, material);
     fleche_gauche.position.x = 100;
-    fleche_gauche.position.y = -450.5;
+    fleche_gauche.position.y = -400.5;
     fleche_gauche.position.z = 0;
     fleche_gauche.name = 'flecheG';
     fleche_gauche.rotation.x = 0.5 * Math.PI;
     fleche_gauche.rotation.y = 0.5 * Math.PI;
     test.add(fleche_gauche);
     intersected.push(fleche_gauche);
+    
+    
+    
+    
+    // rotation
+    geometry = new THREE.CylinderBufferGeometry(10, 10, 0.1, 50);
+    
+    var texture = new THREE.TextureLoader().load('img/flecheBas.png');
+    
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_bas_r = new THREE.Mesh(geometry, material);
+    fleche_bas_r.position.x = 190;
+    fleche_bas_r.position.y = -390.5;
+    fleche_bas_r.position.z = 40;
+    fleche_bas_r.name = 'flecheBR';
+    fleche_bas_r.rotation.x = 0.5 * Math.PI;
+    fleche_bas_r.rotation.y = 0.5 * Math.PI;
+    scene.add(fleche_bas_r);
+    test.add(fleche_bas_r);
+    intersected.push(fleche_bas_r);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheHaut.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_haut_r = new THREE.Mesh(geometry, material);
+    fleche_haut_r.position.x = 185;
+    fleche_haut_r.position.y = -327.5;
+    fleche_haut_r.position.z = 40;
+    fleche_haut_r.name = 'flecheHR';
+    fleche_haut_r.rotation.x = 0.5 * Math.PI;
+    fleche_haut_r.rotation.y = 0.5 * Math.PI;
+    scene.add(fleche_haut_r);
+    test.add(fleche_haut_r);
+    intersected.push(fleche_haut_r);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheDroite.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_droite_r = new THREE.Mesh(geometry, material);
+    fleche_droite_r.position.x = 208;
+    fleche_droite_r.position.y = -360.5;
+    fleche_droite_r.position.z = 40;
+    fleche_droite_r.name = 'flecheDR';
+    fleche_droite_r.rotation.x = 0.5 * Math.PI;
+    fleche_droite_r.rotation.y = 0.5 * Math.PI;
+    test.add(fleche_droite_r);
+    intersected.push(fleche_droite_r);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheGauche.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_gauche_r = new THREE.Mesh(geometry, material);
+    fleche_gauche_r.position.x = 165;
+    fleche_gauche_r.position.y = -360.5;
+    fleche_gauche_r.position.z = 40;
+    fleche_gauche_r.name = 'flecheGR';
+    fleche_gauche_r.rotation.x = 0.5 * Math.PI;
+    fleche_gauche_r.rotation.y = 0.5 * Math.PI;
+    test.add(fleche_gauche_r);
+    intersected.push(fleche_gauche_r);
     
     var texture = new THREE.TextureLoader().load('img/cancel.png');
     
@@ -528,8 +607,35 @@ function mousedown(event) {
             MovingCube.position.set(MovingCube.position.x - moveDistance, MovingCube.position.y, MovingCube.position.z);
             
                                }
-                           }
-                          },100);
+          var rotation_matrix = new THREE.Matrix4().identity();
+          if (intersects[0].object.name=="flecheHR") {
+              var quaternion = new THREE.Quaternion();
+              quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), - Math.PI / 2 * delta);
+              MovingCube.applyQuaternion(quaternion);
+                          
+                          //fleche du bas
+          } else if (intersects[0].object.name == "flecheBR") {
+              var quaternion = new THREE.Quaternion();
+              quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ),  Math.PI / 2 * delta);
+              MovingCube.applyQuaternion(quaternion);
+                          
+                          //fleche de droite
+          } else if (intersects[0].object.name== "flecheDR") {
+              var quaternion = new THREE.Quaternion();
+              quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ),  Math.PI / 2 * delta);
+              MovingCube.applyQuaternion(quaternion);
+                          
+                          //fleche de gauche
+         } else if (intersects[0].object.name== "flecheGR") {
+                          // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+                          // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+              var quaternion = new THREE.Quaternion();
+              quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), - Math.PI / 2 * delta);
+              MovingCube.applyQuaternion(quaternion);
+                          
+                          }
+                          }
+                          }, 100);
     return false;
 }
 
