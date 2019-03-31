@@ -46,6 +46,7 @@ var mouse = new THREE.Vector2(); //for reuse
 var intersectPoint = new THREE.Vector3(); //for reuse
 
 var file;
+var stats;
 
 //double buffering pour l'affichage des elements 
 // 1 ecran qui dessine et un ecran qui affiche a l'utilisateur
@@ -288,7 +289,6 @@ function init() {
     renderer = new THREE.WebGLRenderer({
         antialias: true
     });
-
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.gammaInput = true;
@@ -297,6 +297,10 @@ function init() {
     renderer.vr.enabled = true;
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
+    // stats = new WGLUStats(renderer.domElement, true);
+    stats = new Stats();
+	container.appendChild( stats.dom );
+    
 
     // controllers gamepad
     controller1 = renderer.vr.getController(0);
@@ -325,6 +329,7 @@ function init() {
         var gamepad = event.gamepad;
         controller1.userData.gamepad = gamepad;
     });
+
     window.addEventListener('vr controller connected', function (event) {
         //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
         var controller = event.detail;
@@ -823,5 +828,6 @@ function render() {
         }
     }
     THREE.VRController.update();
+    stats.update();
     renderer.render(scene, camera);
 }
