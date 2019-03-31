@@ -14,18 +14,23 @@ var currentTimestamp = 0;
 var vertices = [];
 var edges = [];
 
-var oldRotation = new THREE.Vector3();
+var test=false;
+
+var oldRotationY = 5;
 
 const CAMSTEP = 1;
 const ROTSTEP = 0.4;
 const CURSORWIDTH = 20;
 const CURSORHEIGHT = 1;
-const CURSORFAKEHEIGHT = CURSORHEIGHT*10;
+const CURSORDIST = 25;
+const CURSORFAKEHEIGHT = CURSORHEIGHT*100;
 
 var cursorSelected = false;
 var cursorThresholds = [];
+var pointedOut = false;
 
 var bestPositions = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-600), new THREE.Vector3(600,0,-600), new THREE.Vector3(600,400,-600)];
+var bestDirections = [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-600), new THREE.Vector3(600,0,-600), new THREE.Vector3(600,400,-600)]
 
 var transitionOn = false;
 var smoothTransitionOn = false;
@@ -193,8 +198,6 @@ function init() {
         group.add(edges[i]);
     }
 
-    currentTimestamp = 0;
-
     geometry = new THREE.BoxBufferGeometry( CURSORWIDTH, CURSORFAKEHEIGHT, 0.1);
     var material1 = new THREE.MeshStandardMaterial({
         transparent: true,
@@ -203,8 +206,8 @@ function init() {
 
     var cursorBackground = new THREE.Mesh( geometry, material1 );
     cursorBackground.position.x = 0;
-    cursorBackground.position.y = -15;
-    cursorBackground.position.z = -25;
+    cursorBackground.position.y = -5;
+    cursorBackground.position.z = -CURSORDIST;
     cursorBackground.lookAt(camera.position);
     cursorBackground.name = "cursorBackground";
     group_no_move.add(cursorBackground);
@@ -253,9 +256,20 @@ function init() {
     cursor.name = "cursor";
     moveCursorAtTimestamp(cursor, 0);
 
+    // for (var i = 0; i < NBTIMESTAMPS; i++) {
+    //     geometry = new THREE.IcosahedronBufferGeometry(CURSORHEIGHT * 3, 3);
+    //     material = new THREE.MeshStandardMaterial({
+    //         color: 0xff0000,
+    //         roughness: 0.7,
+    //         metalness: 0.7
+    //     });
+    //     var camDummy = new THREE.Mesh(geometry, material);
+    //     group.add(camDummy);
+    //     camDummy.position.copy(bestPositions[i]);
+    // }
+
     geometry = new THREE.IcosahedronBufferGeometry( CURSORHEIGHT+0.5, 3);
 
-    // immediately use the texture for material creation
     material = new THREE.MeshStandardMaterial({});
 
     reset_arrow = new THREE.Mesh(geometry, material);
@@ -288,6 +302,7 @@ function init() {
     controller1 = renderer.vr.getController(0);
     controller1.addEventListener('selectstart', onSelectStart);
     controller1.addEventListener('selectend', onSelectEnd);
+    controller1.userData.isSelecting = 0;
     scene.add(controller1);
 
 
@@ -295,6 +310,7 @@ function init() {
     controller2 = renderer.vr.getController(1);
     controller2.addEventListener('selectstart', onSelectStart);
     controller2.addEventListener('selectend', onSelectEnd);
+    controller2.userData.isSelecting = 0;
     scene.add(controller2);
 
     var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
@@ -305,6 +321,10 @@ function init() {
     controller1.add(line.clone());
     controller2.add(line.clone());
 
+    window.addEventListener("gamepadconnected", function( event ) {
+        var gamepad = event.gamepad;
+        controller1.userData.gamepad = gamepad;
+    });
     window.addEventListener('vr controller connected', function (event) {
         //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
         var controller = event.detail;
@@ -334,14 +354,16 @@ function init() {
                 new THREE.BoxGeometry(0.03, 0.1, 0.03),
                 controllerMaterial
             );
+        controller.type = "Controller";
         controllerMaterial.flatShading = true;
         controllerMesh.rotation.x = -Math.PI / 2;
         handleMesh.position.y = -0.05;
         controllerMesh.add(handleMesh);
-        controller.userData.mesh = controllerMesh; //  So we can change the color later.
         controller.add(controllerMesh);
-        controller.addEventListener('primary press began', onSelectStart);
-        controller.addEventListener('primary press ended', onSelectEnd);
+        // controller.addEventListener('primary press began', onSelectStart);
+        // controller.addEventListener('primary press ended', onSelectEnd);
+        // controller.addEventListener('thumbpad press began', onThumbpadStart);
+        // controller.addEventListener('thumbpad press ended', onThumbpadEnd);
         controller.addEventListener('thumbstick axes moved', onThumbstickMove);
         controller.addEventListener('disconnected', function (event) {
             controller.parent.remove(controller);
@@ -349,13 +371,20 @@ function init() {
     })
 }
 
+// function onThumbpadStart(event){
+//     scene.translateX(100);
+// }
+
+// function onThumbpadEnd(event){
+//     console.log(camera.position);
+// }
+
 function onSelectStart(event) {
     var controller = event.target;
     var intersections = []
     if (!smoothTransitionOn && !transitionOn){
         intersections = getIntersections(controller);
     }
-
     if (intersections.length > 0) {
         var intersection = intersections[0];
 
@@ -365,8 +394,9 @@ function onSelectStart(event) {
         if (object.type === "Mesh") {
 
             if (object.name === "cursorBackground") {
-                // is_selected = 0;
                 cursorSelected = true;
+                controller.userData.isSelecting = 1;
+                
                 if (currentPosition.distanceTo(bestPositions[currentTimestamp]) < 5){
                     transitionOn = true;
                 }
@@ -404,6 +434,11 @@ function onSelectEnd(event) {
         moveCursorAtTimestamp(cursor, timestamp);
         cursor.material.emissive.b = 0;
         cursorSelected = false;
+        if (controller.userData.isSelecting){
+            oldRotationY = 5;
+        }
+        controller.userData.isSelecting = 0;
+        pointedOut = false;
         // erase_other(timestamp);
         fadingTransition(cursor.position.x);
         if (transitionOn) { // Return smoothly to the best position
@@ -544,8 +579,20 @@ function cleanIntersected() {
 
 function computeTimestampFromUV(x){
     var timestamp = Math.floor((x *100) / (100 / NBTIMESTAMPS));
+    if (timestamp < 0){
+        timestamp = 0;
+    }
+    if (timestamp >= NBTIMESTAMPS){
+        timestamp = NBTIMESTAMPS-1;
+    }
     var inf = Math.floor((x *100) / (100 / (NBTIMESTAMPS-1)));
+    if (inf < 0){
+        inf = 0;
+    }
     var sup = Math.floor((x *100) / (100 / (NBTIMESTAMPS-1))) + 1;
+    if (sup >= NBTIMESTAMPS){
+        sup = NBTIMESTAMPS-1;
+    }
     var returned = {
         timestamp: timestamp,
         previous: inf,
@@ -571,35 +618,61 @@ function moveCursorAtTimestamp(cursor, timestamp){
 }
 
 function moveCursorAtUVX(cursor, x){
-    cursor.position.x = x*(CURSORWIDTH - CURSORHEIGHT) - CURSORWIDTH/2 + CURSORHEIGHT/2;
+    cursor.position.x = x*(CURSORWIDTH) - CURSORWIDTH/2 + CURSORHEIGHT/2;
     if (cursor.position.x < -CURSORWIDTH/2) {
-        cursor.position.x = -CURSORWIDTH/2;
+        cursor.position.x = -CURSORWIDTH/2 + CURSORHEIGHT/2;
     }
     if (cursor.position.x > CURSORWIDTH/2){
-        cursor.position.x = CURSORWIDTH/2;
+        cursor.position.x = CURSORWIDTH/2 - CURSORHEIGHT/2;
     }
 }
 
-function fadingTransition(x){
+function moveCursorFromAllPos(cursor, orientation) {
+    var quat = new THREE.Quaternion();
+    quat.fromArray(orientation);
+    var eulerRotation = new THREE.Euler();
+    eulerRotation.setFromQuaternion(quat);
+    if (oldRotationY == 5) {
+        oldRotationY = eulerRotation.y;
+    }
+    var diff = oldRotationY - eulerRotation.y;
+    oldRotationY = eulerRotation.y;
+    if ((diff * 100 > 0.1) || (diff * 100 < -0.1)) {
+        var offset = Math.tan(diff) * (CURSORDIST);
+        cursor.position.x += offset;
+    }
+    if (cursor.position.x < -CURSORWIDTH / 2) {
+        cursor.position.x = -CURSORWIDTH / 2 ;
+    }
+    if (cursor.position.x > CURSORWIDTH / 2) {
+        cursor.position.x = CURSORWIDTH / 2 ;
+    }
+}
+
+function fadingTransition(x) {
     var infos = computeTimestampFromPos(x);
-    var transitionPercentage = (x - cursorThresholds[infos.previous])/(cursorThresholds[infos.next] - cursorThresholds[infos.previous]);
+    var transitionPercentage = (x - cursorThresholds[infos.previous]) / (cursorThresholds[infos.next] - cursorThresholds[infos.previous]);
     for (var i = 0; i < group.children.length; i++) {
-        if ((group.children[i].name.includes("timestamp"))){
-            if (group.children[i].name.slice(-1)  == infos.previous){
-                group.children[i].material.opacity = 1-transitionPercentage;
-                if ((group.children[i].material.opacity <= 0.1) || ((infos.timestamp == NBTIMESTAMPS-1) && (transitionPercentage >= 0.9))){
+        if (group.children[i].name.includes("timestamp")) {
+            if ((group.children[i].name.slice(-1) == infos.previous) && (infos.previous == infos.next)) {
+                group.children[i].material.opacity = 1;
+                group.children[i].material.visible = true;               
+                group.children[i].material.needsUpdate = true;
+            } else if (group.children[i].name.slice(-1) == infos.previous) {
+                group.children[i].material.opacity = 1 - transitionPercentage;
+                if (group.children[i].material.opacity <= 0.1) {
                     group.children[i].material.opacity = 0;
                     group.children[i].material.visible = false;
-                } else if (group.children[i].material.opacity >= 0.1){
+                } else if (group.children[i].material.opacity >= 0.1) {
                     group.children[i].material.visible = true;
                 }
                 group.children[i].material.needsUpdate = true;
-            } else if (group.children[i].name.slice(-1)  == infos.next) {
+            } else if (group.children[i].name.slice(-1) == infos.next) {
                 group.children[i].material.opacity = transitionPercentage;
-                if (group.children[i].material.opacity <= 0.1){
+                if (group.children[i].material.opacity <= 0.1) {
                     group.children[i].material.opacity = 0;
                     group.children[i].material.visible = false;
-                } else if (group.children[i].material.opacity >= 0.1){
+                } else if (group.children[i].material.opacity >= 0.1) {
                     group.children[i].material.visible = true;
                 }
                 group.children[i].material.needsUpdate = true;
@@ -659,18 +732,19 @@ function quatFrom2Vectors(a, b) {
 
 function transitionMovement(x){
     var infos = computeTimestampFromPos(x);
-    var transitionPercentage = (x - cursorThresholds[infos.previous]) / (cursorThresholds[infos.next] - cursorThresholds[infos.previous]);
-    var pos = bestPositions[infos.previous].clone().multiplyScalar(-1);
-    var targetPos = bestPositions[infos.next].clone().multiplyScalar(-1);
-    pos.lerp(targetPos, transitionPercentage);
-
-    group.position.copy(pos);
+    if (infos.previous != infos.next) {
+        var transitionPercentage = (x - cursorThresholds[infos.previous]) / (cursorThresholds[infos.next] - cursorThresholds[infos.previous]);
+        var pos = bestPositions[infos.previous].clone().multiplyScalar(-1);
+        var targetPos = bestPositions[infos.next].clone().multiplyScalar(-1);
+        pos.lerp(targetPos, transitionPercentage);
+        group.position.copy(pos);
+    }
 
     // Tentative de rotation du graphe pendant le deplacement pour continuer a observer le meme point
-    // var quat = group.quaternion.clone();
-    // var targetQuat = quatFrom2Vectors(group.position.clone().multiplyScalar(-1), targetPos.clone().multiplyScalar(-1));
-    // quat.slerp(targetQuat, 0.01);
-    // group.quaternion.copy(quat);
+    /*var quat = group.quaternion;
+    var targetQuat = quatFrom2Vectors(bestDirections[infos.previous].clone().multiplyScalar(-1), bestDirections[infos.next].clone().multiplyScalar(-1));
+    quat.slerp(targetQuat, transitionPercentage);
+    group.quaternion.copy(quat);*/
 }
 
 function smoothMovement(){
@@ -706,31 +780,41 @@ function animate() {
     renderer.setAnimationLoop(render);
 }
 
+
 function render() {
     cleanIntersected();
     var intersection1 = intersectObjects(controller1);
     var intersection2 = intersectObjects(controller2);
     var cursor = group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
     if (cursorSelected) {
-        if ((intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
-            moveCursorAtUVX(cursor,intersection1.uv.x);
-            fadingTransition(cursor.position.x);
-        } else if ((intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
-            moveCursorAtUVX(cursor,intersection2.uv.x);
-            fadingTransition(cursor.position.x);
+        if (controller1.userData.isSelecting) {
+            if (!pointedOut && (intersection1 !== undefined) && (intersection1.object == group_no_move.getObjectByName("cursorBackground"))) {
+                moveCursorAtUVX(cursor, intersection1.uv.x);    
+            } else {
+                pointedOut = true;
+                moveCursorFromAllPos(cursor, controller1.userData.gamepad.pose.orientation);
+            }
+        } else if (controller2.userData.isSelecting) {
+            if (!pointedOut && (intersection2 !== undefined) && (intersection2.object == group_no_move.getObjectByName("cursorBackground"))) {
+                moveCursorAtUVX(cursor, intersection2.uv.x);
+            } else {
+                pointedOut = true;
+                moveCursorFromAllPos(cursor, controller2.userData.gamepad.pose.orientation);
+            }
         }
+        fadingTransition(cursor.position.x);
     }
     moveCursorGroup();
-    
-    if (transitionOn){
+
+    if (transitionOn) {
         resetButtonToRed();
         transitionMovement(cursor.position.x);
     }
     currentPosition.copy(group.position).multiplyScalar(-1);
-    if (smoothTransitionOn){
+    if (smoothTransitionOn) {
         resetButtonToRed();
         smoothMovement();
-        if (currentPosition.distanceTo(bestPositions[currentTimestamp]) < 1){
+        if (currentPosition.distanceTo(bestPositions[currentTimestamp]) < 1) {
             group.position.copy(bestPositions[currentTimestamp].clone().multiplyScalar(-1));
             smoothTransitionOn = false;
             currentPosition.copy(group.position).multiplyScalar(-1);
