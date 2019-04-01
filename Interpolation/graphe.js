@@ -21,6 +21,8 @@ var continuousYMove = 0;
 
 var oldRotation = new THREE.Vector3();
 
+var fleche_basr, fleche_hautr, fleche_droiter, fleche_gaucher;
+
 const CAMSTEP = 1;
 const ROTSTEP = 0.4;
 const CURSORWIDTH = 20;
@@ -203,7 +205,7 @@ function init() {
 
     fleche_bas = new THREE.Mesh(geometry, material);
     fleche_bas.position.x = 10;
-    fleche_bas.position.y = -9.5;
+    fleche_bas.position.y = -10.5;
     fleche_bas.position.z = -20;
     fleche_bas.name = 'flecheB';
     fleche_bas.rotation.x = 0.5 * Math.PI;
@@ -221,7 +223,7 @@ function init() {
 
     fleche_haut = new THREE.Mesh(geometry, material);
     fleche_haut.position.x = 10;
-    fleche_haut.position.y = -5.5;
+    fleche_haut.position.y = -4.5;
     fleche_haut.position.z = -20;
     fleche_haut.name = 'flecheH';
     fleche_haut.rotation.x = 0.5 * Math.PI;
@@ -283,6 +285,92 @@ function init() {
     intersected.push(cancel);
 
 
+    //Mise en place de la sphere flechee
+    geometry = new THREE.SphereGeometry( 1.5, 10, 10 );
+    material = new THREE.MeshBasicMaterial({
+                             color: 0xF3A2B0,
+                             wireframe: true
+                             });
+    var sphere = new THREE.Mesh( geometry, material );
+    sphere.position.x = 10;
+    sphere.position.y = -7.5;
+    sphere.position.z = -20;
+    intersected.push( sphere );
+    group_no_move.add(sphere);
+    
+    //Mise en place des fleches de rotation
+    
+    geometry = new THREE.CylinderBufferGeometry(0.5, 0.5, 0.1, 50);
+    var texture = new THREE.TextureLoader().load('img/flecheBas.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_basr = new THREE.Mesh(geometry, material);
+    fleche_basr.position.x = 9;
+    fleche_basr.position.y = -7.34;
+    fleche_basr.position.z = -18;
+    fleche_basr.name = 'flecheBR';
+    fleche_basr.rotation.x = 0.5 * Math.PI;
+    fleche_basr.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_basr);
+    intersected.push(fleche_basr);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheHaut.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_hautr = new THREE.Mesh(geometry, material);
+    fleche_hautr.position.x = 9;
+    fleche_hautr.position.y = -5.8;
+    fleche_hautr.position.z = -18;
+    fleche_hautr.name = 'flecheHR';
+    fleche_hautr.rotation.x = 0.5 * Math.PI;
+    fleche_hautr.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_hautr);
+    intersected.push(fleche_hautr);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheDroite.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_droiter = new THREE.Mesh(geometry, material);
+    fleche_droiter.position.x = 9.8;
+    fleche_droiter.position.y = -6.6;
+    fleche_droiter.position.z = -18;
+    fleche_droiter.name = 'flecheDR';
+    fleche_droiter.rotation.x = 0.5 * Math.PI;
+    fleche_droiter.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_droiter);
+    intersected.push(fleche_droiter);
+    
+    
+    var texture = new THREE.TextureLoader().load('img/flecheGauche.png');
+    
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    fleche_gaucher = new THREE.Mesh(geometry, material);
+    fleche_gaucher.position.x = 8.5;
+    fleche_gaucher.position.y = -7;
+    fleche_gaucher.position.z = -19;
+    fleche_gaucher.name = 'flecheGR';
+    fleche_gaucher.rotation.x = 0.5 * Math.PI;
+    fleche_gaucher.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(fleche_gaucher);
+    intersected.push(fleche_gaucher);
 
     geometry = new THREE.BoxBufferGeometry(CURSORWIDTH, CURSORFAKEHEIGHT, 0.1);
     material = new THREE.MeshStandardMaterial({
