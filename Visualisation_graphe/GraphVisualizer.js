@@ -72,7 +72,7 @@ function GraphVisualizer(filename) {
     info.style.top = '10px';
     info.style.width = '100%';
     info.style.textAlign = 'center';
-    info.innerHTML = 'PROJET SUR LES CASQUES DE ReALITe VIRTUELLE: AFFICHAGE DE GRANDS GRAPHES';
+    info.innerHTML = 'PROJET SUR LES CASQUES DE REALITE VIRTUELLE: AFFICHAGE DE GRANDS GRAPHES';
     this.container.appendChild(info);
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x000000);
@@ -109,7 +109,7 @@ function GraphVisualizer(filename) {
     function loadJSON(callback) {
         var xobj = new XMLHttpRequest();
         xobj.overrideMimeType("application/json");
-        xobj.open('GET', 'vrgraph.json', true);
+        xobj.open('GET', filename, true);
 
         function onReadyStateChange() {
             if (xobj.readyState == 4 && xobj.status == "200") {
