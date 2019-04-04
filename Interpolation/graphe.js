@@ -844,7 +844,15 @@ function mousedown(event) {
                           
                           group.position.set(group.position.x - moveDistance, group.position.y, group.position.z);
                           
-                          }
+                      
+			   } else if (intersects[0].object.name== "cancel") {
+                          //moveInSpace(-3,0);
+                          // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+                          // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+                          
+                               group.position.set(0,25.1,0);
+			       group.rotation.set(0,0,0);
+			   }
                           var rotation_matrix = new THREE.Matrix4().identity();
                           var centroid = new THREE.Vector3(avg_x, avg_y, avg_z);
                           if (intersects[0].object.name=="flecheHR") {
