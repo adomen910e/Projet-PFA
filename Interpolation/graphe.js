@@ -18,9 +18,13 @@ var keyboard = new THREEx.KeyboardState();
 //Variables pour le déplacement avec la croix
 var continuousXMove = 0;
 var continuousYMove = 0;
+var pivot;
+
+var avg_x, avg_y, avg_z;
+
 
 var oldRotation = new THREE.Vector3();
-
+var object;
 var fleche_basr, fleche_hautr, fleche_droiter, fleche_gaucher;
 
 const CAMSTEP = 1;
@@ -88,6 +92,10 @@ function init() {
 
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
+    //console.log(camera.position);
+    //group.add(camera);
+    
+    
 
     scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
@@ -106,19 +114,35 @@ function init() {
     group = new THREE.Group();
     group.type = 'yes';
     scene.add(group);
-
+    
     group_no_move = new THREE.Group();
+    group.position.set(-50, -50, -50);
     group_no_move.type = 'no';
+    //group_no_move.add(camera);
     scene.add(group_no_move);
 
+    
+    //scene.add(object);
+    
+    
     var points = [];
 
     var geoms = [];
 
+    
+    //Variable pour calcul de centre
+    var x_cordinates = [];
+    var y_cordinates = [];
+    var z_cordinates = [];
+    
+    var sum_x, sum_y, sum_z;
+    
     //Mise en place des noeuds dans les differrents timestamp
     for (var i = 0; i < file.nodes.length; i++) {
         var position = new THREE.Vector3(file.nodes[i].pos[0], file.nodes[i].pos[1], file.nodes[i].pos[2]);
-
+        x_cordinates.push(file.nodes[i].pos[0]);
+        y_cordinates.push(file.nodes[i].pos[1]);
+        z_cordinates.push(file.nodes[i].pos[2]);
         for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
             var timestamp = file.nodes[i].timestamp[j];
             if (timestamp + 1 > NBTIMESTAMPS) {
@@ -133,11 +157,23 @@ function init() {
 
         points.push(position);
     }
+    sum_x = x_cordinates.reduce(function(a, b) { return a + b; });
+    sum_y = y_cordinates.reduce(function(a, b) { return a + b; });
+    sum_z = z_cordinates.reduce(function(a, b) { return a + b; });
+    avg_x = sum_x/x_cordinates.length;
+    avg_y = sum_y/y_cordinates.length;
+    avg_z = sum_z/z_cordinates.length
+    
+    //console.log(avg_x + ',' + avg_y + ',' + avg_z);
+
+    
+    
+    
     var sprite = new THREE.TextureLoader().load('img/circle.png');
 
-
+    
     for (var i = 0; i < NBTIMESTAMPS; i++) {
-
+        
         geoms[i].addAttribute('position', new THREE.Float32BufferAttribute(vertices[i], 3));
         var material = new THREE.PointsMaterial({
             size: 1,
@@ -190,9 +226,10 @@ function init() {
             edges[i].visible = false;
         }
     }
-
+    
+    
     currentTimestamp = 0;
-
+    //pivot.add(group);
 
     //Mise en place des flèches
     geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
@@ -445,6 +482,8 @@ function init() {
     container.appendChild(renderer.domElement);
     document.body.appendChild(WEBVR.createButton(renderer));
     
+    
+    
     document.addEventListener("mousedown", mousedown);
     document.addEventListener("mouseup", mouseup);
 
@@ -514,6 +553,13 @@ function init() {
             controller.parent.remove(controller);
         });
     })
+    /*scene.updateMatrixWorld(true);
+    var position = new THREE.Vector3();
+    position.setFromMatrixPosition( group.matrixWorld );
+    console.log(position.x + ',' + position.y + ',' + position.z);
+    //console.log(group.position);*/
+    
+    
 }
 function onSelectStart(event) {
     var controller = event.target;
@@ -792,7 +838,7 @@ function mousedown(event) {
                           
                           //fleche de gauche
                           } else if (intersects[0].object.name== "flecheG") {
-                          moveInSpace(-3,0);
+                          //moveInSpace(-3,0);
                           // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
                           // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
                           
@@ -800,30 +846,27 @@ function mousedown(event) {
                           
                           }
                           var rotation_matrix = new THREE.Matrix4().identity();
+                          var centroid = new THREE.Vector3(avg_x, avg_y, avg_z);
                           if (intersects[0].object.name=="flecheHR") {
-                          var quaternion = new THREE.Quaternion();
+                          rotateAboutPoint(group, centroid, new THREE.Vector3(1,0,0),  Math.PI / 2 * delta);
+                          /*var quaternion = new THREE.Quaternion();
                           quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), - Math.PI / 2 * delta);
-                          group.applyQuaternion(quaternion);
+                          group.applyQuaternion(quaternion);*/
                           
                           //fleche du bas
                           } else if (intersects[0].object.name == "flecheBR") {
-                          var quaternion = new THREE.Quaternion();
+                          rotateAboutPoint(group, centroid, new THREE.Vector3(1,0,0),  -Math.PI / 2 * delta);
+                          /*var quaternion = new THREE.Quaternion(0,500, -500);
                           quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ),  Math.PI / 2 * delta);
-                          group.applyQuaternion(quaternion);
+                          group.applyQuaternion(quaternion);*/
                           
                           //fleche de droite
                           } else if (intersects[0].object.name== "flecheDR") {
-                          var quaternion = new THREE.Quaternion();
-                          quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ),  Math.PI / 2 * delta);
-                          group.applyQuaternion(quaternion);
+                          rotateAboutPoint(group, centroid, new THREE.Vector3(0,1,0),  -Math.PI / 2 * delta);
                           
                           //fleche de gauche
                           } else if (intersects[0].object.name== "flecheGR") {
-                          // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
-                          // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
-                          var quaternion = new THREE.Quaternion();
-                          quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), - Math.PI / 2 * delta);
-                          group.applyQuaternion(quaternion);
+                          rotateAboutPoint(group, centroid, new THREE.Vector3(0,1,0),  Math.PI / 2 * delta);
                           
                           }
                           }
@@ -845,6 +888,7 @@ function mouseup(){
 
 function update()
 {
+    //pivot.add(group);
     var delta = clock.getDelta(); // seconds.
     var moveDistance = 70 * delta; // 200 pixels per second
     var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) per second
@@ -863,15 +907,27 @@ function update()
     
     // rotate left/right/up/down
     var rotation_matrix = new THREE.Matrix4().identity();
-    if ( keyboard.pressed("A") )
-        group.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
-    if ( keyboard.pressed("D") )
-        group.rotateOnAxis( new THREE.Vector3(0,1,0), -rotateAngle);
-    if ( keyboard.pressed("R") )
-        group.rotateOnAxis( new THREE.Vector3(1,0,0), rotateAngle);
-    if ( keyboard.pressed("F") )
-        group.rotateOnAxis( new THREE.Vector3(1,0,0), -rotateAngle);
-    
+    if ( keyboard.pressed("A") ){
+        //pivot.rotation.x += rotateAngle;
+        //pivot.rotateOnAxis( new THREE.Vector3(0,1,0), rotateAngle);
+        //camera.lookAt(group.position);
+        //console.log(group.position);
+        var centroid = new THREE.Vector3(avg_x, avg_y, avg_z);
+        //group.getWorldPosition(axis);
+        rotateAboutPoint(group, centroid, new THREE.Vector3(0,1,0), rotateAngle);
+    }
+    if ( keyboard.pressed("D") ){
+        var centroid = new THREE.Vector3(avg_x, avg_y, avg_z);
+        rotateAboutPoint(group, centroid, new THREE.Vector3(0,1,0), -rotateAngle);
+    }
+    if ( keyboard.pressed("R") ){
+        var centroid = new THREE.Vector3(avg_x, avg_y, avg_z);
+        rotateAboutPoint(group, centroid, new THREE.Vector3(1,0,0), rotateAngle);
+    }
+    if ( keyboard.pressed("F") ){
+        var centroid = new THREE.Vector3(avg_x, avg_y, avg_z);
+        rotateAboutPoint(group, centroid, new THREE.Vector3(1,0,0), -rotateAngle);
+    }
     if ( keyboard.pressed("Z") )
     {
         group.position.set(0,25.1,0);
@@ -954,5 +1010,6 @@ function render() {
     moveCursor();
 
     THREE.VRController.update();*/
+    //camera.lookAt(group.position);
     renderer.render(scene, camera);
 }
