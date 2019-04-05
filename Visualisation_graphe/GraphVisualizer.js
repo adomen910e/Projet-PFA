@@ -134,7 +134,7 @@ function GraphVisualizer(filename) {
 
         var nbtimestamps = 0;
         // Mise en place des noeuds dans les differents timestamps : une geometrie timestamp qui contient les positions de tous les noeuds
-        // En meme temps on calcule le nombre de timestamp maximal
+        // On calcule en meme temps le nombre de timestamp maximal
         for (var i = 0; i < file.nodes.length; i++) {
             var position = new THREE.Vector3(file.nodes[i].pos[0], file.nodes[i].pos[1], file.nodes[i].pos[2]);
 
@@ -303,6 +303,7 @@ function GraphVisualizer(filename) {
 
         // immediately use the texture for material creation
         material = new THREE.MeshBasicMaterial({
+            // color: 0x1147ad,
             map: texture
         });
 
@@ -323,6 +324,7 @@ function GraphVisualizer(filename) {
 
         // immediately use the texture for material creation
         material = new THREE.MeshBasicMaterial({
+            // color: 0x1147ad,
             map: texture
         });
 
@@ -340,6 +342,7 @@ function GraphVisualizer(filename) {
 
         // immediately use the texture for material creation
         material = new THREE.MeshBasicMaterial({
+            // color: 0x1147ad,
             map: texture
         });
 
@@ -357,6 +360,7 @@ function GraphVisualizer(filename) {
 
         // immediately use the texture for material creation
         material = new THREE.MeshBasicMaterial({
+            // color: 0x1147ad,
             map: texture
         });
 
@@ -464,30 +468,34 @@ function GraphVisualizer(filename) {
 GraphVisualizer.prototype.onSelectStart = function (event) {
     var controller = event.target;
     var intersections = [];
-    if (!this.smoothTransitionOn && !this.transitionOn) {
+    // On désactive la possibilité de sélectionner lorsqu'un movement automatique est en cours
+    if (!this.smoothTransitionOn && !this.transitionOn) {   // On vérifie transitionOn pour éviter qu'un deuxième controller effectue une sélection même temps
         intersections = this.getIntersections(controller);
     }
+    //Intersection avec un objet
     if (intersections.length > 0) {
-        var intersection = intersections[0];
+        var intersection = intersections[0];    // On ne conserve que le premier objet traversé
         var tempMatrix = new THREE.Matrix4();
         tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
 
         if (object.type === "Mesh") {
 
-            if (object.name === "cursorBackground") {
+            if (object.name === "cursorBackground") { // Selection du curseur
                 this.cursorSelected = true;
                 controller.userData.isSelecting = 1;
 
+                // On lance le déplacement automatique si on se trouve à la position initiale
                 if (this.currentPosition.distanceTo(this.bestPositions[this.currentTimestamp]) < 5) {
                     this.transitionOn = true;
                 }
                 this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.b = 0.5;
 
-            } else if ((object.name === "reset_arrow") && !this.transitionOn) {
+            } else if ((object.name === "reset_arrow") && !this.transitionOn) { // Bouton de retour à la position initiale
                 this.smoothTransitionOn = true;
                 this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
-            } else if (object.name.includes("fleche")){
+
+            } else if (object.name.includes("fleche")){ // Fleches de movement
                 if (object.name === "flecheH") { 
                     this.continuousYMove = -this.CAMSTEP;
     
@@ -517,14 +525,20 @@ GraphVisualizer.prototype.onSelectEnd = function (event) {
         var cursor = this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         var timestampInfos = this.computeTimestampFromPos(cursor.position.x);
         var timestamp = timestampInfos.timestamp;
+
+        // Lorsqu'on relache le curseur il vient se placer sur la graduation la plus proche
         this.moveCursorAtTimestamp(cursor, timestamp);
         cursor.material.emissive.b = 0;
         this.cursorSelected = false;
+
         if (controller.userData.isSelecting) {
+            // On est potentiellement sorti de la hitbox lors de la selection, donc on remet cette variable à la valeur initiale pour le controller utilise
             this.oldRotationY = 5;
         }
         controller.userData.isSelecting = 0;
         this.pointedOut = false;
+
+        // On accorde l'apparence du graphe avec la position du curseur
         this.fadingTransition(cursor.position.x);
         if (this.transitionOn) { // Deplacement fluide de la camera vers la "best position" du timestamp
             this.smoothTransitionOn = true;
@@ -572,7 +586,7 @@ GraphVisualizer.prototype.moveInSpace = function (xAxisValue, yAxisValue, useRot
         }
     } else {
         // Le joystick sur le côte permet de se deplacer lateralement (straf)
-        var axisOfRotation = this.camera.position.clone().normalize(); // Axe de la rotation a verifier
+        var axisOfRotation = this.camera.position.clone().normalize(); // L'axe de la rotation est celui allant de la camera aux "pieds"
         var quad = new THREE.Quaternion().setFromAxisAngle(axisOfRotation, Math.PI / 2);
         direction.applyQuaternion(quad);
         var xmove = direction.multiplyScalar(xstep);
@@ -586,6 +600,7 @@ GraphVisualizer.prototype.onThumbstickMove = function (event) {
         var y = parseFloat(event.axes[1].toFixed(2));
         this.moveInSpace(x, y);
     }
+    // On change la couleur du bouton de reset pour notifier qu'il est utilisable
     var reset = this.group_no_move.getObjectByName("reset_arrow");
     if (reset.material.emissive.b == 0) {
         this.resetButtonToBlue();
