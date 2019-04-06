@@ -886,6 +886,34 @@ THREE.VRController.supported = {
 	},
 
 
+/*
+	    //////////////////
+	   //              //
+	  //   Gear VR    //
+	 //              //
+	//////////////////
+
+	'Gear VR': {
+
+		style: 'gearvr',
+
+
+		//  THUMBPAD
+		//  Both a 2D trackpad and a button with both touch and press. 
+		//  The Y-axis is “Regular”.
+		//
+		//              Top: Y = -1
+		//                   ↑
+		//    Left: X = -1 ←─┼─→ Right: X = +1
+		//                   ↓
+		//           Bottom: Y = +1
+		
+		axes: [{ name: 'thumbpad', indexes: [ 0, 1 ]}],
+		buttons: [ 'thumbstick' ],
+		primary: 'thumbstick'
+	},*/
+
+
 
 
 	    //////////////

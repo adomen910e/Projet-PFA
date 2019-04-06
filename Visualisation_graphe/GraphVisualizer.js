@@ -457,6 +457,7 @@ function GraphVisualizer(filename) {
             // controller.addEventListener('primary press began', onSelectStart);
             // controller.addEventListener('primary press ended', onSelectEnd);
             controller.addEventListener('thumbstick axes moved', this.onThumbstickMove.bind(this));
+            controller.addEventListener('axes moved', this.onThumbstickMove.bind(this));
             controller.addEventListener('disconnected', function (event) {
                 controller.parent.remove(controller);
             }.bind(this));
