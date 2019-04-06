@@ -637,6 +637,8 @@ GraphVisualizer.prototype.intersectObjects = function (controller) {
         this.intersected.push(object);
         line.scale.z = intersection.distance;
         return intersection;
+    } else {
+        line.scale.z = 2000;
     }
 };
 
