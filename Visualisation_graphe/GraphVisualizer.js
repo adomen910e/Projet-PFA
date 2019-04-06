@@ -33,7 +33,7 @@ function GraphVisualizer(filename) {
         configurable: true
     });
     Object.defineProperty(this, 'CURSORFAKEHEIGHT', {
-        value: this.CURSORHEIGHT * 100,
+        value: this.CURSORHEIGHT * 10,
         writable: false,
         enumerable: true,
         configurable: true
@@ -58,6 +58,7 @@ function GraphVisualizer(filename) {
 
     this.bestPositions = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -600), new THREE.Vector3(600, 0, -600), new THREE.Vector3(600, 400, -600)];
     this.bestDirections = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -600), new THREE.Vector3(600, 0, -600), new THREE.Vector3(600, 400, -600)];
+    this.savedGroupPosition = new THREE.Vector3();
 
     this.transitionOn = false;
     this.smoothTransitionOn = false;
@@ -309,7 +310,6 @@ function GraphVisualizer(filename) {
 
         // immediately use the texture for material creation
         material = new THREE.MeshBasicMaterial({
-            // color: 0x1147ad,
             map: texture
         });
 
@@ -328,9 +328,7 @@ function GraphVisualizer(filename) {
 
         var texture = new THREE.TextureLoader().load('textures/flecheHaut.png');
 
-        // immediately use the texture for material creation
         material = new THREE.MeshBasicMaterial({
-            // color: 0x1147ad,
             map: texture
         });
 
@@ -346,9 +344,7 @@ function GraphVisualizer(filename) {
 
         var texture = new THREE.TextureLoader().load('textures/flecheDroite.png');
 
-        // immediately use the texture for material creation
         material = new THREE.MeshBasicMaterial({
-            // color: 0x1147ad,
             map: texture
         });
 
@@ -364,9 +360,7 @@ function GraphVisualizer(filename) {
 
         var texture = new THREE.TextureLoader().load('textures/flecheGauche.png');
 
-        // immediately use the texture for material creation
         material = new THREE.MeshBasicMaterial({
-            // color: 0x1147ad,
             map: texture
         });
 
@@ -378,6 +372,38 @@ function GraphVisualizer(filename) {
         fleche_gauche.rotation.x = 0.5 * Math.PI;
         fleche_gauche.rotation.y = 0.5 * Math.PI;
         this.group_no_move.add(fleche_gauche);
+
+
+        var texture = new THREE.TextureLoader().load('textures/save.jpg');
+        material = new THREE.MeshBasicMaterial({
+            map: texture
+        });
+
+        save = new THREE.Mesh(geometry, material);
+        save.position.x = xleft + 0.5;
+        save.position.y = yleft + 2.5;
+        save.position.z = -20;
+        save.name = 'save';
+        save.rotation.x = 0.5 * Math.PI;
+        save.rotation.y = 0.5 * Math.PI;
+        this.group_no_move.add(save);
+
+        var texture = new THREE.TextureLoader().load('textures/retour.jpg');
+
+        material = new THREE.MeshBasicMaterial({
+            map: texture
+        });
+
+        back = new THREE.Mesh(geometry, material);
+        back.position.x = xleft + 0.5;
+        back.position.y = yleft - 2.5;
+        back.position.z = -20;
+        back.name = 'back';
+        back.rotation.x = 0.5 * Math.PI;
+        back.rotation.y = 0.5 * Math.PI;
+        this.group_no_move.add(back);
+
+        
 
         // Configuration du renderer
 
@@ -538,6 +564,10 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
                 if (reset.material.emissive.b == 0) {
                     this.resetButtonToBlue();
                 }
+            } else if (object.name === "save"){
+                this.savedGroupPosition.copy(this.group.position);
+            } else if (object.name === "back"){
+                this.group.position.copy(this.savedGroupPosition);
             }
         }
     } else if (this.isVRActive){
