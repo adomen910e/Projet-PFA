@@ -19,9 +19,10 @@ var keyboard = new THREEx.KeyboardState();
 var continuousXMove = 0;
 var continuousYMove = 0;
 var pivot;
-
+var save;
 var avg_x, avg_y, avg_z;
 
+var saved_group_positions = [];
 
 var oldRotation = new THREE.Vector3();
 var object;
@@ -231,6 +232,30 @@ function init() {
     currentTimestamp = 0;
     //pivot.add(group);
 
+    geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
+    var texture = new THREE.TextureLoader().load('img/save1.jpg');
+
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    save = new THREE.Mesh(geometry, material);
+    save.position.x = 7.5;
+    save.position.y = -5;
+    save.position.z = -20;
+    save.name = 'save';
+    save.rotation.x = 0.5 * Math.PI;
+    save.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(save);
+    intersected.push(save);
+
+    
+
+
+
+
+
     //Mise en place des flèches
     geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
     var texture = new THREE.TextureLoader().load('img/flecheBas.png');
@@ -312,7 +337,7 @@ function init() {
     });
 
     cancel = new THREE.Mesh(geometry, material);
-    cancel.position.x = 14;
+    cancel.position.x = 12.5;
     cancel.position.y = -5;
     cancel.position.z = -20;
     cancel.name = 'cancel';
@@ -833,7 +858,7 @@ function mousedown(event) {
                           
                           //fleche de droite
                           } else if (intersects[0].object.name== "flecheD") {
-                          //moveInSpace(3, 0);
+                          //moveInSpace(moveDistance, 0);
                           group.position.set(group.position.x - moveDistance, group.position.y, group.position.z);
                           
                           //fleche de gauche
@@ -842,7 +867,7 @@ function mousedown(event) {
                           // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
                           // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
                           
-                          group.position.set(group.position.x - moveDistance, group.position.y, group.position.z);
+                          group.position.set(group.position.x + moveDistance, group.position.y, group.position.z);
                           
                       
 			   } else if (intersects[0].object.name== "cancel") {
@@ -852,24 +877,22 @@ function mousedown(event) {
                           
                                group.position.set(0,25.1,0);
 			       group.rotation.set(0,0,0);
-			   }
+			   } else if(intersects[0].object.name == "save") {
+			       saved_group_positions.push(group.position.z);
+			       console.log(saved_group_positions[0]);
+			       console.log(saved_group_positions[1]);
+			       console.log(saved_group_positions[2]);
+				 }
                           var rotation_matrix = new THREE.Matrix4().identity();
                           var centroid = new THREE.Vector3(avg_x, avg_y, avg_z);
                           if (intersects[0].object.name=="flecheHR") {
                           rotateAboutPoint(group, centroid, new THREE.Vector3(1,0,0),  Math.PI / 2 * delta);
-                          /*var quaternion = new THREE.Quaternion();
-                          quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), - Math.PI / 2 * delta);
-                          group.applyQuaternion(quaternion);*/
                           
                           //fleche du bas
                           } else if (intersects[0].object.name == "flecheBR") {
                           rotateAboutPoint(group, centroid, new THREE.Vector3(1,0,0),  -Math.PI / 2 * delta);
-                          /*var quaternion = new THREE.Quaternion(0,500, -500);
-                          quaternion.setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ),  Math.PI / 2 * delta);
-                          group.applyQuaternion(quaternion);*/
-                          
                           //fleche de droite
-                          } else if (intersects[0].object.name== "flecheDR") {
+                         } else if (intersects[0].object.name== "flecheDR") {
                           rotateAboutPoint(group, centroid, new THREE.Vector3(0,1,0),  -Math.PI / 2 * delta);
                           
                           //fleche de gauche
