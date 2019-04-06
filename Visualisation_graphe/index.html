@@ -80,11 +80,14 @@
 <body>
     <script src="aide/three.js"></script>
     <script src="aide/webvr-polyfill.js"></script>
+    <script src="aide/THREEx.KeyboardState.js"></script>
     <script src="aide/stats.min.js"></script>
     <script src="aide/webVR.js"></script>
     <script src="aide/VRController.js"></script>
     <script src="GraphVisualizer.js"></script>
     <script>
+        // Pour la compatibilité avec tous les navigateurs
+        var polyfill = new WebVRPolyfill(); 
         var test = new GraphVisualizer('vrgraph.json');
     </script> 
 

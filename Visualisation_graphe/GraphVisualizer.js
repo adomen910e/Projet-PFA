@@ -39,6 +39,12 @@ function GraphVisualizer(filename) {
         configurable: true
     });
 
+    this.isVRActive = false;
+    this.keyboard = new THREEx.KeyboardState();
+    this.isMouseSelecting = false;
+    this.dragCam = false;
+    this.mousePos = new THREE.Vector2(0,0);
+
     this.intersected = [];
     this.currentTimestamp = 0;
     this.vertices = [];
@@ -418,6 +424,16 @@ function GraphVisualizer(filename) {
             this.controller1.userData.gamepad = gamepad;
         }.bind(this));
 
+        document.addEventListener("mousedown", this.onSelectStart.bind(this));
+        document.addEventListener("mouseup", this.onSelectEnd.bind(this));
+        document.addEventListener("mousemove", this.onMouseMove.bind(this));
+
+        window.addEventListener('vrdisplaypresentchange', function (event) {
+
+            event.display.isPresenting ? this.isVRActive = true : this.isVRActive = false;
+
+        }.bind(this), false);
+
         // Utilisation de VRController, qui permet de recuperer via des evenements les interactions sur la plupart des materiels de VR
         window.addEventListener('vr controller connected', function (event) {
             //  The VRController instance is a THREE.Object3D, so we can just add it to the scene:
@@ -466,26 +482,35 @@ function GraphVisualizer(filename) {
     });
 }
 
+GraphVisualizer.prototype.normalizeMouseInput = function (x, y) {
+    return new THREE.Vector2(( x / window.innerWidth ) * 2 - 1, - ( y / window.innerHeight ) * 2 + 1);
+}
+
 GraphVisualizer.prototype.onSelectStart = function (event) {
-    var controller = event.target;
+
     var intersections = [];
+
+    if (this.isVRActive){
+        var controller = event.target;
+    } else {
+        var mouse = this.normalizeMouseInput(event.clientX, event.clientY);
+        this.raycaster.setFromCamera( mouse, camera );
+    } 
+    
     // On désactive la possibilité de sélectionner lorsqu'un movement automatique est en cours
     if (!this.smoothTransitionOn && !this.transitionOn) {   // On vérifie transitionOn pour éviter qu'un deuxième controller effectue une sélection même temps
-        intersections = this.getIntersections(controller);
+        intersections = this.isVRActive? this.getIntersections(controller) : this.raycaster.intersectObjects(this.group_no_move.children);
     }
     //Intersection avec un objet
     if (intersections.length > 0) {
         var intersection = intersections[0];    // On ne conserve que le premier objet traversé
-        var tempMatrix = new THREE.Matrix4();
-        tempMatrix.getInverse(controller.matrixWorld);
         var object = intersection.object;
 
         if (object.type === "Mesh") {
 
             if (object.name === "cursorBackground") { // Selection du curseur
                 this.cursorSelected = true;
-                controller.userData.isSelecting = 1;
-
+                this.isVRActive? controller.userData.isSelecting = true : this.isMouseSelecting = true;
                 // On lance le déplacement automatique si on se trouve à la position initiale
                 if (this.currentPosition.distanceTo(this.bestPositions[this.currentTimestamp]) < 5) {
                     this.transitionOn = true;
@@ -515,6 +540,8 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
                 }
             }
         }
+    } else if (this.isVRActive){
+        this.dragCam = true;
     }
 };
 
@@ -522,6 +549,7 @@ GraphVisualizer.prototype.onSelectEnd = function (event) {
     var controller = event.target;
     this.continuousXMove = 0;
     this.continuousYMove = 0;
+    this.isMouseSelecting = false;
     if (this.cursorSelected) {
         var cursor = this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         var timestampInfos = this.computeTimestampFromPos(cursor.position.x);
@@ -532,11 +560,11 @@ GraphVisualizer.prototype.onSelectEnd = function (event) {
         cursor.material.emissive.b = 0;
         this.cursorSelected = false;
 
-        if (controller.userData.isSelecting) {
+        if (this.isVRActive && controller.userData.isSelecting) {
             // On est potentiellement sorti de la hitbox lors de la selection, donc on remet cette variable à la valeur initiale pour le controller utilise
             this.oldRotationY = 5;
-        }
-        controller.userData.isSelecting = 0;
+            controller.userData.isSelecting = 0;
+        }  
         this.pointedOut = false;
 
         // On accorde l'apparence du graphe avec la position du curseur
@@ -548,6 +576,13 @@ GraphVisualizer.prototype.onSelectEnd = function (event) {
         this.transitionOn = false;
     }
 };
+
+GraphVisualizer.prototype.onMouseMove = function (event) {
+    if (!this.isVRActive){
+        this.mousePos.x = event.clientX;
+        this.mousePos.y = event.clientY;
+    }
+}
 
 
 //https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
@@ -850,11 +885,29 @@ GraphVisualizer.prototype.animate = function () {
 };
 
 
+GraphVisualizer.prototype.inspectKeyboard = function () {
+    if ( this.keyboard.pressed('left') )
+        this.moveInSpace(-1, 0);
+    if ( this.keyboard.pressed('right') )
+        this.moveInSpace(1, 0);
+    if ( this.keyboard.pressed('up') )
+        this.moveInSpace(0, -1);
+    if ( this.keyboard.pressed('down') )
+        this.moveInSpace(0, 1);
+};
+
 GraphVisualizer.prototype.render = function () {
     this.cleanIntersected();
-    var intersection1 = this.intersectObjects(this.controller1);
-    var intersection2 = this.intersectObjects(this.controller2);
-
+    
+    if (!this.isVRActive){
+        this.inspectKeyboard();
+        this.raycaster.setFromCamera(this.normalizeMouseInput(this.mousePos.x, this.mousePos.y), camera);
+        var intersection3 = this.raycaster.intersectObjects(this.group_no_move.children)[0];
+    } else {
+        var intersection1 = this.intersectObjects(this.controller1);
+        var intersection2 = this.intersectObjects(this.controller2);
+    }
+    
     //    Permet de se deplacer en continu avec les fleches
     if ((this.continuousXMove != 0) || (this.continuousYMove != 0)) {
         this.moveInSpace(this.continuousXMove, this.continuousYMove);
@@ -869,12 +922,18 @@ GraphVisualizer.prototype.render = function () {
                 this.pointedOut = true;
                 this.moveCursorFromAllPos(cursor, this.controller1.userData.gamepad.pose.orientation);
             }
-        } else if (controller2.userData.isSelecting) {
+        } else if (this.controller2.userData.isSelecting) {
             if (!this.pointedOut && (intersection2 !== undefined) && (intersection2.object == this.group_no_move.getObjectByName("cursorBackground"))) {
                 this.moveCursorAtUVX(cursor, intersection2.uv.x);
             } else {
                 pointedOut = true;
                 this.moveCursorFromAllPos(cursor, this.controller2.userData.gamepad.pose.orientation);
+            }
+        } else if (this.isMouseSelecting) {
+            if (!this.pointedOut && (intersection3 !== undefined) && (intersection3.object == this.group_no_move.getObjectByName("cursorBackground"))) { 
+                this.moveCursorAtUVX(cursor, intersection3.uv.x);
+            } else {
+                this.pointedOut = true;
             }
         }
         this.fadingTransition(cursor.position.x);
