@@ -19,7 +19,8 @@ var keyboard = new THREEx.KeyboardState();
 var continuousXMove = 0;
 var continuousYMove = 0;
 var pivot;
-var save;
+var save, retour;
+var length_positions_visited;
 var avg_x, avg_y, avg_z;
 
 var saved_group_positions = [];
@@ -250,7 +251,24 @@ function init() {
     group_no_move.add(save);
     intersected.push(save);
 
+    geometry = new THREE.CylinderBufferGeometry(1, 1, 0.1, 50);
+    var texture = new THREE.TextureLoader().load('img/retour.jpg');
     
+    // immediately use the texture for material creation
+    material = new THREE.MeshBasicMaterial({
+                                           map: texture
+                                           });
+    
+    retour = new THREE.Mesh(geometry, material);
+    retour.position.x = 7.5;
+    retour.position.y = -10;
+    retour.position.z = -20;
+    retour.name = 'retour';
+    retour.rotation.x = 0.5 * Math.PI;
+    retour.rotation.y = 0.5 * Math.PI;
+    group_no_move.add(retour);
+    intersected.push(retour);
+
 
 
 
@@ -836,6 +854,8 @@ function cleanIntersected() {
 
 var timeout;
 
+var retour_num;
+
 function mousedown(event) {
     timeout = setInterval(function(){
                           var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
@@ -870,7 +890,7 @@ function mousedown(event) {
                           group.position.set(group.position.x + moveDistance, group.position.y, group.position.z);
                           
                       
-			   } else if (intersects[0].object.name== "cancel") {
+			   } /*else if (intersects[0].object.name== "cancel") {
                           //moveInSpace(-3,0);
                           // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
                           // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
@@ -878,11 +898,12 @@ function mousedown(event) {
                                group.position.set(0,25.1,0);
 			       group.rotation.set(0,0,0);
 			   } else if(intersects[0].object.name == "save") {
-			       saved_group_positions.push(group.position.z);
-			       console.log(saved_group_positions[0]);
-			       console.log(saved_group_positions[1]);
-			       console.log(saved_group_positions[2]);
-				 }
+                          var vec = new THREE.Vector3(0,0,0);
+                          group.localToWorld(vec);
+                          saved_group_positions.push(vec.z);
+                          console.log(saved_group_positions);
+                          
+				 }*/
                           var rotation_matrix = new THREE.Matrix4().identity();
                           var centroid = new THREE.Vector3(avg_x, avg_y, avg_z);
                           if (intersects[0].object.name=="flecheHR") {
@@ -902,6 +923,38 @@ function mousedown(event) {
                           }
                           }
                           }, 100);
+    var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
+    vector = vector.unproject(camera);
+    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+    var intersects = raycaster.intersectObjects(intersected);
+    if (intersects.length > 0) {
+        //Sauvergarde des position
+        if(intersects[0].object.name == "save") {
+            var vec = new THREE.Vector3(0,0,0);
+            group.localToWorld(vec);
+            saved_group_positions.push(vec);
+            
+        }
+    else if (intersects[0].object.name== "cancel") {
+        //moveInSpace(-3,0);
+        // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+        // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+        
+        group.position.set(0,25.1,0);
+        group.rotation.set(0,0,0);
+        }
+    else if (intersects[0].object.name== "retour") {
+        //moveInSpace(-3,0);
+        // var theta = xAxisValue * THREE.Math.degToRad(ROTSTEP);
+        // rotateAboutPoint(group, camera.position, camera.position.clone().normalize(), theta, false);
+        //var vec = new THREE.Vector3(0,0,0);
+        
+        
+        group.position.set(saved_group_positions[saved_group_positions.length - 1].x,saved_group_positions[saved_group_positions.length - 1].y,saved_group_positions[saved_group_positions.length - 1].z);
+        //group.rotation.set(0,0,0);
+    }
+    }
+    console.log(saved_group_positions.length);
     return false;
 }
 
