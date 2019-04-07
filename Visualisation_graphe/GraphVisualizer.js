@@ -570,7 +570,7 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
                 this.group.position.copy(this.savedGroupPosition);
             }
         }
-    } else if (this.isVRActive){
+    } else if (!this.isVRActive){
         this.dragCam = true;
     }
 };
@@ -580,6 +580,7 @@ GraphVisualizer.prototype.onSelectEnd = function (event) {
     this.continuousXMove = 0;
     this.continuousYMove = 0;
     this.isMouseSelecting = false;
+    this.dragCam = false;
     if (this.cursorSelected) {
         var cursor = this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         var timestampInfos = this.computeTimestampFromPos(cursor.position.x);
@@ -846,7 +847,7 @@ GraphVisualizer.prototype.erase_other = function (timestamp) {
 GraphVisualizer.prototype.moveCursorGroup = function () {
     var direction = new THREE.Vector3();
     this.camera.getWorldDirection(direction);
-    this.group_no_move.position.copy(direction).multiplyScalar(10);
+    this.group_no_move.position.copy(this.camera.position).add(direction.multiplyScalar(12));
     this.group_no_move.lookAt(this.camera.position);
 };
 
@@ -910,11 +911,6 @@ GraphVisualizer.prototype.resetButtonToBlue = function () {
     reset.material.emissive.r = 0;
 };
 
-GraphVisualizer.prototype.animate = function () {
-    this.renderer.setAnimationLoop(this.render.bind(this));
-};
-
-
 GraphVisualizer.prototype.inspectKeyboard = function () {
     if ( this.keyboard.pressed('left') )
         this.moveInSpace(-1, 0);
@@ -925,6 +921,11 @@ GraphVisualizer.prototype.inspectKeyboard = function () {
     if ( this.keyboard.pressed('down') )
         this.moveInSpace(0, 1);
 };
+
+GraphVisualizer.prototype.animate = function () {
+    this.renderer.setAnimationLoop(this.render.bind(this));
+};
+
 
 GraphVisualizer.prototype.render = function () {
     this.cleanIntersected();
