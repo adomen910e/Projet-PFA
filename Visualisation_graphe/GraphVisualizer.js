@@ -545,7 +545,7 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
                 this.cursorSelected = true;
                 this.isVRActive? controller.userData.isSelecting = true : this.isMouseSelecting = true;
                 // On lance le deplacement automatique si on se trouve à la position initiale
-                if (this.currentPosition.distanceTo(this.bestPositions[this.currentTimestamp]) < 5) {
+                if (this.currentPosition.distanceTo(this.bestPositions[this.currentTimestamp]) < 1) {
                     this.transitionOn = true;
                 }
                 this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.b = 0.5;
