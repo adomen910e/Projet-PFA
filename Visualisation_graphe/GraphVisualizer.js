@@ -42,7 +42,6 @@ function GraphVisualizer(filename) {
     this.isVRActive = false;
     this.keyboard = new THREEx.KeyboardState();
     this.isMouseSelecting = false;
-    this.dragCam = false;
     this.mousePos = new THREE.Vector2(0,0);
 
     this.intersected = [];
@@ -91,7 +90,7 @@ function GraphVisualizer(filename) {
 
     this.scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
 
-    //mise en place de la lumière
+    // Mise en place de la lumière
     var light = new THREE.DirectionalLight(0xffffff);
     light.position.set(0, 6, 0);
     light.castShadow = false;
@@ -121,7 +120,6 @@ function GraphVisualizer(filename) {
 
         function onReadyStateChange() {
             if (xobj.readyState == 4 && xobj.status == "200") {
-                // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
                 callback = callback.bind(this);
                 callback(xobj.responseText);
             }
@@ -146,10 +144,9 @@ function GraphVisualizer(filename) {
         this.currentPosition.copy(this.group.position);
 
         
-        // Mise en place des noeuds dans les differents timestamps : une geometrie timestamp qui contient les positions de tous les noeuds
+        // Mise en place des noeuds dans les differents timestamps : une geometrie par timestamp qui contient les positions de tous les noeuds
         // On calcule en meme temps le nombre de timestamp maximal et le "centre" du graphe
 
-        //Variables pour le calcul de centre
         var x_cordinates = [];
         var y_cordinates = [];
         var z_cordinates = [];
@@ -287,7 +284,7 @@ function GraphVisualizer(filename) {
         cursorBackground.add(cursorAppearantBackground);
         cursorAppearantBackground.position.z += 0.01;
 
-        // Seuils
+        // Graduations
         for (var i = 0; i < this.NBTIMESTAMPS; i++) {
             var geometry = new THREE.PlaneBufferGeometry(0.1, this.CURSORHEIGHT);
             var material = new THREE.MeshStandardMaterial({
@@ -401,7 +398,7 @@ function GraphVisualizer(filename) {
         fleche_gauche.rotation.y = 0.5 * Math.PI;
         this.group_no_move.add(fleche_gauche);
 
-
+        // Bouton de sauvegarde de la position
         var texture = new THREE.TextureLoader().load('textures/save.jpg');
         material = new THREE.MeshBasicMaterial({
             map: texture
@@ -416,6 +413,7 @@ function GraphVisualizer(filename) {
         save.rotation.y = 0.5 * Math.PI;
         this.group_no_move.add(save);
 
+        // Bouton de retour a la position sauvegardee
         var texture = new THREE.TextureLoader().load('textures/retour.jpg');
 
         material = new THREE.MeshBasicMaterial({
@@ -524,8 +522,6 @@ function GraphVisualizer(filename) {
             handleMesh.position.y = -0.05;
             controllerMesh.add(handleMesh);
             controller.add(controllerMesh);
-            // controller.addEventListener('primary press began', onSelectStart);
-            // controller.addEventListener('primary press ended', onSelectEnd);
             controller.addEventListener('thumbstick axes moved', this.onThumbstickMove.bind(this));
             controller.addEventListener('axes moved', this.onThumbstickMove.bind(this));
             controller.addEventListener('disconnected', function (event) {
@@ -545,7 +541,8 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
 
     if (this.isVRActive){
         var controller = event.target;
-        if (event.clientX !== undefined){ // On empeche les clics pendant qu'on est en realite virtuelle
+        // On empeche les clics pendant qu'on est en realite virtuelle
+        if (event.clientX !== undefined){ 
             return ;
         }
     } else {
@@ -554,31 +551,37 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
     } 
     
     // On desactive la possibilite de selectionner lorsqu'un movement automatique est en cours
-    if (!this.smoothTransitionOn && !this.transitionOn) {   // On verifie transitionOn pour eviter qu'un deuxième controller effectue une selection meme temps
+    // On verifie transitionOn pour eviter qu'un deuxième controller effectue une selection meme temps
+    if (!this.smoothTransitionOn && !this.transitionOn) {   
         intersections = this.isVRActive? this.getIntersections(controller) : this.raycaster.intersectObjects(this.group_no_move.children);
     }
     //Intersection avec un objet
     if (intersections.length > 0) {
-        var intersection = intersections[0];    // On ne conserve que le premier objet traverse
+        // On ne conserve que le premier objet traverse
+        var intersection = intersections[0];    
         var object = intersection.object;
 
         if (object.type === "Mesh") {
 
-            if (object.name === "cursorBackground") { // Selection du curseur
+            // Selection du curseur
+            if (object.name === "cursorBackground") { 
                 this.cursorSelected = true;
                 this.isVRActive? controller.userData.isSelecting = true : this.isMouseSelecting = true;
+
                 // On lance le deplacement automatique si on se trouve à la position initiale
                 if (this.currentPosition.distanceTo(this.bestPositions[this.currentTimestamp]) < 1) {
                     this.transitionOn = true;
                 }
                 this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.b = 0.5;
 
-            } else if ((object.name === "reset_arrow") && !this.transitionOn) { // Bouton de retour à la position initiale
+                // Bouton de retour à la position initiale
+            } else if ((object.name === "reset_arrow") && !this.transitionOn) { 
                 this.smoothTarget.copy(this.bestPositions[this.currentTimestamp].clone().multiplyScalar(-1));
                 this.smoothTransitionOn = true;
                 this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
 
-            } else if (object.name.includes("fleche")){ // Fleches de movement
+                // Fleches de movement
+            } else if (object.name.includes("fleche")){ 
                 if (object.name === "flecheH") { 
                     this.continuousYMove = -this.CAMSTEP;
     
@@ -595,16 +598,18 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
                 if (reset.material.emissive.b == 0) {
                     this.resetButtonToBlue();
                 }
+
+                // Bouton de sauvegarde
             } else if (object.name === "save"){
                 this.savedGroupPosition.copy(this.group.position);
+
+                // Bouton de retour a la position sauvegardee
             } else if (object.name === "back"){
                 this.smoothTarget.copy(this.savedGroupPosition);
                 this.smoothTransitionOn = true;
                 this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
             }
         }
-    } else if (!this.isVRActive){
-        this.dragCam = true;
     }
 };
 
@@ -613,7 +618,7 @@ GraphVisualizer.prototype.onSelectEnd = function (event) {
     this.continuousXMove = 0;
     this.continuousYMove = 0;
     this.isMouseSelecting = false;
-    this.dragCam = false;
+
     if (this.cursorSelected) {
         var cursor = this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
         var timestampInfos = this.computeTimestampFromPos(cursor.position.x);
@@ -633,7 +638,9 @@ GraphVisualizer.prototype.onSelectEnd = function (event) {
 
         // On accorde l'apparence du graphe avec la position du curseur
         this.fadingTransition(cursor.position.x);
-        if (this.transitionOn) { // Deplacement fluide de la camera vers la "best position" du timestamp
+
+        // Deplacement fluide de la camera vers la "best position" du timestamp
+        if (this.transitionOn) { 
             this.smoothTarget.copy(this.bestPositions[this.currentTimestamp].clone().multiplyScalar(-1));
             this.smoothTransitionOn = true;
             cursor.material.emissive.r = 0.5;
@@ -680,12 +687,14 @@ GraphVisualizer.prototype.moveInSpace = function (xAxisValue, yAxisValue, useRot
     this.group.position.add(ymove);
 
     if (useRotate) {
+
         // Le joystick sur le côte permet de tourner la camera
         if (xAxisValue > 0.6) {
             var theta = xAxisValue * THREE.Math.degToRad(this.ROTSTEP);
             this.rotateAboutPoint(this.group, this.camera.position, this.camera.position.clone().normalize(), theta, false);
         }
     } else {
+
         // Le joystick sur le côte permet de se deplacer lateralement (straf)
         var axisOfRotation = this.camera.position.clone().normalize(); // L'axe de la rotation est celui allant de la camera aux "pieds"
         var quad = new THREE.Quaternion().setFromAxisAngle(axisOfRotation, Math.PI / 2);
@@ -701,6 +710,7 @@ GraphVisualizer.prototype.onThumbstickMove = function (event) {
         var y = parseFloat(event.axes[1].toFixed(2));
         this.moveInSpace(x, y);
     }
+
     // On change la couleur du bouton de reset pour notifier qu'il est utilisable
     var reset = this.group_no_move.getObjectByName("reset_arrow");
     if (reset.material.emissive.b == 0) {
@@ -719,9 +729,6 @@ GraphVisualizer.prototype.getIntersections = function (controller) {
 };
 
 GraphVisualizer.prototype.intersectObjects = function (controller) {
-
-    // Do not highlight when already selected
-    if (controller.userData.selected !== undefined) return;
 
     var line = controller.getObjectByName('line');
     var intersections = this.getIntersections(controller);
@@ -749,7 +756,6 @@ GraphVisualizer.prototype.cleanIntersected = function () {
         if (object.name.charAt(0) == 'n') {
             object.material.emissive.b = 0;
         }
-
     }
 };
 
@@ -758,22 +764,27 @@ GraphVisualizer.prototype.computeTimestampFromUV = function (x) {
     if (timestamp < 0) {
         timestamp = 0;
     }
+
     if (timestamp >= this.NBTIMESTAMPS) {
         timestamp = this.NBTIMESTAMPS - 1;
     }
+
     var inf = Math.floor((x * 100) / (100 / (this.NBTIMESTAMPS - 1)));
     if (inf < 0) {
         inf = 0;
     }
+
     var sup = Math.floor((x * 100) / (100 / (this.NBTIMESTAMPS - 1))) + 1;
     if (sup >= this.NBTIMESTAMPS) {
         sup = this.NBTIMESTAMPS - 1;
     }
+
     var returned = {
         timestamp: timestamp,
         previous: inf,
         next: sup
     }
+
     return returned;
 };
 
@@ -813,6 +824,8 @@ GraphVisualizer.prototype.moveCursorFromAllPos = function (cursor, orientation) 
     }
     var diff = this.oldRotationY - eulerRotation.y;
     this.oldRotationY = eulerRotation.y;
+
+    // On ne prend en compte les valeurs qu'a partir d'un certain seuil (1/1000)
     if ((diff * 100 > 0.1) || (diff * 100 < -0.1)) {
         var offset = Math.tan(diff) * (this.CURSORDIST);
         cursor.position.x += offset;
@@ -830,29 +843,43 @@ GraphVisualizer.prototype.fadingTransition = function (x) {
     var transitionPercentage = (x - this.cursorThresholds[infos.previous]) / (this.cursorThresholds[infos.next] - this.cursorThresholds[infos.previous]);
     for (var i = 0; i < this.group.children.length; i++) {
         var mesh = this.group.children[i];
+
         if (mesh.name.includes("timestamp")) {
+            // Lorsqu'on depasse la premiere ou la derniere graduation
             if ((mesh.name.slice(-1) == infos.previous) && (infos.previous == infos.next)) {
                 mesh.material.opacity = 1;
                 mesh.material.visible = true;
                 mesh.material.needsUpdate = true;
+
+                // Graphe du timestamp precedent
             } else if (mesh.name.slice(-1) == infos.previous) {
                 mesh.material.opacity = 1 - transitionPercentage;
+
                 if (mesh.material.opacity <= 0.1) {
                     mesh.material.opacity = 0;
                     mesh.material.visible = false;
+
                 } else if (mesh.material.opacity >= 0.1) {
                     mesh.material.visible = true;
                 }
+
                 mesh.material.needsUpdate = true;
+
+                // Graphe du timestamp suivant
             } else if (mesh.name.slice(-1) == infos.next) {
                 mesh.material.opacity = transitionPercentage;
+
                 if (mesh.material.opacity <= 0.1) {
                     mesh.material.opacity = 0;
                     mesh.material.visible = false;
+
                 } else if (mesh.material.opacity >= 0.1) {
                     mesh.material.visible = true;
                 }
+
                 mesh.material.needsUpdate = true;
+
+                // On n'affiche pas les autres temps
             } else {
                 mesh.material.visible = false;
                 mesh.material.opacity = 0;
@@ -862,41 +889,11 @@ GraphVisualizer.prototype.fadingTransition = function (x) {
     }
 };
 
-
-//Affiche LE bon timestamp en fonction de la sphere selectionnee
-GraphVisualizer.prototype.erase_other = function (timestamp) {
-    for (var i = 0; i < this.group.children.length; i++) {
-        if ((this.group.children[i].name.includes("timestamp"))) {
-            if (this.group.children[i].name.slice(-1) == timestamp) {
-                this.group.children[i].visible = true;
-            } else {
-                this.group.children[i].visible = false;
-            }
-        }
-    }
-    this.currentTimestamp = timestamp;
-};
-
-
 GraphVisualizer.prototype.moveCursorGroup = function () {
     var direction = new THREE.Vector3();
     this.camera.getWorldDirection(direction);
     this.group_no_move.position.copy(this.camera.position).add(direction.multiplyScalar(12));
     this.group_no_move.lookAt(this.camera.position);
-};
-
-GraphVisualizer.prototype.quatFrom2Vectors = function (a, b) {
-    var u = a.clone();
-    var v = b.clone();
-    var cos_theta = u.normalize().dot(v.normalize());
-    var half_cos = Math.sqrt(0.5 * (1.0 + cos_theta));
-    var half_sin = Math.sqrt(0.5 * (1.0 - cos_theta));
-    var w = new THREE.Vector3();
-    w.crossVectors(a, b).normalize();
-    return new THREE.Quaternion(half_sin * w.x,
-        half_sin * w.y,
-        half_sin * w.z,
-        half_cos);
 };
 
 GraphVisualizer.prototype.transitionMovement = function (x) {
@@ -966,7 +963,7 @@ GraphVisualizer.prototype.rotatePitchInv = function (theta) {
     this.rotateAboutPoint(this.group, this.worldCentroid, new THREE.Vector3(0,0,-1),  THREE.Math.degToRad(theta));
 }
 
-
+// Permet le controle au clavier
 GraphVisualizer.prototype.inspectKeyboard = function () {
     if ( this.keyboard.pressed('left') )
         this.moveInSpace(-1, 0);
@@ -985,7 +982,9 @@ GraphVisualizer.prototype.animate = function () {
 
 GraphVisualizer.prototype.render = function () {
     this.cleanIntersected();
-    this.worldCentroid.copy(this.group.localToWorld(this.localCentroid.clone())); // Mise a jour de la position du centre du graphe
+
+    // Mise a jour de la position du centre du graphe
+    this.worldCentroid.copy(this.group.localToWorld(this.localCentroid.clone())); 
     
     if (!this.isVRActive){
         this.inspectKeyboard();
@@ -996,13 +995,20 @@ GraphVisualizer.prototype.render = function () {
         var intersection2 = this.intersectObjects(this.controller2);
     }
     
-    //    Permet de se deplacer en continu avec les fleches
+    // Permet de se deplacer en continu avec les fleches
     if ((this.continuousXMove != 0) || (this.continuousYMove != 0)) {
         this.moveInSpace(this.continuousXMove, this.continuousYMove);
     }
 
+    // L'environnement suit la camera
+    this.moveCursorGroup();
+
     var cursor = this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor");
+
+    // Deplacement du curseur en fonction de la position ou de la rotation du pointeur
     if (this.cursorSelected) {
+
+        // Controller1 a la selection
         if (this.controller1.userData.isSelecting) {
             if (!this.pointedOut && (intersection1 !== undefined) && (intersection1.object == this.group_no_move.getObjectByName("cursorBackground"))) {
                 this.moveCursorAtUVX(cursor, intersection1.uv.x);
@@ -1010,6 +1016,8 @@ GraphVisualizer.prototype.render = function () {
                 this.pointedOut = true;
                 this.moveCursorFromAllPos(cursor, this.controller1.userData.gamepad.pose.orientation);
             }
+
+        // Controller2 a la selection
         } else if (this.controller2.userData.isSelecting) {
             if (!this.pointedOut && (intersection2 !== undefined) && (intersection2.object == this.group_no_move.getObjectByName("cursorBackground"))) {
                 this.moveCursorAtUVX(cursor, intersection2.uv.x);
@@ -1017,6 +1025,8 @@ GraphVisualizer.prototype.render = function () {
                 pointedOut = true;
                 this.moveCursorFromAllPos(cursor, this.controller2.userData.gamepad.pose.orientation);
             }
+
+        // Selection a la souris
         } else if (this.isMouseSelecting) {
             if (!this.pointedOut && (intersection3 !== undefined) && (intersection3.object == this.group_no_move.getObjectByName("cursorBackground"))) { 
                 this.moveCursorAtUVX(cursor, intersection3.uv.x);
@@ -1024,15 +1034,20 @@ GraphVisualizer.prototype.render = function () {
                 this.pointedOut = true;
             }
         }
+        // On met le graphe dans l'etat correspondant a la position du curseur
         this.fadingTransition(cursor.position.x);
     }
-    this.moveCursorGroup();
 
+    // Mouvement lors du changement de temps
     if (this.transitionOn) {
         this.resetButtonToRed();
         this.transitionMovement(cursor.position.x);
     }
+
+    // Mise a jour de la position actuelle
     this.currentPosition.copy(this.group.position).multiplyScalar(-1);
+
+    // Transition douce pour revenir a la position par defaut du timestamp le plus proche
     if (this.smoothTransitionOn) {
         this.resetButtonToRed();
         this.smoothMovement();
@@ -1044,6 +1059,7 @@ GraphVisualizer.prototype.render = function () {
             this.resetButtonToGreen();
         }
     }
+
     THREE.VRController.update();
     this.stats.update();
     this.renderer.render(this.scene, this.camera);
