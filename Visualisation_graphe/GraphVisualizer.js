@@ -147,9 +147,20 @@ function GraphVisualizer(filename) {
 
         
         // Mise en place des noeuds dans les differents timestamps : une geometrie timestamp qui contient les positions de tous les noeuds
-        // On calcule en meme temps le nombre de timestamp maximal
+        // On calcule en meme temps le nombre de timestamp maximal et le "centre" du graphe
+
+        //Variables pour le calcul de centre
+        var x_cordinates = [];
+        var y_cordinates = [];
+        var z_cordinates = [];
+
+        var sum_x, sum_y, sum_z;
+
         for (var i = 0; i < file.nodes.length; i++) {
             var position = new THREE.Vector3(file.nodes[i].pos[0], file.nodes[i].pos[1], file.nodes[i].pos[2]);
+            x_cordinates.push(file.nodes[i].pos[0]);
+            y_cordinates.push(file.nodes[i].pos[1]);
+            z_cordinates.push(file.nodes[i].pos[2]);
 
             for (var j = 0; j < file.nodes[i].timestamp.length; j++) {
                 var timestamp = file.nodes[i].timestamp[j];
@@ -164,6 +175,17 @@ function GraphVisualizer(filename) {
             }
             points.push(position);
         }
+
+        sum_x = x_cordinates.reduce(function(a, b) { return a + b; });
+        sum_y = y_cordinates.reduce(function(a, b) { return a + b; });
+        sum_z = z_cordinates.reduce(function(a, b) { return a + b; });
+        avg_x = sum_x/x_cordinates.length;
+        avg_y = sum_y/y_cordinates.length;
+        avg_z = sum_z/z_cordinates.length;
+
+        this.localCentroid = new THREE.Vector3(avg_x, avg_y, avg_z);
+        this.worldCentroid = new THREE.Vector3();
+        this.worldCentroid.copy(this.group.localToWorld(this.localCentroid.clone()));
 
         // Le nombre total de timestamps est enregistre dans une constante
         Object.defineProperty(this, 'NBTIMESTAMPS', {
@@ -917,6 +939,34 @@ GraphVisualizer.prototype.resetButtonToBlue = function () {
     reset.material.emissive.r = 0;
 };
 
+// Ces fonctions effectuent des rotations relativement aux coordonnées globales, pas a la camera
+// Troisieme parametre (axe de la rotation) a modifier
+
+GraphVisualizer.prototype.rotateUp = function (theta) {
+    this.rotateAboutPoint(this.group, this.worldCentroid, new THREE.Vector3(1,0,0),  THREE.Math.degToRad(theta));
+}
+
+GraphVisualizer.prototype.rotateDown = function (theta) {
+    this.rotateAboutPoint(this.group, this.worldCentroid, new THREE.Vector3(-1,0,0),  THREE.Math.degToRad(theta));
+}
+
+GraphVisualizer.prototype.rotateLeft = function (theta) {
+    this.rotateAboutPoint(this.group, this.worldCentroid, new THREE.Vector3(0,-1,0),  THREE.Math.degToRad(theta));
+}
+
+GraphVisualizer.prototype.rotateRight = function (theta) {
+    this.rotateAboutPoint(this.group, this.worldCentroid, new THREE.Vector3(0,1,0),  THREE.Math.degToRad(theta));
+}
+
+GraphVisualizer.prototype.rotatePitch = function (theta) {
+    this.rotateAboutPoint(this.group, this.worldCentroid, new THREE.Vector3(0,0,1),  THREE.Math.degToRad(theta));
+}
+
+GraphVisualizer.prototype.rotatePitchInv = function (theta) {
+    this.rotateAboutPoint(this.group, this.worldCentroid, new THREE.Vector3(0,0,-1),  THREE.Math.degToRad(theta));
+}
+
+
 GraphVisualizer.prototype.inspectKeyboard = function () {
     if ( this.keyboard.pressed('left') )
         this.moveInSpace(-1, 0);
@@ -935,6 +985,7 @@ GraphVisualizer.prototype.animate = function () {
 
 GraphVisualizer.prototype.render = function () {
     this.cleanIntersected();
+    this.worldCentroid.copy(this.group.localToWorld(this.localCentroid.clone())); // Mise a jour de la position du centre du graphe
     
     if (!this.isVRActive){
         this.inspectKeyboard();
