@@ -56,7 +56,7 @@ function GraphVisualizer(filename) {
     this.cursorThresholds = [];
     this.pointedOut = false;
 
-    this.bestPositions = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -600), new THREE.Vector3(600, 0, -600), new THREE.Vector3(600, 400, -600)];
+    this.bestPositions = [new THREE.Vector3(547, 160, -142), new THREE.Vector3(-386, 1019, -1441), new THREE.Vector3(600, 0, -600), new THREE.Vector3(600, 400, -600)];
     this.bestDirections = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -600), new THREE.Vector3(600, 0, -600), new THREE.Vector3(600, 400, -600)];
     this.savedGroupPosition = new THREE.Vector3();
 
@@ -105,7 +105,7 @@ function GraphVisualizer(filename) {
     this.group = new THREE.Group();
     this.group.type = 'yes';
     this.scene.add(this.group);
-    this.currentPosition.copy(this.group.position);
+    
 
     this.group_no_move = new THREE.Group();
     this.group_no_move.type = 'no';
@@ -140,6 +140,11 @@ function GraphVisualizer(filename) {
         var geoms = [];
 
         var nbtimestamps = 0;
+
+        this.group.position.copy(this.bestPositions[0].clone().multiplyScalar(-1));
+        this.currentPosition.copy(this.group.position);
+
+        
         // Mise en place des noeuds dans les differents timestamps : une geometrie timestamp qui contient les positions de tous les noeuds
         // On calcule en meme temps le nombre de timestamp maximal
         for (var i = 0; i < file.nodes.length; i++) {
@@ -159,7 +164,7 @@ function GraphVisualizer(filename) {
             points.push(position);
         }
 
-        // Le nombre total de timestamps est enregistré dans une constante
+        // Le nombre total de timestamps est enregistre dans une constante
         Object.defineProperty(this, 'NBTIMESTAMPS', {
             value: nbtimestamps,
             writable: false,
@@ -513,23 +518,25 @@ GraphVisualizer.prototype.normalizeMouseInput = function (x, y) {
 }
 
 GraphVisualizer.prototype.onSelectStart = function (event) {
-
     var intersections = [];
 
     if (this.isVRActive){
         var controller = event.target;
+        if (event.clientX !== undefined){ // On empeche les clics pendant qu'on est en realite virtuelle
+            return ;
+        }
     } else {
         var mouse = this.normalizeMouseInput(event.clientX, event.clientY);
         this.raycaster.setFromCamera( mouse, camera );
     } 
     
-    // On désactive la possibilité de sélectionner lorsqu'un movement automatique est en cours
-    if (!this.smoothTransitionOn && !this.transitionOn) {   // On vérifie transitionOn pour éviter qu'un deuxième controller effectue une sélection même temps
+    // On desactive la possibilite de selectionner lorsqu'un movement automatique est en cours
+    if (!this.smoothTransitionOn && !this.transitionOn) {   // On verifie transitionOn pour eviter qu'un deuxième controller effectue une selection meme temps
         intersections = this.isVRActive? this.getIntersections(controller) : this.raycaster.intersectObjects(this.group_no_move.children);
     }
     //Intersection avec un objet
     if (intersections.length > 0) {
-        var intersection = intersections[0];    // On ne conserve que le premier objet traversé
+        var intersection = intersections[0];    // On ne conserve que le premier objet traverse
         var object = intersection.object;
 
         if (object.type === "Mesh") {
@@ -537,7 +544,7 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
             if (object.name === "cursorBackground") { // Selection du curseur
                 this.cursorSelected = true;
                 this.isVRActive? controller.userData.isSelecting = true : this.isMouseSelecting = true;
-                // On lance le déplacement automatique si on se trouve à la position initiale
+                // On lance le deplacement automatique si on se trouve à la position initiale
                 if (this.currentPosition.distanceTo(this.bestPositions[this.currentTimestamp]) < 5) {
                     this.transitionOn = true;
                 }
