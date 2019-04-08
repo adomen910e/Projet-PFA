@@ -62,6 +62,7 @@ function GraphVisualizer(filename) {
 
     this.transitionOn = false;
     this.smoothTransitionOn = false;
+    this.smoothTarget = new THREE.Vector3();
 
     this.continuousXMove = 0;
     this.continuousYMove = 0;
@@ -551,6 +552,7 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
                 this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.b = 0.5;
 
             } else if ((object.name === "reset_arrow") && !this.transitionOn) { // Bouton de retour à la position initiale
+                this.smoothTarget.copy(this.bestPositions[this.currentTimestamp].clone().multiplyScalar(-1));
                 this.smoothTransitionOn = true;
                 this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
 
@@ -574,7 +576,9 @@ GraphVisualizer.prototype.onSelectStart = function (event) {
             } else if (object.name === "save"){
                 this.savedGroupPosition.copy(this.group.position);
             } else if (object.name === "back"){
-                this.group.position.copy(this.savedGroupPosition);
+                this.smoothTarget.copy(this.savedGroupPosition);
+                this.smoothTransitionOn = true;
+                this.group_no_move.getObjectByName("cursorBackground").getObjectByName("cursor").material.emissive.r = 0.5;
             }
         }
     } else if (!this.isVRActive){
@@ -608,6 +612,7 @@ GraphVisualizer.prototype.onSelectEnd = function (event) {
         // On accorde l'apparence du graphe avec la position du curseur
         this.fadingTransition(cursor.position.x);
         if (this.transitionOn) { // Deplacement fluide de la camera vers la "best position" du timestamp
+            this.smoothTarget.copy(this.bestPositions[this.currentTimestamp].clone().multiplyScalar(-1));
             this.smoothTransitionOn = true;
             cursor.material.emissive.r = 0.5;
         }
@@ -881,17 +886,11 @@ GraphVisualizer.prototype.transitionMovement = function (x) {
         pos.lerp(targetPos, transitionPercentage);
         this.group.position.copy(pos);
     }
-
-    // Tentative de rotation du graphe pendant le deplacement pour continuer a observer le meme point
-    /*var quat = group.quaternion;
-    var targetQuat = quatFrom2Vectors(bestDirections[infos.previous].clone().multiplyScalar(-1), bestDirections[infos.next].clone().multiplyScalar(-1));
-    quat.slerp(targetQuat, transitionPercentage);
-    group.quaternion.copy(quat);*/
 };
 
 GraphVisualizer.prototype.smoothMovement = function () {
     var pos = this.group.position.clone();
-    var targetPos = this.bestPositions[this.currentTimestamp].clone().multiplyScalar(-1);
+    var targetPos = this.smoothTarget;
     pos.lerp(targetPos, 0.02);
 
     this.group.position.copy(pos);
@@ -986,8 +985,8 @@ GraphVisualizer.prototype.render = function () {
     if (this.smoothTransitionOn) {
         this.resetButtonToRed();
         this.smoothMovement();
-        if (this.currentPosition.distanceTo(this.bestPositions[this.currentTimestamp]) < 1) {
-            this.group.position.copy(this.bestPositions[this.currentTimestamp].clone().multiplyScalar(-1));
+        if (this.currentPosition.distanceTo(this.smoothTarget.clone().multiplyScalar(-1)) < 1) {
+            this.group.position.copy(this.smoothTarget);
             this.smoothTransitionOn = false;
             this.currentPosition.copy(this.group.position).multiplyScalar(-1);
             cursor.material.emissive.r = 0;
